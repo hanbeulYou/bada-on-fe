@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
@@ -7,6 +7,7 @@ import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
+import useDebounce from '../hooks/useDebounce';
 
 function Home() {
   const [isSearchPage, setIsSearchPage] = useState(false);
@@ -15,9 +16,13 @@ function Home() {
 
   const { dispatch } = useContext(AddressContext);
 
-  const handleEnter = () => {
+  useEffect(() => {
+    setSearchValueDebounce();
+  }, [searchValue]);
+
+  const setSearchValueDebounce = useDebounce(() => {
     dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
-  };
+  }, 200);
 
   const closeSearchPage = () => {
     setSearchValue(originalSearchValue);
@@ -43,7 +48,6 @@ function Home() {
         ) : null}
         <SearchBar
           onClick={openSearchPage}
-          onEnter={handleEnter}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
