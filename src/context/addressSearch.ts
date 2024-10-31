@@ -20,12 +20,13 @@ const addressReducer = (state, action) => {
       };
     case 'SET_HISTORIES':
       return { ...state, histories: action.payload };
-    case 'ADD_HISTORY':
+    case 'ADD_HISTORY': {
       const payloadIdx = state.histories.findIndex(
         ({ id }) => id === action.payload.id,
       );
       if (payloadIdx > -1) state.histories.splice(payloadIdx, 1);
       return { ...state, histories: [action.payload, ...state.histories] };
+    }
     default:
       return state;
   }

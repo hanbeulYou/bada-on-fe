@@ -71,7 +71,7 @@ class IndexedDBManager {
     });
   }
 
-  async add(data: any): Promise<string> {
+  async add(data: object): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         reject('Database is not initialized.');

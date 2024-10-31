@@ -21,10 +21,12 @@ function Home() {
 
   useEffect(() => {
     setSearchValueDebounce();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
   useEffect(() => {
     initIndexedDB();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initIndexedDB = async () => {

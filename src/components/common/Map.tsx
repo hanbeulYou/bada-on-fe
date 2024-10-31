@@ -27,12 +27,14 @@ const JejuMap = () => {
     if (state.searchKeyword) {
       kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kakaoMapManager.current]);
 
   useEffect(() => {
     if (kakaoMapManager.current && state.searchKeyword) {
       kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.searchKeyword]);
 
   useEffect(() => {
