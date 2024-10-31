@@ -97,18 +97,42 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
     rotation: -90,
     circumference: 180,
     events: [],
+    cutout: '60%',
   };
 
   return (
     <ChartWrapper>
       <Doughnut data={data} options={options} />
+      <ChartLabel>
+        <ValueLabel>위험도</ValueLabel>
+        <Value>{chartValue}%</Value>
+      </ChartLabel>
     </ChartWrapper>
   );
 };
 
 const ChartWrapper = styled.div`
-  width: 150px;
-  height: 150px;
+  position: relative;
+  width: 208px;
+  height: 104px;
+`;
+
+const ChartLabel = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const ValueLabel = styled.span`
+  ${theme.typography.Body};
+`;
+
+const Value = styled.span`
+  ${theme.typography.Heading};
 `;
 
 export default DoughnutChart;
