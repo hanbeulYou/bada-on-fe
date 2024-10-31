@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
+import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
@@ -16,6 +17,9 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
+  const [filter, setFilter] = useState('');
+  const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
+  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
 
   const { state, dispatch } = useContext(AddressContext);
 
@@ -60,6 +64,10 @@ function Home() {
     setIsSearching(false);
   };
 
+  const handleFilterChange = (selected: string) => {
+    setFilter(selected);
+  };
+
   const updateCurrentAddress = (address: object) => {
     const MAX_HISTORY = 15;
 
@@ -74,6 +82,10 @@ function Home() {
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
     dbManager.add(address);
     setIsSearchPage(false);
+  };
+
+  const handleClickMarker = (marker: object) => {
+    setSelectedMarker(marker);
   };
 
   return (
@@ -95,10 +107,11 @@ function Home() {
             onDeleteHistory={deleteHistory}
           />
         )}
-        <FilterList />
-        <Map />
+        <FilterList onFilterChange={handleFilterChange} />
+        <Map filter={filter} onClickMarker={handleClickMarker} />
         <BottomSheet>
           <div>Hello World</div>
+          {JSON.stringify(data)}
         </BottomSheet>
       </>
     </Container>

@@ -44,7 +44,7 @@ class KakaoMapManager {
     this.rectangleBounds = new this.mapService.LatLngBounds(..._boundary);
 
     this.map = new this.mapService.Map(this.mapContainer, mapOption);
-    this.map.setMaxLevel(10);
+    this.map.setMinLevel(10);
 
     this.places = new this.placesService();
     this.addMapEventListeners();
@@ -61,34 +61,36 @@ class KakaoMapManager {
     }
   }
 
-  setMarker(place: object): void {
+  setMarker({
+    place,
+    imageSrc = '',
+    movePlace = false,
+    onClick = () => {},
+  }: {
+    place: object;
+    imageSrc?: string;
+    movePlace?: boolean;
+    onClick?: (place: typeof window.kakao.maps.LatLng) => void;
+  }) {
     if (!this.map) return;
 
-    this.removeMarker();
     const bounds = new window.kakao.maps.LatLngBounds();
     const placePosition = new window.kakao.maps.LatLng(place.y, place.x);
-    this.addMarker(placePosition);
+    const marker = this.addMarker(placePosition, imageSrc);
+
     bounds.extend(placePosition);
-    this.map.setBounds(bounds);
+    if (movePlace) this.map.setBounds(bounds);
+
+    window.kakao.maps.event.addListener(marker, 'click', () => {
+      onClick(place);
+    });
   }
 
-  addMarker(position, idx = 0) {
-    // TODO: 마커 이미지 변경하기
-    const imageSrc =
-      'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png'; // 마커 이미지 url, 스프라이트 이미지를 씁니다
-    const imageSize = new window.kakao.maps.Size(36, 37); // 마커 이미지의 크기
-    const imgOptions = {
-      spriteSize: new window.kakao.maps.Size(36, 691), // 스프라이트 이미지의 크기
-      spriteOrigin: new window.kakao.maps.Point(0, idx * 46 + 10), // 스프라이트 이미지 중 사용할 영역의 좌상단 좌표
-      offset: new window.kakao.maps.Point(13, 37), // 마커 좌표에 일치시킬 이미지 내에서의 좌표
-    };
-    const markerImage = new window.kakao.maps.MarkerImage(
-      imageSrc,
-      imageSize,
-      imgOptions,
-    );
+  addMarker(position, imageSrc = '/public/pin/diving.png') {
+    const imageSize = new window.kakao.maps.Size(36, 37);
+    const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
     const marker = new window.kakao.maps.Marker({
-      position: position, // 마커의 위치
+      position: position,
       image: markerImage,
     });
 
@@ -98,7 +100,13 @@ class KakaoMapManager {
     return marker;
   }
 
-  removeMarker() {
+  rerender() {
+    if (this.map) {
+      this.map.relayout();
+    }
+  }
+
+  clearMarker() {
     for (const marker of this.markers) {
       marker.setMap(null);
     }
