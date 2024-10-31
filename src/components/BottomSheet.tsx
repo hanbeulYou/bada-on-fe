@@ -92,7 +92,7 @@ function BottomSheet({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <Handler />
+        {!isFull && <Handler />}
       </HandlerWrapper>
       <Header>
         <Title>{title}</Title>
@@ -239,7 +239,7 @@ const Container = styled.div<{ isFull: boolean }>`
   height: 100vh;
   width: 375px;
   padding: 14px 24px 0px 24px;
-  background-color: #fafafa;
+  background-color: white;
   border: ${props => !props.isFull && '1px solid #e0e0e0'};
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
   transition: bottom 0.5s ease;
@@ -247,6 +247,14 @@ const Container = styled.div<{ isFull: boolean }>`
 
   box-shadow: ${props =>
     !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
+
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE, Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 const HandlerWrapper = styled.div`
@@ -400,6 +408,7 @@ const DetailTitle = styled.div`
 const DetailInfoColContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 8px;
 `;
 
 const DetailInfoRowContainer = styled.div`

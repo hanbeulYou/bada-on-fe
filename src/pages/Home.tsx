@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
-import ContentBox from '../components/common/ContentBox';
+import Icon from '../components/common/Icon';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
@@ -110,13 +110,26 @@ function Home() {
   return (
     <Container>
       <Header>
-        <SearchBar
-          isSearchPage={isSearchPage}
-          onClick={openSearchPage}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          onClickBtnBackward={closeSearchPage}
-        />
+        {isBottomSheetFull ? (
+          <CloseBottomSheet>
+            <button
+              onClick={() => {
+                setIsBottomSheetFull(false);
+                setIsBottomSheetOpen(false);
+              }}
+            >
+              <Icon name="chevron-down" />
+            </button>
+          </CloseBottomSheet>
+        ) : (
+          <SearchBar
+            isSearchPage={isSearchPage}
+            onClick={openSearchPage}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            onClickBtnBackward={closeSearchPage}
+          />
+        )}
       </Header>
       <>
         {isSearchPage && (
@@ -162,6 +175,15 @@ const Header = styled.header`
   align-items: center;
   position: absolute;
   z-index: 12;
+`;
+
+const CloseBottomSheet = styled.div`
+  display: flex;
+  width: 375px;
+  height: 84px;
+  padding: 18px 32px 12px 32px;
+  background-color: ${({ theme }) => theme.colors.white};
+  align-items: center;
 `;
 
 export default Home;
