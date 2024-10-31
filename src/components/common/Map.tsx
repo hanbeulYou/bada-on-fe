@@ -56,7 +56,7 @@ const JejuMap = (props: JejuMapProps) => {
   const addActivityMarkers = () => {
     if (data?.length > 0) {
       data.forEach(item => {
-        const imageSrc = `/public/pin/${filter}.png`;
+        const imageSrc = `/pin/${filter}.png`;
         const { latitude, longitude, ...rest } = item;
         const place = { x: longitude, y: latitude, ...rest };
         kakaoMapManager.current?.setMarker({

@@ -87,7 +87,7 @@ class KakaoMapManager {
     });
   }
 
-  addMarker(position, imageSrc = '/public/pin/diving.png') {
+  addMarker(position, imageSrc = '/pin/diving.png') {
     const imageSize = new window.kakao.maps.Size(36, 37);
     const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
     const marker = new window.kakao.maps.Marker({

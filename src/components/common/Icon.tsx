@@ -6,7 +6,7 @@ interface IconProps extends Omit<SVGProps, 'src'> {
 
 const Icon = (props: IconProps) => {
   const { name, ...rest } = props;
-  const baseURL = '/src/assets/icons';
+  const baseURL = '/icons';
   const src = `${baseURL}/${name}.svg`;
 
   return <SVG src={src} {...rest} />;
