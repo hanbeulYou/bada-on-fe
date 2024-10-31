@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
@@ -7,31 +7,70 @@ import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
+import IndexedDBManager from '../db/IndexedDBManager';
+import useDebounce from '../hooks/useDebounce';
 
 function Home() {
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
 
-  const { dispatch } = useContext(AddressContext);
+  const { state, dispatch } = useContext(AddressContext);
 
-  const handleEnter = () => {
-    dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
+  useEffect(() => {
+    setSearchValueDebounce();
+  }, [searchValue]);
+
+  useEffect(() => {
+    initIndexedDB();
+  }, []);
+
+  const initIndexedDB = async () => {
+    const manager = IndexedDBManager.getInstance('MyDatabase', 'MyStore');
+    await manager.init();
+    setDbManager(manager);
+    const histories = (await manager.getAll()) || [];
+    dispatch({ type: 'SET_HISTORIES', payload: histories });
   };
+
+  const setSearchValueDebounce = useDebounce(() => {
+    dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
+    setIsSearching(searchValue.trim().length > 0);
+  }, 200);
 
   const closeSearchPage = () => {
     setSearchValue(originalSearchValue);
     setIsSearchPage(false);
   };
 
+  const deleteHistory = (id: number) => {
+    if (dbManager) dbManager.delete(id);
+    dispatch({ type: 'DELETE_HISTORY', payload: id });
+  };
+
   const openSearchPage = () => {
+    dispatch({ type: 'SET_SEARCH_RESULTS', payload: [] });
+    setSearchValue('');
     setOriginalSearchValue(searchValue);
     setIsSearchPage(true);
+    setIsSearching(false);
   };
 
   const updateCurrentAddress = (address: object) => {
+    const MAX_HISTORY = 15;
+
+    if (state.histories.length >= MAX_HISTORY) {
+      const oldestHistory = state.histories.at(-1);
+      dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
+      dbManager.delete(oldestHistory.id);
+    }
+
     setSearchValue(address.address_name);
+    dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
+    dbManager.add(address);
     setIsSearchPage(false);
   };
 
@@ -43,14 +82,17 @@ function Home() {
         ) : null}
         <SearchBar
           onClick={openSearchPage}
-          onEnter={handleEnter}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
       </Header>
       <>
         {isSearchPage && (
-          <Search searchValue={searchValue} onClick={updateCurrentAddress} />
+          <Search
+            isSearching={isSearching}
+            onClick={updateCurrentAddress}
+            onDeleteHistory={deleteHistory}
+          />
         )}
         <RollList />
         <Map />
