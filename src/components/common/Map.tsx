@@ -69,6 +69,7 @@ const JejuMap = (props: JejuMapProps) => {
   useEffect(() => {
     if (kakaoMapManager.current) {
       kakaoMapManager.current.clearMarker();
+      // TODO: 만약 현재 위치에 대한 액티비티 정보가 있다면 마커를 추가한다.
       kakaoMapManager.current.setMarker({
         place: state.currentAddress,
         movePlace: true,
