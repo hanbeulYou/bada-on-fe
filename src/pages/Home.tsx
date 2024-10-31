@@ -32,7 +32,6 @@ function Home() {
     await manager.init();
     setDbManager(manager);
     const histories = (await manager.getAll()) || [];
-    console.log('histories', histories);
     dispatch({ type: 'SET_HISTORIES', payload: histories });
   };
 
