@@ -2,7 +2,7 @@ type KakaoMapManagerProps = {
   mapContainer: HTMLDivElement;
   placesService?: typeof window.kakao.maps.services.Places;
   mapService?: typeof window.kakao.maps;
-  alertService?: (message: string) => void;
+  boundary?: [number, number][];
 };
 
 // TODO: 검색 기능 연결하면서 핸들링 로직 추가
@@ -13,7 +13,6 @@ class KakaoMapManager {
   private places: typeof window.kakao.maps.services.Places | null;
   private placesService: typeof window.kakao.maps.services.Places;
   private mapService: typeof window.kakao.maps;
-  private alertService: (message: string) => void;
   private rectangleBounds: typeof window.kakao.maps.LatLngBounds;
   private boundary: [number, number][];
 
@@ -21,7 +20,6 @@ class KakaoMapManager {
     mapContainer,
     placesService = window.kakao.maps.services.Places,
     mapService = window.kakao.maps,
-    alertService = alert,
     boundary = [],
   }: KakaoMapManagerProps) {
     this.markers = [];
@@ -30,7 +28,6 @@ class KakaoMapManager {
     this.places = null;
     this.placesService = placesService;
     this.mapService = mapService;
-    this.alertService = alertService;
     this.rectangleBounds = [];
     this.boundary = boundary;
   }
@@ -64,7 +61,7 @@ class KakaoMapManager {
     }
   }
 
-  setMarker(place: any): void {
+  setMarker(place: object): void {
     if (!this.map) return;
 
     this.removeMarker();
@@ -165,7 +162,7 @@ class KakaoMapManager {
   placesSearchCB(
     data: (typeof window.kakao.maps.services.PlacesSearchResult)[],
     status: typeof window.kakao.maps.services.Status,
-    onSearch: (data: any, status: any) => void,
+    onSearch: (data: object, status: string, currStatus: string) => void,
   ): void {
     const currStatus = window.kakao.maps.services.Status;
     onSearch(data, status, currStatus);

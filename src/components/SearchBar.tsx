@@ -28,7 +28,6 @@ type SearchBarProps = {
 // 검색바 컴포넌트입니다.
 const SearchBar: React.FC<SearchBarProps> = ({
   onClick,
-  onEnter,
   searchValue,
   setSearchValue,
 }) => {
@@ -38,12 +37,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleKeyup = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && onEnter) {
-      e.preventDefault();
-      inputRef.current?.blur();
-      onEnter();
-    }
+  const handleClear = () => {
+    setSearchValue('');
   };
 
   return (
@@ -53,9 +48,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
         type="text"
         value={searchValue}
         onChange={handleInputChange}
-        onKeyUp={handleKeyup}
         placeholder="Search..."
       />
+      <button onClick={handleClear}>삭제염</button>
     </SearchBarContainer>
   );
 };

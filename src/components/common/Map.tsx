@@ -10,26 +10,31 @@ const JejuMap = () => {
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
 
   useEffect(() => {
-    if (mapContainer.current) {
-      const args = {
-        mapContainer: mapContainer.current,
-        boundary: [
-          [33.086415360763105, 126.07509577087393],
-          [33.628831954811545, 126.98830359334572],
-        ],
-      };
-      kakaoMapManager.current = new KakaoMapManager(args);
-      kakaoMapManager.current.initializeMap(33.3617, 126.5292);
-      if (state.searchKeyword) {
-        kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
-      }
-    }
+    const args = {
+      mapContainer: mapContainer.current,
+      boundary: [
+        [33.086415360763105, 126.07509577087393],
+        [33.628831954811545, 126.98830359334572],
+      ],
+    };
+    kakaoMapManager.current = new KakaoMapManager(args);
   }, []);
+
+  useEffect(() => {
+    if (!kakaoMapManager.current) return;
+
+    kakaoMapManager.current.initializeMap(33.3617, 126.5292);
+    if (state.searchKeyword) {
+      kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kakaoMapManager.current]);
 
   useEffect(() => {
     if (kakaoMapManager.current && state.searchKeyword) {
       kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.searchKeyword]);
 
   useEffect(() => {
