@@ -44,41 +44,49 @@ const theme = {
       font-weight: 700;
       font-size: 22px;
       line-height: 1.3;
+      letter-spacing: -0.22px;
     `,
     Title_1_Bold: `
       font-weight: 600;
       font-size: 16px;
       line-height: 1.3;
+      letter-spacing: -0.16px;
     `,
     Title_1: `
       font-weight: 500;
       font-size: 16px;
       line-height: 1.3;
+      letter-spacing: -0.16px;
     `,
     Title_2_Bold: `
       font-weight: 600;
       font-size: 15px;
       line-height: 1.3;
+      letter-spacing: -0.15px;
     `,
     Title_2: `
       font-weight: 500;
       font-size: 15px;
       line-height: 1.3;
+      letter-spacing: -0.15px;
     `,
     Body_Bold: `
       font-weight: 600;
       font-size: 14px;
       line-height: 1.28;
+      letter-spacing: -0.14px;
     `,
     Body: `
       font-weight: 500;
       font-size: 14px;
       line-height: 1.28;
+      letter-spacing: -0.14px;
     `,
     Label: `
       font-weight: 400;
       font-size: 12px;
       line-height: 1.28;
+      letter-spacing: -0.12px;
     `,
   },
 };
