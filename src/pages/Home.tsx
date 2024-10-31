@@ -17,7 +17,7 @@ function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
 
-  const { dispatch } = useContext(AddressContext);
+  const { state, dispatch } = useContext(AddressContext);
 
   useEffect(() => {
     setSearchValueDebounce();
@@ -59,6 +59,14 @@ function Home() {
   };
 
   const updateCurrentAddress = (address: object) => {
+    const MAX_HISTORY = 15;
+
+    if (state.histories.length >= MAX_HISTORY) {
+      const oldestHistory = state.histories.at(-1);
+      dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
+      dbManager.delete(oldestHistory.id);
+    }
+
     setSearchValue(address.address_name);
     dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });

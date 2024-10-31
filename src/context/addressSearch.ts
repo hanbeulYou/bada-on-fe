@@ -25,7 +25,7 @@ const addressReducer = (state, action) => {
         ({ id }) => id === action.payload.id,
       );
       if (payloadIdx > -1) state.histories.splice(payloadIdx, 1);
-      return { ...state, histories: [...state.histories, action.payload] };
+      return { ...state, histories: [action.payload, ...state.histories] };
     default:
       return state;
   }
