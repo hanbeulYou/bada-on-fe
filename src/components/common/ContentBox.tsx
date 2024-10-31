@@ -7,10 +7,12 @@ interface Item {
 }
 
 type Variant = 'default' | 'warning';
+type justifyContent = 'flex-start' | 'space-between';
 
 interface ContentBoxProps {
   title?: string;
   data: Array<Item | string | number>;
+  justifyContent?: justifyContent;
   variant?: Variant;
 }
 
@@ -42,9 +44,9 @@ const Text = styled.span<{ variant: Variant }>`
   letter-spacing: -0.014rem;
 `;
 
-const Item = styled.div`
+const Item = styled.div<{ justifyContent: justifyContent }>`
   display: flex;
-  justify-content: flex-start;
+  justify-content: ${props => props.justifyContent};
   gap: 12px;
 `;
 
@@ -56,13 +58,18 @@ const Title = styled.h3<{ variant: Variant }>`
 `;
 
 const ContentBox = (props: ContentBoxProps) => {
-  const { title, data, variant = 'default' } = props;
+  const {
+    title,
+    data,
+    variant = 'default',
+    justifyContent = 'flex-start',
+  } = props;
   return (
     <>
       {title && <Title variant={variant}>{title}</Title>}
       <Container variant={variant}>
         {data.map((item, index) => (
-          <Item key={index}>
+          <Item key={index} justifyContent={justifyContent}>
             {typeof item === 'object' ? (
               <>
                 <Text variant={variant}>{item.label}</Text>

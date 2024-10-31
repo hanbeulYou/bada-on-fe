@@ -117,6 +117,7 @@ function Home() {
           <ContentBox
             title="Title"
             variant="warning"
+            justifyContent="flex-start" // or 'space-between'
             data={[
               { label: 'aa', value: '231313212' },
               { label: 'bb', value: '231313212' },
