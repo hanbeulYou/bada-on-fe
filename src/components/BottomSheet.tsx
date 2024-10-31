@@ -118,10 +118,27 @@ function BottomSheet({
       </RecommendContainer>
       {isFull && (
         <DetailContainer>
-          <HorizontalLine />
+          <HorizontalLineLg />
           <DetailInfoContainer>
             <DetailTitle>상세정보</DetailTitle>
-            {/* TODO: 일단 밑에부터 */}
+            <DetailInfoColContainer>
+              <DetailInfoRowContainer>
+                <FlexBox>
+                  <span>화장실</span>
+                  <span>없음</span>
+                </FlexBox>
+                <FlexBox>
+                  <span>샤워실</span>
+                  <span>없음</span>
+                </FlexBox>
+              </DetailInfoRowContainer>
+
+              <FlexBox>
+                <span>최근 사고 발생</span>
+                <span>최근 1년간 8번</span>
+              </FlexBox>
+            </DetailInfoColContainer>
+            <HorizontalLineSm />
             <DetailContentContainer>
               <ContentBox
                 title="물때"
@@ -170,6 +187,28 @@ function BottomSheet({
               <ContentBox title="유속" data={['53.7cm/s']} />
               <ContentBox title="수온" data={['23°']} />
             </DetailContentContainer>
+            <HorizontalLineSm />
+            <PhoneContainer>
+              <PhoneTitle>해수욕장 근처 긴급 구조대 연락처</PhoneTitle>
+              <PhoneContentContainer>
+                <PhoneContent>
+                  <PhoneType>경찰</PhoneType>
+                  <PhoneNum>구좌파출소(783-2112)</PhoneNum>
+                </PhoneContent>
+                <PhoneContent>
+                  <PhoneType>소방</PhoneType>
+                  <PhoneNum>구좌119센터(783-0119)</PhoneNum>
+                </PhoneContent>
+                <PhoneContent>
+                  <PhoneType>지원세력</PhoneType>
+                  <PhoneNum>구좌읍사무소(783-3001)</PhoneNum>
+                </PhoneContent>
+                <PhoneContent>
+                  <PhoneType>보건소</PhoneType>
+                  <PhoneNum>제주동부보건소(783-2504)</PhoneNum>
+                </PhoneContent>
+              </PhoneContentContainer>
+            </PhoneContainer>
           </DetailInfoContainer>
         </DetailContainer>
       )}
@@ -334,24 +373,93 @@ const DetailContainer = styled.div`
   margin-top: 24px;
 `;
 
-const HorizontalLine = styled.div`
+const HorizontalLineLg = styled.div`
   height: 6px;
   width: 375px;
+  background-color: ${({ theme }) => theme.colors.gray100};
+`;
+
+const HorizontalLineSm = styled.div`
+  height: 2px;
+  width: 329px;
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
 const DetailInfoContainer = styled.div`
   width: 100%;
   padding: 24px;
+
+  margin-bottom: 160px;
 `;
 
-const DetailTitle = styled.div``;
+const DetailTitle = styled.div`
+  ${({ theme }) => theme.typography.Title_1_Bold};
+  margin-bottom: 24px;
+`;
+
+const DetailInfoColContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const DetailInfoRowContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+`;
+
+const FlexBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.colors.gray50};
+`;
 
 const DetailContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 160px;
+  margin: 12px 0;
+`;
+
+const PhoneContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 24px;
+`;
+
+const PhoneTitle = styled.div`
+  ${({ theme }) => theme.typography.Body_Bold};
+  color: ${({ theme }) => theme.colors.red500};
+  margin-bottom: 8px;
+`;
+
+const PhoneContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: ${({ theme }) => theme.colors.red50};
+  padding: 12px;
+`;
+
+const PhoneContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 8px;
+`;
+
+const PhoneType = styled.div`
+  ${({ theme }) => theme.typography.Body_Bold};
+`;
+
+const PhoneNum = styled.div`
+  ${({ theme }) => theme.typography.Body};
 `;
 
 export default BottomSheet;
