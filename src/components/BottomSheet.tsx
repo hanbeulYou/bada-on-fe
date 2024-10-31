@@ -232,10 +232,10 @@ function BottomSheet({
 const Container = styled.div<{ isFull: boolean }>`
   position: fixed;
   display: flex;
+  left: 50%;
+  transform: translateX(-50%);
   flex-direction: column;
   align-items: center;
-  left: 0;
-  right: 0;
   z-index: 1;
   height: 100vh;
   width: 375px;
