@@ -112,6 +112,7 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
 };
 
 const ChartWrapper = styled.div`
+  display: flex;
   position: relative;
   width: 208px;
   height: 104px;

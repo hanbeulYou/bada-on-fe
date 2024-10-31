@@ -11,6 +11,16 @@ import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 
 function Home() {
+  const EXAMPLE_DATA = {
+    title: '세기알 해변',
+    alert: '다이빙 금지 구역 (간조 시간 절대 금지)',
+    dangerValue: 73,
+    recommends: [
+      { title: '스노클링', description: '맑은 시야 덕분에 강력 추천!' },
+      { title: '해수욕', description: '잔잔한 파도로 편안하게 즐기기 좋아요' },
+    ],
+    now: 19,
+  };
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
@@ -98,9 +108,13 @@ function Home() {
         )}
         <FilterList />
         <Map />
-        <BottomSheet>
-          <div>Hello World</div>
-        </BottomSheet>
+        <BottomSheet
+          title={EXAMPLE_DATA.title}
+          alert={EXAMPLE_DATA.alert}
+          dangerValue={EXAMPLE_DATA.dangerValue}
+          recommends={EXAMPLE_DATA.recommends}
+          now={EXAMPLE_DATA.now}
+        />
       </>
     </Container>
   );
