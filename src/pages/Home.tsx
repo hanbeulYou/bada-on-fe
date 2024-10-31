@@ -79,13 +79,12 @@ function Home() {
   return (
     <Container>
       <Header>
-        {isSearchPage ? (
-          <CloseButton onClick={closeSearchPage}>X</CloseButton>
-        ) : null}
         <SearchBar
+          isSearchPage={isSearchPage}
           onClick={openSearchPage}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          onClickBtnBackward={closeSearchPage}
         />
       </Header>
       <>
