@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
+import { AddressContext } from '../../context/AddressContext';
 import KakaoMapManager from '../../helpers/kakaoMapManger';
 
 const JejuMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const [keyword, setKeyword] = useState('제주도');
+  const { dispatch, state } = useContext(AddressContext);
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
 
   useEffect(() => {
@@ -19,43 +20,43 @@ const JejuMap = () => {
       };
       kakaoMapManager.current = new KakaoMapManager(args);
       kakaoMapManager.current.initializeMap(33.3617, 126.5292);
-      kakaoMapManager.current.searchPlaces(keyword);
+      if (state.searchKeyword) {
+        kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
+      }
     }
   }, []);
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (kakaoMapManager.current && state.searchKeyword) {
+      kakaoMapManager.current.searchPlaces(state.searchKeyword, onSearch);
+    }
+  }, [state.searchKeyword]);
+
+  useEffect(() => {
     if (kakaoMapManager.current) {
-      kakaoMapManager.current.searchPlaces(keyword);
+      kakaoMapManager.current.setMarker(state.currentAddress);
+    }
+  }, [state.currentAddress]);
+
+  const onSearch = (places, status, currStatus) => {
+    const JEJUPlaces = places.filter(place => {
+      return place.address_name.includes('제주특별자치도');
+    });
+    const hasInvalidPlaces = places.length > JEJUPlaces.length;
+
+    // TODO: 핸들링 추가하기
+    if (JEJUPlaces.length === 0 && hasInvalidPlaces) {
+      // alert('제주특별자치도에 해당하는 장소가 없습니다');
+    } else if (status === currStatus.OK) {
+      dispatch({ type: 'SET_SEARCH_RESULTS', payload: JEJUPlaces });
+    } else if (status === currStatus.ZERO_RESULT) {
+      // alert('검색 결과가 존재하지 않습니다.');
+    } else if (status === currStatus.ERROR) {
+      // alert('검색 결과 중 오류가 발생했습니다.');
     }
   };
 
-  return (
-    <div>
-      <Container id="map" ref={mapContainer}></Container>
-
-      <div id="menu_wrap" className="bg_white">
-        <div className="option">
-          <div>
-            <form onSubmit={handleSearch}>
-              키워드 :
-              <input
-                type="text"
-                value={keyword}
-                onChange={e => setKeyword(e.target.value)}
-                id="keyword"
-                size="15"
-              />
-              <button type="submit">검색하기</button>
-            </form>
-          </div>
-        </div>
-        <hr />
-        <ul id="placesList"></ul>
-        <div id="pagination"></div>
-      </div>
-    </div>
-  );
+  return <Container id="map" ref={mapContainer}></Container>;
 };
 
 export default JejuMap;

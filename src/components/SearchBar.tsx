@@ -38,8 +38,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyup = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onEnter) {
+      e.preventDefault();
       inputRef.current?.blur();
       onEnter();
     }
@@ -52,7 +53,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         type="text"
         value={searchValue}
         onChange={handleInputChange}
-        onKeyDown={handleKeydown}
+        onKeyUp={handleKeyup}
         placeholder="Search..."
       />
     </SearchBarContainer>

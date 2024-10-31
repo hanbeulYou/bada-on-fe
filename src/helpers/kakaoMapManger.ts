@@ -64,6 +64,50 @@ class KakaoMapManager {
     }
   }
 
+  setMarker(place: any): void {
+    if (!this.map) return;
+
+    this.removeMarker();
+    const bounds = new window.kakao.maps.LatLngBounds();
+    const placePosition = new window.kakao.maps.LatLng(place.y, place.x);
+    this.addMarker(placePosition);
+    bounds.extend(placePosition);
+    this.map.setBounds(bounds);
+  }
+
+  addMarker(position, idx = 0) {
+    // TODO: 마커 이미지 변경하기
+    const imageSrc =
+      'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png'; // 마커 이미지 url, 스프라이트 이미지를 씁니다
+    const imageSize = new window.kakao.maps.Size(36, 37); // 마커 이미지의 크기
+    const imgOptions = {
+      spriteSize: new window.kakao.maps.Size(36, 691), // 스프라이트 이미지의 크기
+      spriteOrigin: new window.kakao.maps.Point(0, idx * 46 + 10), // 스프라이트 이미지 중 사용할 영역의 좌상단 좌표
+      offset: new window.kakao.maps.Point(13, 37), // 마커 좌표에 일치시킬 이미지 내에서의 좌표
+    };
+    const markerImage = new window.kakao.maps.MarkerImage(
+      imageSrc,
+      imageSize,
+      imgOptions,
+    );
+    const marker = new window.kakao.maps.Marker({
+      position: position, // 마커의 위치
+      image: markerImage,
+    });
+
+    marker.setMap(this.map);
+    this.markers.push(marker);
+
+    return marker;
+  }
+
+  removeMarker() {
+    for (const marker of this.markers) {
+      marker.setMap(null);
+    }
+    this.markers = [];
+  }
+
   restrictMapBounds(): void {
     if (!this.map) return;
     const bounds = this.map.getBounds();
@@ -106,14 +150,14 @@ class KakaoMapManager {
     this.restrictMapBounds();
   }
 
-  searchPlaces(keyword: string): void {
+  searchPlaces(keyword: string, onSearch): void {
     if (!keyword.trim()) {
-      this.alertService('키워드를 입력해주세요!');
+      alert('키워드를 입력해주세요!');
       return;
     }
     if (this.places) {
       this.places.keywordSearch(keyword, (data, status) =>
-        this.placesSearchCB(data, status),
+        this.placesSearchCB(data, status, onSearch),
       );
     }
   }
@@ -121,126 +165,10 @@ class KakaoMapManager {
   placesSearchCB(
     data: (typeof window.kakao.maps.services.PlacesSearchResult)[],
     status: typeof window.kakao.maps.services.Status,
+    onSearch: (data: any, status: any) => void,
   ): void {
-    const serviceStatus = window.kakao.maps.services.Status;
-
-    const JEJUPlaces = data.filter(place => {
-      return place.address_name.includes('제주특별자치도');
-    });
-
-    const hasInvalidPlaces = data.length > JEJUPlaces.length;
-
-    if (JEJUPlaces.length === 0) {
-      if (hasInvalidPlaces) {
-        this.alertService('제주특별자치도에 해당하는 장소가 없습니다');
-      } else this.alertService('검색 결과가 존재하지 않습니다');
-    } else if (status === serviceStatus.OK) {
-      this.displayPlaces(JEJUPlaces);
-    } else if (status === serviceStatus.ZERO_RESULT) {
-      this.alertService('검색 결과가 존재하지 않습니다.');
-    } else if (status === serviceStatus.ERROR) {
-      this.alertService('검색 결과 중 오류가 발생했습니다.');
-    }
-  }
-
-  displayPlaces(
-    places: (typeof window.kakao.maps.services.PlacesSearchResult)[],
-  ): void {
-    const listEl = document.getElementById('placesList') as HTMLElement;
-    const menuEl = document.getElementById('menu_wrap') as HTMLElement;
-    const fragment = document.createDocumentFragment();
-    const bounds = new this.mapService.LatLngBounds();
-
-    this.removeAllChildNodes(listEl);
-    this.removeMarker();
-
-    places.forEach((place, i) => {
-      const placePosition = new this.mapService.LatLng(place.y, place.x);
-      const marker = this.addMarker(placePosition, i);
-      const itemEl = this.getListItem(i, place);
-
-      bounds.extend(placePosition);
-      fragment.appendChild(itemEl);
-    });
-
-    listEl.appendChild(fragment);
-    menuEl.scrollTop = 0;
-    this.map?.setBounds(bounds);
-  }
-
-  getListItem(
-    index: number,
-    place: typeof window.kakao.maps.services.PlacesSearchResult,
-  ): HTMLLIElement {
-    const el = document.createElement('li');
-    let itemStr =
-      '<span class="markerbg marker_' +
-      (index + 1) +
-      '"></span>' +
-      '<div class="info">' +
-      '   <h5>' +
-      place.place_name +
-      '</h5>';
-
-    if (place.road_address_name) {
-      itemStr +=
-        '    <span>' +
-        place.road_address_name +
-        '</span>' +
-        '   <span class="jibun gray">' +
-        place.address_name +
-        '</span>';
-    } else {
-      itemStr += '    <span>' + place.address_name + '</span>';
-    }
-
-    itemStr += '  <span class="tel">' + place.phone + '</span></div>';
-
-    el.innerHTML = itemStr;
-    el.className = 'item';
-
-    return el;
-  }
-
-  addMarker(
-    position: typeof window.kakao.maps.LatLng,
-    idx: number,
-  ): typeof window.kakao.maps.Marker {
-    const imageSrc =
-      'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png';
-    const imageSize = new this.mapService.Size(36, 37);
-    const imgOptions = {
-      spriteSize: new this.mapService.Size(36, 691),
-      spriteOrigin: new this.mapService.Point(0, idx * 46 + 10),
-      offset: new this.mapService.Point(13, 37),
-    };
-    const markerImage = new this.mapService.MarkerImage(
-      imageSrc,
-      imageSize,
-      imgOptions,
-    );
-    const marker = new this.mapService.Marker({
-      position: position,
-      image: markerImage,
-    });
-
-    marker.setMap(this.map);
-    this.markers.push(marker);
-
-    return marker;
-  }
-
-  removeMarker(): void {
-    this.markers.forEach(marker => {
-      marker.setMap(null);
-    });
-    this.markers = [];
-  }
-
-  removeAllChildNodes(el: HTMLElement): void {
-    while (el.hasChildNodes()) {
-      el.removeChild(el.lastChild!);
-    }
+    const currStatus = window.kakao.maps.services.Status;
+    onSearch(data, status, currStatus);
   }
 }
 

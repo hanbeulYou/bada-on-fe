@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
@@ -6,20 +6,32 @@ import Map from '../components/common/Map';
 import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
-import localKey from '../consts/localKey';
+import { AddressContext } from '../context/AddressContext';
 
 function Home() {
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [originalSearchValue, setOriginalSearchValue] = useState('');
+
+  const { dispatch } = useContext(AddressContext);
 
   const handleEnter = () => {
-    sessionStorage.setItem(localKey.searchKeyword, searchValue); // TODO: 키를 상수로 분리
-    closeSearchPage();
+    dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
   };
 
   const closeSearchPage = () => {
-    const localSearchValue = sessionStorage.getItem(localKey.searchKeyword);
-    setSearchValue(localSearchValue || '');
+    setSearchValue(originalSearchValue);
+    setIsSearchPage(false);
+  };
+
+  const openSearchPage = () => {
+    setOriginalSearchValue(searchValue);
+    setIsSearchPage(true);
+  };
+
+  const updateCurrentAddress = (address: object) => {
+    setSearchValue(address.address_name);
+    dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
     setIsSearchPage(false);
   };
 
@@ -30,23 +42,22 @@ function Home() {
           <CloseButton onClick={closeSearchPage}>X</CloseButton>
         ) : null}
         <SearchBar
-          onClick={() => !isSearchPage && setIsSearchPage(prev => !prev)}
+          onClick={openSearchPage}
           onEnter={handleEnter}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
       </Header>
-      {isSearchPage ? (
-        <Search searchValue={searchValue} />
-      ) : (
-        <>
-          <RollList />
-          <Map />
-          <BottomSheet>
-            <div>Hello World</div>
-          </BottomSheet>
-        </>
-      )}
+      <>
+        {isSearchPage && (
+          <Search searchValue={searchValue} onClick={updateCurrentAddress} />
+        )}
+        <RollList />
+        <Map />
+        <BottomSheet>
+          <div>Hello World</div>
+        </BottomSheet>
+      </>
     </Container>
   );
 }
@@ -59,7 +70,7 @@ const Header = styled.header`
   flex-direction: row;
   align-items: center;
   position: absolute;
-  z-index: 2;
+  z-index: 12;
 `;
 
 const CloseButton = styled.div`
