@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Background_img from '../assets/Background_Img.png';
 import ButtonGrid from '../components/ButtonGrid';
 import FooterButton from '../components/common/FooterButton';
-import { labelMapping } from '../components/common/IntroButton';
+import { LABEL_MAPPING } from '../consts/label';
 
 const Intro: React.FC = () => {
   const [clickedLabels, setClickedLabels] = useState<Record<string, boolean>>(
@@ -18,7 +18,7 @@ const Intro: React.FC = () => {
       key => clickedLabels[key],
     );
     const urlParams = selectedLabels
-      .map(label => `selected=${labelMapping[label]}`)
+      .map(label => `selected=${LABEL_MAPPING[label]}`)
       .join('&');
     navigate(`/home?${urlParams}`);
   };
