@@ -35,7 +35,7 @@ class KakaoMapManager {
   initializeMap(latitude: number, longitude: number): void {
     const mapOption: typeof window.kakao.maps.MapOptions = {
       center: new this.mapService.LatLng(latitude, longitude),
-      level: 3,
+      level: 10,
     };
     const _boundary = [];
     for (const bound of this.boundary) {

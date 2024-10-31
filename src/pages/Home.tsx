@@ -79,13 +79,12 @@ function Home() {
   return (
     <Container>
       <Header>
-        {isSearchPage ? (
-          <CloseButton onClick={closeSearchPage}>X</CloseButton>
-        ) : null}
         <SearchBar
+          isSearchPage={isSearchPage}
           onClick={openSearchPage}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          onClickBtnBackward={closeSearchPage}
         />
       </Header>
       <>
@@ -115,12 +114,6 @@ const Header = styled.header`
   align-items: center;
   position: absolute;
   z-index: 12;
-`;
-
-const CloseButton = styled.div`
-  position: relative;
-  display: flex;
-  padding-left: 16px;
 `;
 
 export default Home;

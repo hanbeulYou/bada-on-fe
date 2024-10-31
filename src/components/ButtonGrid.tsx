@@ -5,10 +5,8 @@ import { DISABLED_LABELS, Label, LABELS } from '../consts/label';
 import IntroButton from './common/IntroButton';
 
 interface ButtonGridProps {
-  clickedLabels: Record<string, boolean>;
-  setClickedLabels: React.Dispatch<
-    React.SetStateAction<Record<string, boolean>>
-  >;
+  clickedLabel: Label | '';
+  setClickedLabel: (label: Label) => void;
 }
 
 const ButtonContainer = styled.div`
@@ -17,15 +15,9 @@ const ButtonContainer = styled.div`
   gap: 16px;
 `;
 
-const ButtonGrid: React.FC<ButtonGridProps> = ({
-  clickedLabels,
-  setClickedLabels,
-}) => {
+const ButtonGrid = ({ clickedLabel, setClickedLabel }: ButtonGridProps) => {
   const handleButtonClick = (label: Label) => {
-    setClickedLabels(prev => ({
-      ...prev,
-      [label]: !prev[label],
-    }));
+    setClickedLabel(label);
   };
 
   return (
@@ -35,7 +27,7 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({
           key={label}
           label={label}
           onClick={handleButtonClick}
-          isClicked={!!clickedLabels[label]}
+          isClicked={!!clickedLabel && clickedLabel === label}
           disabled={DISABLED_LABELS.includes(label)}
         />
       ))}
