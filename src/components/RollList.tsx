@@ -17,9 +17,13 @@ const RollList: React.FC = () => {
 };
 
 const RollListContainer = styled.div`
+  width: 100%;
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
+  position: absolute;
+  z-index: 2;
+  top: 71px; // TODO: 헤더 높이를 변수로 주도록
 
   /* 스크롤 바 숨기기 (웹킷 브라우저) */
   &::-webkit-scrollbar {

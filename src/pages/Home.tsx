@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
+import Map from '../components/common/Map';
 import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
@@ -27,7 +28,7 @@ function Home() {
       ) : (
         <>
           <RollList />
-          <MapTmp />
+          <Map />
           <BottomSheet>
             <div>Hello World</div>
           </BottomSheet>
@@ -37,12 +38,6 @@ function Home() {
   );
 }
 
-const MapTmp = styled.div`
-  width: 100vw;
-  height: 100vh;
-  background-color: aqua;
-`;
-
 const Container = styled.div``;
 
 const Header = styled.header`
@@ -50,9 +45,12 @@ const Header = styled.header`
   display: flex;
   flex-direction: row;
   align-items: center;
+  position: absolute;
+  z-index: 2;
 `;
 
 const CloseButton = styled.div`
+  position: relative;
   display: flex;
   padding-left: 16px;
 `;
