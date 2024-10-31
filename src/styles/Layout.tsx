@@ -18,6 +18,7 @@ const LayoutContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 375px;
   height: 100vh;
   background-color: #f0f0f0;
 `;

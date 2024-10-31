@@ -1,5 +1,5 @@
 const theme = {
-  color: {},
+  colors: {},
   font: {},
   size: {},
 };
