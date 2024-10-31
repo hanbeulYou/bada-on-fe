@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
+import ContentBox from '../components/common/ContentBox';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
