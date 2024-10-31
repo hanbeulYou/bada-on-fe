@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:20
+FROM krmp-d2hub-idock.9rum.cc/goorm/node:20
 
 # Set the working directory
 WORKDIR /app
