@@ -1,20 +1,27 @@
 import { useEffect, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
+import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
 import KakaoMapManager from '../../helpers/kakaoMapManger';
 
-const JejuMap = () => {
+interface JejuMapProps {
+  filter?: string;
+}
+
+const JejuMap = (props: JejuMapProps) => {
+  const { filter = '' } = props;
   const mapContainer = useRef<HTMLDivElement>(null);
   const { dispatch, state } = useContext(AddressContext);
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
+  const { data, isLoading } = useMapsQuery(filter);
 
   useEffect(() => {
     const args = {
       mapContainer: mapContainer.current,
       boundary: [
-        [33.086415360763105, 126.07509577087393],
-        [33.628831954811545, 126.98830359334572],
+        [32.78442221352914, 125.8539291788811],
+        [33.95418174379797, 127.20556660191247],
       ],
     };
     kakaoMapManager.current = new KakaoMapManager(args);
@@ -38,8 +45,28 @@ const JejuMap = () => {
   }, [state.searchKeyword]);
 
   useEffect(() => {
+    kakaoMapManager.current?.clearMarker();
+    if (!isLoading) addActivityMarkers();
+  }, [data, isLoading]);
+
+  const addActivityMarkers = () => {
+    if (data.length > 0) {
+      data.forEach(({ latitude, longitude }) => {
+        const imageSrc = `/public/pin/${filter}.png`;
+        const place = { x: longitude, y: latitude };
+        kakaoMapManager.current?.setMarker({ place, imageSrc });
+      });
+      kakaoMapManager.current?.rerender();
+    }
+  };
+
+  useEffect(() => {
     if (kakaoMapManager.current) {
-      kakaoMapManager.current.setMarker(state.currentAddress);
+      kakaoMapManager.current.clearMarker();
+      kakaoMapManager.current.setMarker({
+        place: state.currentAddress,
+        movePlace: true,
+      });
     }
   }, [state.currentAddress]);
 

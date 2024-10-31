@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -6,9 +6,19 @@ import { LABEL_MAPPING, LABELS } from '../consts/label';
 
 import FilterButton from './common/FilterButton';
 
-const FilterList: React.FC = () => {
+interface FilterListProps {
+  onFilterChange: (selected: string) => void;
+}
+
+const FilterList = (props: FilterListProps) => {
+  const { onFilterChange = () => {} } = props;
   const [searchParams, setSearchParams] = useSearchParams();
   const selected = searchParams.get('selected');
+
+  useEffect(() => {
+    if (selected) onFilterChange(selected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
 
   const handleFilterButtonClick = (item: string) => {
     const mappedItem = LABEL_MAPPING[item];
