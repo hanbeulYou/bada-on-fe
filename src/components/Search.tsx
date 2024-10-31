@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import ColList from './common/ColList';
 import SearchItem from './common/SearchItem';
@@ -16,10 +17,9 @@ const Search: React.FC<SearchProps> = ({ searchValue }) => {
   const searchResults = ['result1', 'result2', 'result3']; // useQuery 값으로 대체
 
   return (
-    <div>
+    <Container>
       {isValidSearch ? (
         <>
-          <h1>History Page</h1>
           <ColList>
             {histories?.map((history, index) => (
               <SearchItem key={index} isHistory={true} content={history} />
@@ -37,8 +37,15 @@ const Search: React.FC<SearchProps> = ({ searchValue }) => {
         </>
       )}
       {/* Add your search functionality here */}
-    </div>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 20px 20px; // TODO: padding-top을 검색바 높이만큼 조절하기!
+`;
 
 export default Search;
