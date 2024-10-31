@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -7,21 +7,16 @@ import ButtonGrid from '../components/ButtonGrid';
 import FooterButton from '../components/common/FooterButton';
 import Icon from '../components/common/Icon';
 import { LABEL_MAPPING } from '../consts/label';
+import type { Label } from '../consts/label';
 
-const Intro: React.FC = () => {
-  const [clickedLabels, setClickedLabels] = useState<Record<string, boolean>>(
-    {},
-  );
+const IntroPage = () => {
+  const [selectedLabel, setSelectedLabel] = useState<Label | ''>('');
   const navigate = useNavigate();
 
+  const btnNextDisabled = selectedLabel === '';
+
   const handleNextPage = () => {
-    const selectedLabels = Object.keys(clickedLabels).filter(
-      key => clickedLabels[key],
-    );
-    const urlParams = selectedLabels
-      .map(label => `selected=${LABEL_MAPPING[label]}`)
-      .join('&');
-    navigate(`/home?${urlParams}`);
+    navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
   };
 
   return (
@@ -35,8 +30,8 @@ const Intro: React.FC = () => {
         <Description>선택한 활동에 맞는 최적의 장소를 볼 수 있어요</Description>
       </HeaderContainer>
       <ButtonGrid
-        clickedLabels={clickedLabels}
-        setClickedLabels={setClickedLabels}
+        clickedLabel={selectedLabel}
+        setClickedLabel={setSelectedLabel}
       />
       <WarningText>
         <Icon name="alert-triangle" width={16} height={16} />
@@ -46,13 +41,7 @@ const Intro: React.FC = () => {
           않습니다.
         </Text>
       </WarningText>
-      <FooterButton
-        onClick={handleNextPage}
-        disabled={
-          Object.keys(clickedLabels).length === 0 ||
-          Object.values(clickedLabels).every(value => !value)
-        }
-      />
+      <FooterButton onClick={handleNextPage} disabled={btnNextDisabled} />
     </PageContainer>
   );
 };
@@ -109,4 +98,4 @@ const Text = styled.div`
   flex: 1;
 `;
 
-export default Intro;
+export default IntroPage;
