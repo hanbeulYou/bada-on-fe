@@ -35,9 +35,34 @@ const WarningText = styled.div`
   letter-spacing: -0.14px;
 `;
 
-const SearchContent = ({ content }) => {
+const PlaceText = styled.div`
+  width: 100%;
+  color: ${({ theme }) => theme.colors.blue500};
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+const AddressText = styled.div`
+  width: 100%;
+  overflow: hidden;
+  color: ${({ theme }) => theme.colors.gray500};
+  text-overflow: ellipsis;
+  margin-top: 3px;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const SearchContent = ({ content, isHistory = false }) => {
   return (
-    <div>
+    <div style={{ width: isHistory ? 'calc(100% - 20px)' : '100%', flex: 1 }}>
       <PlaceText>{content.place_name}</PlaceText>
       <AddressText>{content.address_name}</AddressText>
     </div>
@@ -91,7 +116,7 @@ const Search: React.FC<SearchProps> = ({
                     onClick={() => onClick && onClick(history)}
                     onDelete={() => onDeleteHistory(history.id)}
                   >
-                    <SearchContent content={history} />
+                    <SearchContent isHistory content={history} />
                   </SearchItem>
                 </>
               ))}
@@ -115,22 +140,5 @@ const NoResult = () => {
     </WarningText>
   );
 };
-
-const PlaceText = styled.div`
-  color: ${({ theme }) => theme.colors.blue500};
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.16px;
-`;
-const AddressText = styled.div`
-  overflow: hidden;
-  color: ${({ theme }) => theme.colors.gray500};
-  text-overflow: ellipsis;
-  margin-top: 3px;
-
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.14px;
-`;
 
 export default Search;
