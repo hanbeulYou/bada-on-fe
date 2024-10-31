@@ -11,6 +11,10 @@ interface BottomSheetProps {
   dangerValue: number;
   recommends?: { title: string; description: string }[];
   now: number;
+  onClosed?: () => void;
+  onFull?: () => void;
+  onMiddle?: () => void;
+  isFull: boolean;
 }
 
 function BottomSheet({
@@ -19,8 +23,13 @@ function BottomSheet({
   dangerValue,
   recommends,
   now,
+  onClosed,
+  onFull,
+  onMiddle,
+  isFull,
 }: BottomSheetProps) {
   const [position, setPosition] = useState(-400);
+  const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const initialPosition = useRef<number>(-400);
@@ -38,16 +47,33 @@ function BottomSheet({
     const deltaY = startY.current - e.touches[0].clientY;
 
     let newPosition = position + deltaY;
-    if (newPosition < -600) newPosition = -600;
-    if (newPosition > 0) newPosition = 0;
+
+    // 하단 위치
+    if (newPosition < -800) newPosition = -800;
+    // 상단 위치
+    if (newPosition > -91) newPosition = -91;
 
     setPosition(newPosition);
   };
 
   const handleTouchEnd = () => {
-    if (position > initialPosition.current && position < 0) {
-      setPosition(initialPosition.current);
-    } else if (position < initialPosition.current && position > -600) {
+    if (position >= -91) {
+      setPosition(-91);
+      if (onFull) onFull();
+    } else if (position < -700) {
+      setPosition(-800);
+      setFooterVisible(false);
+      if (onClosed) {
+        setTimeout(() => {
+          if (onClosed) {
+            onClosed();
+          }
+        }, 300);
+      }
+    } else {
+      if (onMiddle) {
+        onMiddle();
+      }
       setPosition(initialPosition.current);
     }
     startY.current = null;
@@ -60,6 +86,7 @@ function BottomSheet({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      isFull={isFull}
     >
       <HandlerWrapper>
         <Handler />
@@ -79,21 +106,23 @@ function BottomSheet({
           </RecommendItem>
         ))}
       </RecommendContainer>
-      <Footer>
-        {/* TODO: 앞에 시계 아이콘 넣어주기 */}
-        <TimerWrapper>
-          <Time>{time % 24}:00</Time>
-          <Triangle />
-        </TimerWrapper>
-        <TimeFlowContainer>
-          <TimeFlow setState={setTime} defaultTime={now} />
-        </TimeFlowContainer>
-      </Footer>
+      {isFooterVisible && (
+        <Footer>
+          {/* TODO: 앞에 시계 아이콘 넣어주기 */}
+          <TimerWrapper>
+            <Time>{time % 24}:00</Time>
+            <Triangle />
+          </TimerWrapper>
+          <TimeFlowContainer>
+            <TimeFlow setState={setTime} defaultTime={now} />
+          </TimeFlowContainer>
+        </Footer>
+      )}
     </Container>
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ isFull: boolean }>`
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -105,11 +134,12 @@ const Container = styled.div`
   width: 375px;
   padding: 14px 24px 0px 24px;
   background-color: #fafafa;
-  border: 1px solid #e0e0e0;
-  border-radius: 28px 28px 0 0;
+  border: ${props => !props.isFull && '1px solid #e0e0e0'};
+  border-radius: ${props => !props.isFull && '28px 28px 0 0'};
   transition: bottom 0.5s ease;
 
-  box-shadow: 0px -2px 4px 0px rgba(0, 0, 0, 0.16);
+  box-shadow: ${props =>
+    !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
 `;
 
 const HandlerWrapper = styled.div`

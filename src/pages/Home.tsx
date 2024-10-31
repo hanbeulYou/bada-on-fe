@@ -26,6 +26,8 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
+  const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
 
   const { state, dispatch } = useContext(AddressContext);
 
@@ -106,15 +108,24 @@ function Home() {
             onDeleteHistory={deleteHistory}
           />
         )}
-        <FilterList />
+        {!isBottomSheetFull && <FilterList />}
         <Map />
-        <BottomSheet
-          title={EXAMPLE_DATA.title}
-          alert={EXAMPLE_DATA.alert}
-          dangerValue={EXAMPLE_DATA.dangerValue}
-          recommends={EXAMPLE_DATA.recommends}
-          now={EXAMPLE_DATA.now}
-        />
+        {isBottomSheetOpen && (
+          <BottomSheet
+            title={EXAMPLE_DATA.title}
+            alert={EXAMPLE_DATA.alert}
+            dangerValue={EXAMPLE_DATA.dangerValue}
+            recommends={EXAMPLE_DATA.recommends}
+            now={EXAMPLE_DATA.now}
+            onClosed={() => {
+              setIsBottomSheetOpen(false);
+              setIsBottomSheetFull(false);
+            }}
+            isFull={isBottomSheetFull}
+            onMiddle={() => setIsBottomSheetFull(false)}
+            onFull={() => setIsBottomSheetFull(true)}
+          />
+        )}
       </>
     </Container>
   );

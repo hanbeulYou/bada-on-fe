@@ -69,6 +69,8 @@ const TimeFlow: React.FC<TimeFlowProps> = ({ defaultTime, setState }) => {
               </ItemTime>
             </Item>
           ))}
+
+          <RightPlaceHolder />
         </ScrollArea>
       </VisibleArea>
     </Container>
@@ -102,6 +104,11 @@ const PlaceHolder = styled.div<{ timePassed: number }>`
   width: calc(
     135.5px - ${({ timePassed }) => (isNaN(timePassed) ? 0 : timePassed)}px
   );
+  height: 48px;
+`;
+
+const RightPlaceHolder = styled.div`
+  width: 180px;
   height: 48px;
 `;
 
