@@ -13,6 +13,7 @@ function Home() {
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const { dispatch } = useContext(AddressContext);
 
@@ -22,6 +23,7 @@ function Home() {
 
   const setSearchValueDebounce = useDebounce(() => {
     dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
+    setIsSearching(searchValue.trim().length > 0);
   }, 200);
 
   const closeSearchPage = () => {
@@ -32,6 +34,7 @@ function Home() {
   const openSearchPage = () => {
     setOriginalSearchValue(searchValue);
     setIsSearchPage(true);
+    setIsSearching(false);
   };
 
   const updateCurrentAddress = (address: object) => {
@@ -54,7 +57,7 @@ function Home() {
       </Header>
       <>
         {isSearchPage && (
-          <Search searchValue={searchValue} onClick={updateCurrentAddress} />
+          <Search isSearching={isSearching} onClick={updateCurrentAddress} />
         )}
         <RollList />
         <Map />

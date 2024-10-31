@@ -6,30 +6,19 @@ import { AddressContext } from '../context/AddressContext';
 import ColList from './common/ColList';
 import SearchItem from './common/SearchItem';
 
-type SearchProps = { searchValue: string; onClick?: (address: string) => void };
-
-const isEmptyOrWhitespace = (str: string) => {
-  return str.trim().length === 0;
+type SearchProps = {
+  onClick?: (address: string) => void;
+  isSearching: boolean;
 };
 
-// 검색 결과 및 히스토리 페이지입니다.
-const Search: React.FC<SearchProps> = ({ searchValue, onClick }) => {
-  const isValidSearch = isEmptyOrWhitespace(searchValue);
+const Search: React.FC<SearchProps> = ({ onClick, isSearching }) => {
   const { state } = useContext(AddressContext);
 
   const histories = ['history1', 'history2', 'history3']; // localStorage.getItem('histories')
 
   return (
     <Container>
-      {isValidSearch ? (
-        <>
-          <ColList>
-            {histories?.map((history, index) => (
-              <SearchItem key={index} isHistory={true} content={history} />
-            ))}
-          </ColList>
-        </>
-      ) : (
+      {isSearching ? (
         <>
           {state.searchResults?.length === 0 ? (
             <div>검색 결과가 없습니다.</div>
@@ -45,6 +34,14 @@ const Search: React.FC<SearchProps> = ({ searchValue, onClick }) => {
               ))}
             </ColList>
           )}
+        </>
+      ) : (
+        <>
+          <ColList>
+            {histories?.map((history, index) => (
+              <SearchItem key={index} isHistory={true} content={history} />
+            ))}
+          </ColList>
         </>
       )}
       {/* Add your search functionality here */}
