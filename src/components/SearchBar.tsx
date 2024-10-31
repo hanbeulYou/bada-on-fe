@@ -12,7 +12,7 @@ const SearchBarContainer = styled.div`
   margin: 20px;
 `;
 
-const Input = styled.input<{ isSearchPage: boolean }>`
+const Input = styled.input`
   padding: 12px 48px 12px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -22,7 +22,6 @@ const Input = styled.input<{ isSearchPage: boolean }>`
   border-radius: 0.8rem;
   background: #fff;
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.20);
-${({ isSearchPage }) => isSearchPage && `padding-left: 40px;`}}
 `;
 
 const Wrapper = styled.div`
@@ -83,11 +82,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       <Input
         ref={inputRef}
-        isSearchPage={isSearchPage}
         type="text"
         value={searchValue}
         onChange={handleInputChange}
         placeholder="제주"
+        style={{ paddingLeft: isSearchPage ? '40px' : '12px' }}
       />
 
       <Wrapper direction="right" value="16px">
