@@ -19,7 +19,6 @@ const LayoutContainer = styled.div`
   align-items: center;
   width: 375px;
   height: 100vh;
-  background-color: #f0f0f0;
   margin: 0 auto;
 `;
 
