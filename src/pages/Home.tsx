@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
+import ContentBox from '../components/common/ContentBox';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
@@ -111,7 +112,23 @@ function Home() {
         <Map filter={filter} onClickMarker={handleClickMarker} />
         <BottomSheet>
           <div>Hello World</div>
-          {JSON.stringify(data)}
+          {/* {JSON.stringify(data)} */}
+          <ContentBox
+            title="Title"
+            data={[
+              { label: 'aa', value: '231313212' },
+              { label: 'bb', value: '231313212' },
+            ]}
+          />
+          <ContentBox
+            title="Title"
+            variant="warning"
+            data={[
+              { label: 'aa', value: '231313212' },
+              { label: 'bb', value: '231313212' },
+            ]}
+          />
+          <ContentBox data={[{ label: 'aa', value: '231313212' }]} />
         </BottomSheet>
       </>
     </Container>

@@ -21,7 +21,7 @@ const Input = styled.input`
   width: 100%;
   border-radius: 0.8rem;
   background: #fff;
-  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.20);
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
 `;
 
 const Wrapper = styled.div`
