@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import DoughnutChart from './chart/Doughnut';
 import TimeFlow from './TimeFlow';
 import { LABEL_MAPPING_REVERSE } from '../consts/label';
+import ContentBox from './common/ContentBox';
 
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
@@ -84,12 +85,13 @@ function BottomSheet({
     <Container
       ref={containerRef}
       style={{ bottom: `${position}px` }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       isFull={isFull}
     >
-      <HandlerWrapper>
+      <HandlerWrapper
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <Handler />
       </HandlerWrapper>
       <Header>
@@ -114,6 +116,63 @@ function BottomSheet({
             </RecommendItem>
           ))}
       </RecommendContainer>
+      {isFull && (
+        <DetailContainer>
+          <HorizontalLine />
+          <DetailInfoContainer>
+            <DetailTitle>상세정보</DetailTitle>
+            {/* TODO: 일단 밑에부터 */}
+            <DetailContentContainer>
+              <ContentBox
+                title="물때"
+                data={[
+                  { label: '만조', value: '10:10 / 21:56' },
+                  { label: '간조', value: '04:04 / 16:30' },
+                  { label: '일출', value: '06:52' },
+                  { label: '일몰', value: '17:43' },
+                ]}
+              />
+              <ContentBox
+                title="날씨"
+                data={[
+                  { label: '오전', value: '구름 많음' },
+                  { label: '오후', value: '흐리고 한때 비' },
+                ]}
+              />
+              <ContentBox
+                title="기온"
+                data={[
+                  { label: '최저', value: '21°' },
+                  { label: '최고', value: '23°' },
+                ]}
+              />
+              <ContentBox
+                title="강수"
+                data={[
+                  { label: '확률', value: '40%' },
+                  { label: '강수량', value: '2mm' },
+                ]}
+              />
+              <ContentBox
+                title="풍속"
+                data={[
+                  { label: '오전', value: '9-14' },
+                  { label: '오후', value: '9-13' },
+                ]}
+              />
+              <ContentBox
+                title="파고"
+                data={[
+                  { label: '오전', value: '1.5-3.5' },
+                  { label: '오후', value: '1.5-2.5' },
+                ]}
+              />
+              <ContentBox title="유속" data={['53.7cm/s']} />
+              <ContentBox title="수온" data={['23°']} />
+            </DetailContentContainer>
+          </DetailInfoContainer>
+        </DetailContainer>
+      )}
       {isFooterVisible && (
         <Footer>
           {/* TODO: 앞에 시계 아이콘 넣어주기 */}
@@ -145,6 +204,7 @@ const Container = styled.div<{ isFull: boolean }>`
   border: ${props => !props.isFull && '1px solid #e0e0e0'};
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
   transition: bottom 0.5s ease;
+  overflow-y: auto;
 
   box-shadow: ${props =>
     !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
@@ -265,6 +325,33 @@ const Footer = styled.div`
   position: fixed;
   isolation: isolate;
   bottom: 0px;
+`;
+
+const DetailContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+`;
+
+const HorizontalLine = styled.div`
+  height: 6px;
+  width: 375px;
+  background-color: ${({ theme }) => theme.colors.gray100};
+`;
+
+const DetailInfoContainer = styled.div`
+  width: 100%;
+  padding: 24px;
+`;
+
+const DetailTitle = styled.div``;
+
+const DetailContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 160px;
 `;
 
 export default BottomSheet;

@@ -105,11 +105,13 @@ const PlaceHolder = styled.div<{ timePassed: number }>`
     135.5px - ${({ timePassed }) => (isNaN(timePassed) ? 0 : timePassed)}px
   );
   height: 48px;
+  background-color: ${({ theme }) => theme.colors.white};
 `;
 
 const RightPlaceHolder = styled.div`
   width: 180px;
   height: 48px;
+  background-color: ${({ theme }) => theme.colors.white};
 `;
 
 const Item = styled.div`
