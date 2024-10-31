@@ -13,7 +13,7 @@ interface ToastProps {
 
 const ToastWrapper = styled.div<{ toastType: 'success' | 'error' | 'warning' }>`
   position: absolute;
-  width: calc(100vw - 45px);
+  width: 330px;
   bottom: 82px;
   left: 50%;
   transform: translateX(-50%);
