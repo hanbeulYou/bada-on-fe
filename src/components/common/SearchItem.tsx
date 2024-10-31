@@ -41,6 +41,11 @@ const SearchItem: React.FC<SearchItemProps> = ({
   onClick,
   onDelete = () => {},
 }) => {
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onDelete();
+  };
+
   return (
     <Container
       onClick={() => onClick && onClick()}
@@ -57,7 +62,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
       )}
       {children}
       {isHistory && (
-        <DeleteButton onClick={onDelete}>
+        <DeleteButton onClick={handleDelete}>
           <Icon name="close" />
         </DeleteButton>
       )}
