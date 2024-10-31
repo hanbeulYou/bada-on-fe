@@ -48,6 +48,7 @@ const JejuMap = (props: JejuMapProps) => {
   useEffect(() => {
     kakaoMapManager.current?.clearMarker();
     if (!isLoading) addActivityMarkers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, isLoading]);
 
   const addActivityMarkers = () => {
