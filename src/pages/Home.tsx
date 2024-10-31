@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
+import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
@@ -17,6 +18,8 @@ function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState('');
+  const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
+  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
 
   const { state, dispatch } = useContext(AddressContext);
 
@@ -81,6 +84,10 @@ function Home() {
     setIsSearchPage(false);
   };
 
+  const handleClickMarker = (marker: object) => {
+    setSelectedMarker(marker);
+  };
+
   return (
     <Container>
       <Header>
@@ -101,9 +108,10 @@ function Home() {
           />
         )}
         <FilterList onFilterChange={handleFilterChange} />
-        <Map filter={filter} />
+        <Map filter={filter} onClickMarker={handleClickMarker} />
         <BottomSheet>
           <div>Hello World</div>
+          {JSON.stringify(data)}
         </BottomSheet>
       </>
     </Container>

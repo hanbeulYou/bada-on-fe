@@ -65,31 +65,32 @@ class KakaoMapManager {
     place,
     imageSrc = '',
     movePlace = false,
+    onClick = () => {},
   }: {
     place: object;
     imageSrc?: string;
     movePlace?: boolean;
+    onClick?: (place: typeof window.kakao.maps.LatLng) => void;
   }) {
     if (!this.map) return;
 
     const bounds = new window.kakao.maps.LatLngBounds();
     const placePosition = new window.kakao.maps.LatLng(place.y, place.x);
-    this.addMarker(placePosition, imageSrc);
+    const marker = this.addMarker(placePosition, imageSrc);
+
     bounds.extend(placePosition);
     if (movePlace) this.map.setBounds(bounds);
-  }
 
-  rerender() {
-    if (this.map) {
-      this.map.relayout();
-    }
+    window.kakao.maps.event.addListener(marker, 'click', () => {
+      onClick(place);
+    });
   }
 
   addMarker(position, imageSrc = '/public/pin/diving.png') {
-    const imageSize = new window.kakao.maps.Size(36, 37); // 마커 이미지의 크기
+    const imageSize = new window.kakao.maps.Size(36, 37);
     const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
     const marker = new window.kakao.maps.Marker({
-      position: position, // 마커의 위치
+      position: position,
       image: markerImage,
     });
 
@@ -97,6 +98,12 @@ class KakaoMapManager {
     this.markers.push(marker);
 
     return marker;
+  }
+
+  rerender() {
+    if (this.map) {
+      this.map.relayout();
+    }
   }
 
   clearMarker() {

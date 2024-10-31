@@ -7,10 +7,11 @@ import KakaoMapManager from '../../helpers/kakaoMapManger';
 
 interface JejuMapProps {
   filter?: string;
+  onClickMarker?: (place: object) => void;
 }
 
 const JejuMap = (props: JejuMapProps) => {
-  const { filter = '' } = props;
+  const { filter = '', onClickMarker = () => {} } = props;
   const mapContainer = useRef<HTMLDivElement>(null);
   const { dispatch, state } = useContext(AddressContext);
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
@@ -50,11 +51,16 @@ const JejuMap = (props: JejuMapProps) => {
   }, [data, isLoading]);
 
   const addActivityMarkers = () => {
-    if (data.length > 0) {
-      data.forEach(({ latitude, longitude }) => {
+    if (data?.length > 0) {
+      data.forEach(item => {
         const imageSrc = `/public/pin/${filter}.png`;
-        const place = { x: longitude, y: latitude };
-        kakaoMapManager.current?.setMarker({ place, imageSrc });
+        const { latitude, longitude, ...rest } = item;
+        const place = { x: longitude, y: latitude, ...rest };
+        kakaoMapManager.current?.setMarker({
+          place,
+          imageSrc,
+          onClick: onClickMarker,
+        });
       });
       kakaoMapManager.current?.rerender();
     }
