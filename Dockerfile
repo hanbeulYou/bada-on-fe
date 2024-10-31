@@ -20,4 +20,4 @@ RUN yarn build
 EXPOSE 5173
 
 # Start the application
-CMD ["yarn", "preview"]
+CMD ["yarn", "preview", "--port", "5173"]
