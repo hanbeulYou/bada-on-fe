@@ -1,6 +1,8 @@
 import { styled } from 'styled-components';
 
-import IntroButton, { Label } from './common/IntroButton';
+import { DISABLED_LABELS, Label, LABELS } from '../consts/label';
+
+import IntroButton from './common/IntroButton';
 
 interface ButtonGridProps {
   clickedLabels: Record<string, boolean>;
@@ -19,23 +21,6 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({
   clickedLabels,
   setClickedLabels,
 }) => {
-  const labels: Label[] = [
-    '스노클링',
-    '다이빙',
-    '스냅촬영',
-    '해수욕',
-    '서핑',
-    '스쿠버다이빙',
-    '일출/일몰',
-  ];
-
-  const DISABLED_LABELS: Label[] = [
-    '해수욕',
-    '서핑',
-    '스쿠버다이빙',
-    '일출/일몰',
-  ];
-
   const handleButtonClick = (label: Label) => {
     setClickedLabels(prev => ({
       ...prev,
@@ -45,7 +30,7 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({
 
   return (
     <ButtonContainer>
-      {labels.map(label => (
+      {LABELS.map(label => (
         <IntroButton
           key={label}
           label={label}

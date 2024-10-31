@@ -1,14 +1,7 @@
 import React from 'react';
 import { styled } from 'styled-components';
 
-export type Label =
-  | '스노클링'
-  | '다이빙'
-  | '해수욕'
-  | '서핑'
-  | '스쿠버다이빙'
-  | '스냅촬영'
-  | '일출/일몰';
+import { Label, LABEL_MAPPING } from '../../consts/label';
 
 interface IntroButtonProps {
   label: Label;
@@ -16,16 +9,6 @@ interface IntroButtonProps {
   onClick: (label: Label) => void;
   disabled?: boolean;
 }
-
-export const labelMapping: Record<string, string> = {
-  스노클링: 'snorkeling',
-  다이빙: 'diving',
-  해수욕: 'swimming',
-  서핑: 'surfing',
-  스쿠버다이빙: 'scubaDiving',
-  스냅촬영: 'snap',
-  '일출/일몰': 'sunset',
-};
 
 const IntroButton: React.FC<IntroButtonProps> = ({
   label,
@@ -58,8 +41,8 @@ const Button = styled.button<{ isClicked: boolean; label: string }>`
   ${({ theme, isClicked, label }) => {
     if (isClicked) {
       return `
-        border: 1px solid ${theme.colors[labelMapping[label] as keyof typeof theme.colors] || theme.colors.gray300};
-        color: ${theme.colors[labelMapping[label] as keyof typeof theme.colors] || theme.colors.gray300};
+        border: 1px solid ${theme.colors[LABEL_MAPPING[label] as keyof typeof theme.colors] || theme.colors.gray300};
+        color: ${theme.colors[LABEL_MAPPING[label] as keyof typeof theme.colors] || theme.colors.gray300};
         background-color: ${theme.colors.white};
       `;
     }
