@@ -4,7 +4,36 @@ import styled from 'styled-components';
 import { AddressContext } from '../context/AddressContext';
 
 import ColList from './common/ColList';
+import Icon from './common/Icon';
 import SearchItem from './common/SearchItem';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 20px 20px; // TODO: padding-top을 검색바 높이만큼 조절하기!
+  position: absolute;
+  z-index: 3;
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+}
+`;
+
+const WarningText = styled.div`
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  ${({ theme }) => theme.typography.Body};
+  color: ${({ theme }) => theme.colors.red500};
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.14px;
+`;
 
 type SearchProps = {
   onClick?: (address: string) => void;
@@ -24,7 +53,7 @@ const Search: React.FC<SearchProps> = ({
       {isSearching ? (
         <>
           {state.searchResults?.length === 0 ? (
-            <div>검색 결과가 없습니다.</div>
+            <NoResult />
           ) : (
             <ColList>
               {state.searchResults?.map((result, index) => (
@@ -40,38 +69,42 @@ const Search: React.FC<SearchProps> = ({
         </>
       ) : (
         <>
-          <ColList>
-            {state.histories?.map((history, index) => (
-              <>
-                <SearchItem
-                  key={index}
-                  isHistory={true}
-                  content={history.address_name}
-                  onClick={() => onClick && onClick(history)}
-                />
-                <button onClick={() => onDeleteHistory(history.id)}>
-                  삭제
-                </button>
-              </>
-            ))}
-          </ColList>
+          {state.histories?.length === 0 ? (
+            <NoResult />
+          ) : (
+            <ColList>
+              {state.histories?.map((history, index) => (
+                <>
+                  <SearchItem
+                    key={index}
+                    isHistory={true}
+                    content={history.address_name}
+                    onClick={() => onClick && onClick(history)}
+                  />
+                  <button onClick={() => onDeleteHistory(history.id)}>
+                    삭제
+                  </button>
+                </>
+              ))}
+            </ColList>
+          )}
         </>
       )}
     </Container>
   );
 };
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 80px 20px 20px; // TODO: padding-top을 검색바 높이만큼 조절하기!
-  position: absolute;
-  z-index: 3;
-  background-color: #fff;
-  width: 100%;
-  height: 100%;
-}
-`;
+const NoResult = () => {
+  return (
+    <WarningText>
+      <Icon name="alert-triangle" width={32} height={32} />
+      <div>
+        검색 결과가 없습니다.
+        <br />
+        다시 한번 확인해 주세요.
+      </div>
+    </WarningText>
+  );
+};
 
 export default Search;

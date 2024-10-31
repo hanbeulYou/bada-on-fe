@@ -116,10 +116,4 @@ const Header = styled.header`
   z-index: 12;
 `;
 
-const CloseButton = styled.div`
-  position: relative;
-  display: flex;
-  padding-left: 16px;
-`;
-
 export default Home;
