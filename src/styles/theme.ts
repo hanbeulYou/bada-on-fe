@@ -46,6 +46,12 @@ const theme = {
       line-height: 1.3;
       letter-spacing: -0.22px;
     `,
+    Heading_2: `
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: -0.2px;
+    `,
     Title_1_Bold: `
       font-weight: 600;
       font-size: 16px;

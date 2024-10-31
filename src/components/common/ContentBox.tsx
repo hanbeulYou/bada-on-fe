@@ -35,6 +35,7 @@ const Container = styled.div<{ $variant: Variant; $title: string }>`
   font-weight: 600;
   letter-spacing: -0.014rem;
   background-color: ${props => colorVarMap[props.$variant].background};
+  margin-bottom: 24px;
 `;
 
 const Text = styled.span<{ $variant: Variant }>`
@@ -54,7 +55,6 @@ const Title = styled.h3<{ $variant: Variant }>`
   font-size: 14px;
   font-weight: 600;
   color: ${props => colorVarMap[props.$variant].title};
-  padding-bottom: 12px;
 `;
 
 const ContentBox = (props: ContentBoxProps) => {
