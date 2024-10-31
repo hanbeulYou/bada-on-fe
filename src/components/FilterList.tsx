@@ -6,29 +6,16 @@ import { LABEL_MAPPING, LABELS } from '../consts/label';
 
 import FilterButton from './common/FilterButton';
 
-export const LABEL_MAPPING_REVERSE: Record<string, string> = {
-  snorkeling: '스노클링',
-  diving: '다이빙',
-  swimming: '해수욕',
-  surfing: '서핑',
-  scubaDiving: '스쿠버다이빙',
-  snap: '스냅촬영',
-  sunset: '일출/일몰',
-};
-
 const FilterList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const selected = searchParams.getAll('selected');
+  const selected = searchParams.get('selected');
 
   const handleFilterButtonClick = (item: string) => {
-    const currentSelected = new Set(selected);
     const mappedItem = LABEL_MAPPING[item];
-    if (currentSelected.has(mappedItem)) {
-      currentSelected.delete(mappedItem);
-    } else {
-      currentSelected.add(mappedItem);
+    if (selected === mappedItem) {
+      return; // 이미 선택된 항목이면 아무 작업도 하지 않음
     }
-    setSearchParams({ selected: Array.from(currentSelected) });
+    setSearchParams({ selected: mappedItem }); // 새로운 값으로 대체
   };
 
   return (
@@ -37,7 +24,7 @@ const FilterList: React.FC = () => {
         <FilterButton
           key={index}
           label={item}
-          isClicked={selected.includes(LABEL_MAPPING[item])}
+          isClicked={selected === LABEL_MAPPING[item]}
           onClick={() => handleFilterButtonClick(item)}
         />
       ))}
