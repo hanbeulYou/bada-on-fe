@@ -22,6 +22,10 @@ function Home() {
     ],
     now: 19,
   };
+
+  const currentHour = new Date().getHours();
+  const [pickHour, setPickHour] = useState<number>(currentHour);
+
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
@@ -98,6 +102,8 @@ function Home() {
 
   const handleClickMarker = (marker: object) => {
     setSelectedMarker(marker);
+
+    setIsBottomSheetOpen(true);
   };
 
   return (
@@ -123,13 +129,15 @@ function Home() {
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <Map filter={filter} onClickMarker={handleClickMarker} />
-        {isBottomSheetOpen && (
+        {isBottomSheetOpen && selectedMarker && data && (
           <BottomSheet
-            title={EXAMPLE_DATA.title}
+            title={selectedMarker.name}
             alert={EXAMPLE_DATA.alert}
-            dangerValue={EXAMPLE_DATA.dangerValue}
-            recommends={EXAMPLE_DATA.recommends}
-            now={EXAMPLE_DATA.now}
+            dangerValue={data.details[pickHour - currentHour].score}
+            recommends={data.details[pickHour - currentHour].feedback}
+            defaultTime={currentHour}
+            pickHour={pickHour}
+            setPickHour={setPickHour}
             onClosed={() => {
               setIsBottomSheetOpen(false);
               setIsBottomSheetFull(false);

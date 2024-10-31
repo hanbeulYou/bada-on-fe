@@ -3,18 +3,21 @@ import styled from 'styled-components';
 
 import DoughnutChart from './chart/Doughnut';
 import TimeFlow from './TimeFlow';
+import { LABEL_MAPPING_REVERSE } from '../consts/label';
 
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
   title: string;
   alert?: string;
   dangerValue: number;
-  recommends?: { title: string; description: string }[];
-  now: number;
+  recommends?: Record<string, string>;
+  pickHour: number;
+  setPickHour: React.Dispatch<React.SetStateAction<number>>;
   onClosed?: () => void;
   onFull?: () => void;
   onMiddle?: () => void;
   isFull: boolean;
+  defaultTime: number;
 }
 
 function BottomSheet({
@@ -22,21 +25,19 @@ function BottomSheet({
   alert,
   dangerValue,
   recommends,
-  now,
+  pickHour,
+  setPickHour,
   onClosed,
   onFull,
   onMiddle,
   isFull,
+  defaultTime,
 }: BottomSheetProps) {
   const [position, setPosition] = useState(-400);
   const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const initialPosition = useRef<number>(-400);
-
-  const [time, setTime] = useState(0);
-
-  useEffect(() => setTime(now), []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -51,14 +52,14 @@ function BottomSheet({
     // 하단 위치
     if (newPosition < -800) newPosition = -800;
     // 상단 위치
-    if (newPosition > -91) newPosition = -91;
+    if (newPosition > -84) newPosition = -84;
 
     setPosition(newPosition);
   };
 
   const handleTouchEnd = () => {
-    if (position >= -91) {
-      setPosition(-91);
+    if (position >= -84) {
+      setPosition(-84);
       if (onFull) onFull();
     } else if (position < -700) {
       setPosition(-800);
@@ -97,24 +98,31 @@ function BottomSheet({
       </Header>
       <DoughnutChart chartValue={dangerValue} />
       <RecommendContainer>
-        {recommends?.map((recommend, index) => (
-          <RecommendItem key={index}>
-            <RecommendTitleWrapper>
-              <RecommendTitle>{recommend.title}</RecommendTitle>
-            </RecommendTitleWrapper>
-            <RecommendDescription>{recommend.description}</RecommendDescription>
-          </RecommendItem>
-        ))}
+        {recommends &&
+          Object.entries(recommends).map((recommend, index) => (
+            <RecommendItem key={index}>
+              <RecommendTitleWrapper>
+                <RecommendTitle>
+                  {
+                    LABEL_MAPPING_REVERSE[
+                      recommend[0] as keyof typeof LABEL_MAPPING_REVERSE
+                    ]
+                  }
+                </RecommendTitle>
+              </RecommendTitleWrapper>
+              <RecommendDescription>{recommend[1]}</RecommendDescription>
+            </RecommendItem>
+          ))}
       </RecommendContainer>
       {isFooterVisible && (
         <Footer>
           {/* TODO: 앞에 시계 아이콘 넣어주기 */}
           <TimerWrapper>
-            <Time>{time % 24}:00</Time>
+            <Time>{pickHour % 24}:00</Time>
             <Triangle />
           </TimerWrapper>
           <TimeFlowContainer>
-            <TimeFlow setState={setTime} defaultTime={now} />
+            <TimeFlow setState={setPickHour} defaultTime={defaultTime} />
           </TimeFlowContainer>
         </Footer>
       )}

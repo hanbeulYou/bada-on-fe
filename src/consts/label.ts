@@ -42,3 +42,13 @@ export const LABEL_MAPPING: Record<Label, Activity> = {
   스냅촬영: 'snap',
   '일출/일몰': 'sunset',
 };
+
+export const LABEL_MAPPING_REVERSE: Record<Activity, Label> = {
+  snorkeling: '스노클링',
+  diving: '다이빙',
+  swimming: '해수욕',
+  surfing: '서핑',
+  scubaDiving: '스쿠버다이빙',
+  snap: '스냅촬영',
+  sunset: '일출/일몰',
+};
