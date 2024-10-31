@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
 import Map from '../components/common/Map';
-import RollList from '../components/RollList';
+import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
@@ -96,7 +96,7 @@ function Home() {
             onDeleteHistory={deleteHistory}
           />
         )}
-        <RollList />
+        <FilterList />
         <Map />
         <BottomSheet>
           <div>Hello World</div>
