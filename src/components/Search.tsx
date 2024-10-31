@@ -8,13 +8,16 @@ import SearchItem from './common/SearchItem';
 
 type SearchProps = {
   onClick?: (address: string) => void;
+  onDeleteHistory?: (id: number) => void;
   isSearching: boolean;
 };
 
-const Search: React.FC<SearchProps> = ({ onClick, isSearching }) => {
+const Search: React.FC<SearchProps> = ({
+  onClick,
+  onDeleteHistory,
+  isSearching,
+}) => {
   const { state } = useContext(AddressContext);
-
-  const histories = ['history1', 'history2', 'history3']; // localStorage.getItem('histories')
 
   return (
     <Container>
@@ -38,8 +41,18 @@ const Search: React.FC<SearchProps> = ({ onClick, isSearching }) => {
       ) : (
         <>
           <ColList>
-            {histories?.map((history, index) => (
-              <SearchItem key={index} isHistory={true} content={history} />
+            {state.histories?.map((history, index) => (
+              <>
+                <SearchItem
+                  key={index}
+                  isHistory={true}
+                  content={history.address_name}
+                  onClick={() => onClick && onClick(history)}
+                />
+                <button onClick={() => onDeleteHistory(history.id)}>
+                  삭제
+                </button>
+              </>
             ))}
           </ColList>
         </>

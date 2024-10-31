@@ -7,6 +7,7 @@ import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
+import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 
 function Home() {
@@ -14,12 +15,26 @@ function Home() {
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
 
   const { dispatch } = useContext(AddressContext);
 
   useEffect(() => {
     setSearchValueDebounce();
   }, [searchValue]);
+
+  useEffect(() => {
+    initIndexedDB();
+  }, []);
+
+  const initIndexedDB = async () => {
+    const manager = IndexedDBManager.getInstance('MyDatabase', 'MyStore');
+    await manager.init();
+    setDbManager(manager);
+    const histories = (await manager.getAll()) || [];
+    console.log('histories', histories);
+    dispatch({ type: 'SET_HISTORIES', payload: histories });
+  };
 
   const setSearchValueDebounce = useDebounce(() => {
     dispatch({ type: 'SET_SEARCH_KEYWORD', payload: searchValue });
@@ -31,7 +46,14 @@ function Home() {
     setIsSearchPage(false);
   };
 
+  const deleteHistory = (id: number) => {
+    if (dbManager) dbManager.delete(id);
+    dispatch({ type: 'DELETE_HISTORY', payload: id });
+  };
+
   const openSearchPage = () => {
+    dispatch({ type: 'SET_SEARCH_RESULTS', payload: [] });
+    setSearchValue('');
     setOriginalSearchValue(searchValue);
     setIsSearchPage(true);
     setIsSearching(false);
@@ -39,7 +61,9 @@ function Home() {
 
   const updateCurrentAddress = (address: object) => {
     setSearchValue(address.address_name);
+    dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
+    dbManager.add(address);
     setIsSearchPage(false);
   };
 
@@ -57,7 +81,11 @@ function Home() {
       </Header>
       <>
         {isSearchPage && (
-          <Search isSearching={isSearching} onClick={updateCurrentAddress} />
+          <Search
+            isSearching={isSearching}
+            onClick={updateCurrentAddress}
+            onDeleteHistory={deleteHistory}
+          />
         )}
         <RollList />
         <Map />
