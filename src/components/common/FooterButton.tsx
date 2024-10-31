@@ -18,11 +18,10 @@ const FooterButton: React.FC<FooterButtonProps> = ({
 };
 
 const Button = styled.button`
-  width: 327px;
+  width: 100%;
   height: 56px;
   position: fixed;
-  bottom: 24px;
-  border-radius: 999px;
+  bottom: 0;
   color: ${({ theme }) => theme.colors.white};
   background-color: ${({ theme }) => theme.colors.blue500};
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.5);
