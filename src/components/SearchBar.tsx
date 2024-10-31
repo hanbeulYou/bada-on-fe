@@ -32,8 +32,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   setSearchValue,
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
+  };
+
+  const handleClear = () => {
+    setSearchValue('');
   };
 
   return (
@@ -45,6 +50,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onChange={handleInputChange}
         placeholder="Search..."
       />
+      <button onClick={handleClear}>삭제염</button>
     </SearchBarContainer>
   );
 };
