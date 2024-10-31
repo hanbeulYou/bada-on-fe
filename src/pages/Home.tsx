@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
 import BottomSheet from '../components/BottomSheet';
@@ -6,19 +6,32 @@ import Map from '../components/common/Map';
 import RollList from '../components/RollList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
+import localKey from '../consts/localKey';
 
 function Home() {
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
+  const handleEnter = () => {
+    sessionStorage.setItem(localKey.searchKeyword, searchValue); // TODO: 키를 상수로 분리
+    closeSearchPage();
+  };
+
+  const closeSearchPage = () => {
+    const localSearchValue = sessionStorage.getItem(localKey.searchKeyword);
+    setSearchValue(localSearchValue || '');
+    setIsSearchPage(false);
+  };
+
   return (
     <Container>
       <Header>
         {isSearchPage ? (
-          <CloseButton onClick={() => setIsSearchPage(false)}>X</CloseButton>
+          <CloseButton onClick={closeSearchPage}>X</CloseButton>
         ) : null}
         <SearchBar
           onClick={() => !isSearchPage && setIsSearchPage(prev => !prev)}
+          onEnter={handleEnter}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
