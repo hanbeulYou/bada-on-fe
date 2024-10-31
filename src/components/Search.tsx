@@ -35,6 +35,15 @@ const WarningText = styled.div`
   letter-spacing: -0.14px;
 `;
 
+const SearchContent = ({ content }) => {
+  return (
+    <div>
+      <PlaceText>{content.place_name}</PlaceText>
+      <AddressText>{content.address_name}</AddressText>
+    </div>
+  );
+};
+
 type SearchProps = {
   onClick?: (address: string) => void;
   onDeleteHistory?: (id: number) => void;
@@ -60,9 +69,10 @@ const Search: React.FC<SearchProps> = ({
                 <SearchItem
                   key={index}
                   isHistory={false}
-                  content={result.address_name}
                   onClick={() => onClick && onClick(result)}
-                />
+                >
+                  <SearchContent content={result} />
+                </SearchItem>
               ))}
             </ColList>
           )}
@@ -77,13 +87,12 @@ const Search: React.FC<SearchProps> = ({
                 <>
                   <SearchItem
                     key={index}
-                    isHistory={true}
-                    content={history.address_name}
+                    isHistory
                     onClick={() => onClick && onClick(history)}
-                  />
-                  <button onClick={() => onDeleteHistory(history.id)}>
-                    삭제
-                  </button>
+                    onDelete={() => onDeleteHistory(history.id)}
+                  >
+                    <SearchContent content={history} />
+                  </SearchItem>
                 </>
               ))}
             </ColList>
@@ -106,5 +115,22 @@ const NoResult = () => {
     </WarningText>
   );
 };
+
+const PlaceText = styled.div`
+  color: ${({ theme }) => theme.colors.blue500};
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.16px;
+`;
+const AddressText = styled.div`
+  overflow: hidden;
+  color: ${({ theme }) => theme.colors.gray500};
+  text-overflow: ellipsis;
+  margin-top: 3px;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.14px;
+`;
 
 export default Search;

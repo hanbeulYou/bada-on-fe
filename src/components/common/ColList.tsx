@@ -20,7 +20,13 @@ const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow: hidden auto;
   height: fit-content;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export default ColList;
