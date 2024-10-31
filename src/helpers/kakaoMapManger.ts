@@ -44,7 +44,8 @@ class KakaoMapManager {
     this.rectangleBounds = new this.mapService.LatLngBounds(..._boundary);
 
     this.map = new this.mapService.Map(this.mapContainer, mapOption);
-    this.map.setMinLevel(10);
+    this.map.setMinLevel(5);
+    this.map.setMaxLevel(10);
 
     this.places = new this.placesService();
     this.addMapEventListeners();
@@ -150,7 +151,7 @@ class KakaoMapManager {
 
   restrictZoomLevel(): void {
     if (!this.map) return;
-    const MAX_LEVEL = 8;
+    const MAX_LEVEL = 10;
     if (this.map.getLevel() > MAX_LEVEL) this.map.setLevel(MAX_LEVEL);
     this.restrictMapBounds();
   }
