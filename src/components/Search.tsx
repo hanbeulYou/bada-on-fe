@@ -57,7 +57,6 @@ const Search: React.FC<SearchProps> = ({
           </ColList>
         </>
       )}
-      {/* Add your search functionality here */}
     </Container>
   );
 };
