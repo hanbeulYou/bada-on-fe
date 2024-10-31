@@ -10,7 +10,7 @@ type Variant = 'default' | 'warning';
 
 interface ContentBoxProps {
   title?: string;
-  data: Array<Item>;
+  data: Array<Item | string | number>;
   variant?: Variant;
 }
 
@@ -61,10 +61,16 @@ const ContentBox = (props: ContentBoxProps) => {
     <>
       {title && <Title variant={variant}>{title}</Title>}
       <Container variant={variant}>
-        {data.map(item => (
-          <Item key={item.label}>
-            <Text variant={variant}>{item.label}</Text>
-            <Text variant={variant}>{item.value}</Text>
+        {data.map((item, index) => (
+          <Item key={index}>
+            {typeof item === 'object' ? (
+              <>
+                <Text variant={variant}>{item.label}</Text>
+                <Text variant={variant}>{item.value}</Text>
+              </>
+            ) : (
+              <Text variant={variant}>{item}</Text>
+            )}
           </Item>
         ))}
       </Container>

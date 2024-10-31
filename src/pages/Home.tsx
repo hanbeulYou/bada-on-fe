@@ -113,13 +113,7 @@ function Home() {
         <BottomSheet>
           <div>Hello World</div>
           {/* {JSON.stringify(data)} */}
-          <ContentBox
-            title="Title"
-            data={[
-              { label: 'aa', value: '231313212' },
-              { label: 'bb', value: '231313212' },
-            ]}
-          />
+          <ContentBox title="Title" data={[12, 13]} />
           <ContentBox
             title="Title"
             variant="warning"
