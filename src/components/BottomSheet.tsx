@@ -48,6 +48,7 @@ const StyledContainer = styled.div`
   position: fixed;
   left: 0;
   right: 0;
+  z-index: 1;
   height: 700px;
   width: 100%;
   padding: 16px;

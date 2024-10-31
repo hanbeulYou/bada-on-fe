@@ -13,7 +13,6 @@ const Layout: React.FC = () => {
 
 export { Layout };
 
-// Styled-components
 const LayoutContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -24,6 +23,7 @@ const LayoutContainer = styled.div`
 `;
 
 const LayoutBox = styled.div`
+  position: relative;
   width: 375px;
   height: 812px;
   background-color: #ffffff;
