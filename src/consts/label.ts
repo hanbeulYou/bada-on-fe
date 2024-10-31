@@ -7,6 +7,15 @@ export type Label =
   | '스냅촬영'
   | '일출/일몰';
 
+export type Activity =
+  | 'snorkeling'
+  | 'diving'
+  | 'swimming'
+  | 'surfing'
+  | 'scubaDiving'
+  | 'snap'
+  | 'sunset';
+
 export const LABELS: Label[] = [
   '스노클링',
   '다이빙',
@@ -24,7 +33,7 @@ export const DISABLED_LABELS: Label[] = [
   '일출/일몰',
 ];
 
-export const LABEL_MAPPING: Record<string, string> = {
+export const LABEL_MAPPING: Record<Label, Activity> = {
   스노클링: 'snorkeling',
   다이빙: 'diving',
   해수욕: 'swimming',

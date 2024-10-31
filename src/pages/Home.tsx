@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
+import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
 import Map from '../components/common/Map';
 import FilterList from '../components/FilterList';
@@ -26,6 +27,9 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
+  const [filter, setFilter] = useState('');
+  const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
+  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
 
@@ -72,6 +76,10 @@ function Home() {
     setIsSearching(false);
   };
 
+  const handleFilterChange = (selected: string) => {
+    setFilter(selected);
+  };
+
   const updateCurrentAddress = (address: object) => {
     const MAX_HISTORY = 15;
 
@@ -88,16 +96,19 @@ function Home() {
     setIsSearchPage(false);
   };
 
+  const handleClickMarker = (marker: object) => {
+    setSelectedMarker(marker);
+  };
+
   return (
     <Container>
       <Header>
-        {isSearchPage ? (
-          <CloseButton onClick={closeSearchPage}>X</CloseButton>
-        ) : null}
         <SearchBar
+          isSearchPage={isSearchPage}
           onClick={openSearchPage}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          onClickBtnBackward={closeSearchPage}
         />
       </Header>
       <>
@@ -108,8 +119,10 @@ function Home() {
             onDeleteHistory={deleteHistory}
           />
         )}
-        {!isBottomSheetFull && <FilterList />}
-        <Map />
+        {!isBottomSheetFull && (
+          <FilterList onFilterChange={handleFilterChange} />
+        )}
+        <Map filter={filter} onClickMarker={handleClickMarker} />
         {isBottomSheetOpen && (
           <BottomSheet
             title={EXAMPLE_DATA.title}
@@ -140,12 +153,6 @@ const Header = styled.header`
   align-items: center;
   position: absolute;
   z-index: 12;
-`;
-
-const CloseButton = styled.div`
-  position: relative;
-  display: flex;
-  padding-left: 16px;
 `;
 
 export default Home;

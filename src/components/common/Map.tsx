@@ -1,20 +1,28 @@
 import { useEffect, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
+import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
 import KakaoMapManager from '../../helpers/kakaoMapManger';
 
-const JejuMap = () => {
+interface JejuMapProps {
+  filter?: string;
+  onClickMarker?: (place: object) => void;
+}
+
+const JejuMap = (props: JejuMapProps) => {
+  const { filter = '', onClickMarker = () => {} } = props;
   const mapContainer = useRef<HTMLDivElement>(null);
   const { dispatch, state } = useContext(AddressContext);
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
+  const { data, isLoading } = useMapsQuery(filter);
 
   useEffect(() => {
     const args = {
       mapContainer: mapContainer.current,
       boundary: [
-        [33.086415360763105, 126.07509577087393],
-        [33.628831954811545, 126.98830359334572],
+        [32.78442221352914, 125.8539291788811],
+        [33.95418174379797, 127.20556660191247],
       ],
     };
     kakaoMapManager.current = new KakaoMapManager(args);
@@ -38,8 +46,34 @@ const JejuMap = () => {
   }, [state.searchKeyword]);
 
   useEffect(() => {
+    kakaoMapManager.current?.clearMarker();
+    if (!isLoading) addActivityMarkers();
+  }, [data, isLoading]);
+
+  const addActivityMarkers = () => {
+    if (data?.length > 0) {
+      data.forEach(item => {
+        const imageSrc = `/public/pin/${filter}.png`;
+        const { latitude, longitude, ...rest } = item;
+        const place = { x: longitude, y: latitude, ...rest };
+        kakaoMapManager.current?.setMarker({
+          place,
+          imageSrc,
+          onClick: onClickMarker,
+        });
+      });
+      kakaoMapManager.current?.rerender();
+    }
+  };
+
+  useEffect(() => {
     if (kakaoMapManager.current) {
-      kakaoMapManager.current.setMarker(state.currentAddress);
+      kakaoMapManager.current.clearMarker();
+      // TODO: 만약 현재 위치에 대한 액티비티 정보가 있다면 마커를 추가한다.
+      kakaoMapManager.current.setMarker({
+        place: state.currentAddress,
+        movePlace: true,
+      });
     }
   }, [state.currentAddress]);
 
