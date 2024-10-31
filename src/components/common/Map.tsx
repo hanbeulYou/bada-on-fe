@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
 import KakaoMapManager from '../../helpers/kakaoMapManger';
+import useToast from '../../hooks/useToast';
 
 interface JejuMapProps {
   filter?: string;
@@ -16,6 +17,7 @@ const JejuMap = (props: JejuMapProps) => {
   const { dispatch, state } = useContext(AddressContext);
   const kakaoMapManager = useRef<KakaoMapManager | null>(null);
   const { data, isLoading } = useMapsQuery(filter);
+  const { showToast, renderToasts } = useToast();
 
   useEffect(() => {
     const args = {
@@ -68,15 +70,36 @@ const JejuMap = (props: JejuMapProps) => {
   };
 
   useEffect(() => {
+    if (isObjectEmpty(state.currentAddress)) return;
+
     if (kakaoMapManager.current) {
-      kakaoMapManager.current.clearMarker();
-      // TODO: 만약 현재 위치에 대한 액티비티 정보가 있다면 마커를 추가한다.
-      kakaoMapManager.current.setMarker({
-        place: state.currentAddress,
-        movePlace: true,
+      // TODO: 테스트를 위해 토스트로 강제 처리
+      showToast({
+        message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
+        toastType: 'warning',
+        timeout: 1000,
       });
+      // const isValid = checkValidPlaces(state.currentAddress || {});
+      // if (isValid) {
+      //   kakaoMapManager.current.clearMarker();
+      //   // TODO: 만약 현재 위치에 대한 액티비티 정보가 있다면 마커를 추가한다.
+      //   kakaoMapManager.current.setMarker({
+      //     place: state.currentAddress,
+      //     movePlace: true,
+      //   });
+      // } else {
+      //   showToast({
+      //     message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
+      //     toastType: 'warning',
+      //     timeout: 1000,
+      //   });
+      // }
     }
   }, [state.currentAddress]);
+
+  const isObjectEmpty = (obj: object) => {
+    return Object.keys(obj).length === 0;
+  };
 
   const onSearch = (places, status, currStatus) => {
     const JEJUPlaces = places.filter(place => {
@@ -96,7 +119,12 @@ const JejuMap = (props: JejuMapProps) => {
     }
   };
 
-  return <Container id="map" ref={mapContainer}></Container>;
+  return (
+    <>
+      <Container id="map" ref={mapContainer}></Container>
+      {renderToasts()}
+    </>
+  );
 };
 
 export default JejuMap;
