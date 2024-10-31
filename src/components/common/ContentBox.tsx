@@ -25,35 +25,35 @@ const colorVarMap = {
   },
 };
 
-const Container = styled.div<{ variant: Variant }>`
+const Container = styled.div<{ $variant: Variant; $title: string }>`
   gap: 10px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 16px 12px;
+  padding: ${props => (props.title ? '16px 12px' : '12px')};
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.014rem;
-  background-color: ${props => colorVarMap[props.variant].background};
+  background-color: ${props => colorVarMap[props.$variant].background};
 `;
 
-const Text = styled.span<{ variant: Variant }>`
+const Text = styled.span<{ $variant: Variant }>`
   font-weight: 600;
-  color: ${props => colorVarMap[props.variant].color};
+  color: ${props => colorVarMap[props.$variant].color};
   font-size: 14px;
   letter-spacing: -0.014rem;
 `;
 
-const Item = styled.div<{ justifyContent: justifyContent }>`
+const Item = styled.div<{ $justify: justifyContent }>`
   display: flex;
-  justify-content: ${props => props.justifyContent};
+  justify-content: ${props => props.$justify};
   gap: 12px;
 `;
 
-const Title = styled.h3<{ variant: Variant }>`
+const Title = styled.h3<{ $variant: Variant }>`
   font-size: 14px;
   font-weight: 600;
-  color: ${props => colorVarMap[props.variant].title};
+  color: ${props => colorVarMap[props.$variant].title};
   padding-bottom: 12px;
 `;
 
@@ -66,17 +66,17 @@ const ContentBox = (props: ContentBoxProps) => {
   } = props;
   return (
     <>
-      {title && <Title variant={variant}>{title}</Title>}
-      <Container variant={variant}>
+      {title && <Title $variant={variant}>{title}</Title>}
+      <Container $variant={variant} $title={title || ''}>
         {data.map((item, index) => (
-          <Item key={index} justifyContent={justifyContent}>
+          <Item key={index} $justify={justifyContent}>
             {typeof item === 'object' ? (
               <>
-                <Text variant={variant}>{item.label}</Text>
-                <Text variant={variant}>{item.value}</Text>
+                <Text $variant={variant}>{item.label}</Text>
+                <Text $variant={variant}>{item.value}</Text>
               </>
             ) : (
-              <Text variant={variant}>{item}</Text>
+              <Text $variant={variant}>{item}</Text>
             )}
           </Item>
         ))}
