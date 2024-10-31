@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 
-import DoughnutChart from './chart/Doughnut';
-import TimeFlow from './TimeFlow';
 import { LABEL_MAPPING_REVERSE } from '../consts/label';
+
+import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
+import TimeFlow from './TimeFlow';
 
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
@@ -262,7 +263,7 @@ const HandlerWrapper = styled.div`
   justify-content: center;
   width: 100%;
   height: 6px;
-  margin-bottom: 20px;
+  padding-bottom: 20px;
 `;
 
 const Handler = styled.div`
