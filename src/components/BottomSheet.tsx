@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 import { LABEL_MAPPING_REVERSE } from '../consts/label';
+import useToast from '../hooks/useToast';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
@@ -40,6 +41,8 @@ function BottomSheet({
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const initialPosition = useRef<number>(-400);
+
+  const { showToast, renderToasts } = useToast();
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -88,6 +91,7 @@ function BottomSheet({
       style={{ bottom: `${position}px` }}
       isFull={isFull}
     >
+      {renderToasts()}
       <HandlerWrapper
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -97,7 +101,20 @@ function BottomSheet({
       </HandlerWrapper>
       <Header>
         <Title>{title}</Title>
-        {alert && <Alert>{alert}</Alert>}
+        {alert && (
+          <Alert
+            onClick={() =>
+              showToast({
+                message:
+                  '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
+                toastType: 'warning',
+                timeout: 3000,
+              })
+            }
+          >
+            {alert}
+          </Alert>
+        )}
       </Header>
       <DoughnutChart chartValue={dangerValue} />
       <RecommendContainer>

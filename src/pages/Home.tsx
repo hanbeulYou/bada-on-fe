@@ -9,9 +9,9 @@ import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
+import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
-import { DETAILS_TMP } from '../data/data';
 
 function Home() {
   const currentHour = new Date().getHours();
@@ -136,7 +136,12 @@ function Home() {
         {isBottomSheetOpen && selectedMarker && (
           <BottomSheet
             title={selectedMarker.name}
-            // alert={}
+            alert={
+              selectedMarker.name === '김녕 세기알 해변' ||
+              selectedMarker.name === '용담포구'
+                ? '다이빙 금지구역'
+                : ''
+            }
             dangerValue={DETAILS_TMP[pickHour - currentHour].score}
             recommends={DETAILS_TMP[pickHour - currentHour].feedback}
             defaultTime={currentHour}
