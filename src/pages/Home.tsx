@@ -11,19 +11,9 @@ import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
+import { DETAILS_TMP } from '../data/data';
 
 function Home() {
-  const EXAMPLE_DATA = {
-    title: '세기알 해변',
-    alert: '다이빙 금지 구역 (간조 시간 절대 금지)',
-    dangerValue: 73,
-    recommends: [
-      { title: '스노클링', description: '맑은 시야 덕분에 강력 추천!' },
-      { title: '해수욕', description: '잔잔한 파도로 편안하게 즐기기 좋아요' },
-    ],
-    now: 19,
-  };
-
   const currentHour = new Date().getHours();
   const [pickHour, setPickHour] = useState<number>(currentHour);
 
@@ -143,12 +133,12 @@ function Home() {
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <Map filter={filter} onClickMarker={handleClickMarker} />
-        {isBottomSheetOpen && selectedMarker && data && (
+        {isBottomSheetOpen && selectedMarker && (
           <BottomSheet
             title={selectedMarker.name}
-            alert={EXAMPLE_DATA.alert}
-            dangerValue={data.details[pickHour - currentHour].score}
-            recommends={data.details[pickHour - currentHour].feedback}
+            // alert={}
+            dangerValue={DETAILS_TMP[pickHour - currentHour].score}
+            recommends={DETAILS_TMP[pickHour - currentHour].feedback}
             defaultTime={currentHour}
             pickHour={pickHour}
             setPickHour={setPickHour}

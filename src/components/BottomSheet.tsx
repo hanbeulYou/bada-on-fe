@@ -5,7 +5,7 @@ import { LABEL_MAPPING_REVERSE } from '../consts/label';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
-import TimeFlow from './TimeFlow';
+import FooterTimer from './Footer';
 
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
@@ -214,16 +214,11 @@ function BottomSheet({
         </DetailContainer>
       )}
       {isFooterVisible && (
-        <Footer>
-          {/* TODO: 앞에 시계 아이콘 넣어주기 */}
-          <TimerWrapper>
-            <Time>{pickHour % 24}:00</Time>
-            <Triangle />
-          </TimerWrapper>
-          <TimeFlowContainer>
-            <TimeFlow setState={setPickHour} defaultTime={defaultTime} />
-          </TimeFlowContainer>
-        </Footer>
+        <FooterTimer
+          pickHour={pickHour}
+          setPickHour={setPickHour}
+          defaultTime={defaultTime}
+        />
       )}
     </Container>
   );
@@ -338,41 +333,6 @@ const RecommendTitle = styled.div`
 const RecommendDescription = styled.div`
   ${({ theme }) => theme.typography.Label};
   color: ${({ theme }) => theme.colors.gray700};
-`;
-
-const TimerWrapper = styled.div`
-  display: flex;
-  position: relative;
-  width: 100%;
-  height: 35px;
-  background-color: ${({ theme }) => theme.colors.gray600};
-  color: ${({ theme }) => theme.colors.white};
-  align-items: center;
-  justify-content: center;
-`;
-
-const Time = styled.span`
-  display: flex;
-`;
-
-const Triangle = styled.div`
-  position: absolute;
-  width: 0;
-  height: 0;
-  bottom: -7px;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-top: 8px solid ${({ theme }) => theme.colors.gray600};
-`;
-
-const TimeFlowContainer = styled.div`
-  display: flex;
-`;
-
-const Footer = styled.div`
-  position: fixed;
-  isolation: isolate;
-  bottom: 0px;
 `;
 
 const DetailContainer = styled.div`
