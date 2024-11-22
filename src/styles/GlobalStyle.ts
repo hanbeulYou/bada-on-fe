@@ -16,7 +16,7 @@ const GlobalStyles = createGlobalStyle`
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;
-    background-color: #f9f9f9;
+    background-color: black;
     color: #333;
     line-height: 1.6;
   }
