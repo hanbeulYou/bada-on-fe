@@ -55,6 +55,7 @@ const PageContainer = styled.section`
   width: 100%;
   padding: 110px 24px 50px 24px;
   background-image: url(${Background_img});
+  background-size: cover;
   gap: 40px;
 `;
 
