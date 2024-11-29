@@ -6,6 +6,8 @@ import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
 import useToast from '../../hooks/useToast';
 
+import Icon from './Icon';
+
 interface JejuMapProps {
   filter?: string;
   onClickMarker?: (place: object) => void;
@@ -80,24 +82,6 @@ const MapTmp = (props: JejuMapProps) => {
         });
       }
     }, [state.searchKeyword]);
-
-    // 액티비티 마커 처리
-    useEffect(() => {
-      if (!isLoading && data) {
-        if (data.length > 0 && map) {
-          const bounds = new kakao.maps.LatLngBounds();
-          data.forEach(item => {
-            bounds.extend(
-              new kakao.maps.LatLng(
-                Number(item.latitude),
-                Number(item.longitude),
-              ),
-            );
-          });
-          map.setBounds(bounds);
-        }
-      }
-    }, [data, isLoading, map]);
 
     // 현재 주소 마커 처리
     useEffect(() => {
@@ -186,6 +170,7 @@ const MapTmp = (props: JejuMapProps) => {
         >
           <EventsAndMarkers />
         </Map>
+        <LocationButton onClick={() => console.log('click')}>ㅋ</LocationButton>
       </Container>
       {renderToasts()}
     </>
@@ -203,4 +188,25 @@ const Container = styled.div`
   top: 0;
   width: 100%;
   height: 100%;
+`;
+
+const LocationButton = styled.button`
+  position: absolute;
+  bottom: 120px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.white};
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+
+  &:active {
+    background-color: ${({ theme }) => theme.colors.gray50};
+  }
 `;
