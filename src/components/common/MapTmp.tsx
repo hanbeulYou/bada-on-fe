@@ -51,6 +51,20 @@ const MapTmp = (props: JejuMapProps) => {
   const { showToast, renderToasts } = useToast();
   const { location } = useCurrentLocation();
 
+  const sendToRN = () => {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ data: 'hello' }));
+    } else {
+      alert('not found');
+    }
+  };
+
+  window.addEventListener('message', e => alert(e.data));
+
+  useEffect(() => {
+    sendToRN();
+  }, []);
+
   console.log('location', location);
 
   const EventsAndMarkers = () => {
