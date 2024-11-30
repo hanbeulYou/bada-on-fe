@@ -30,6 +30,8 @@ export const useCurrentLocation = () => {
 
     window.parent.postMessage(JSON.stringify({ type: 'GET_LOCATION' }), '*');
 
+    window.parent.postMessage('test', '*');
+
     return () => {
       window.removeEventListener('message', handleMessage);
     };
