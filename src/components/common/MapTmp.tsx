@@ -4,9 +4,8 @@ import styled from 'styled-components';
 
 import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
+import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import useToast from '../../hooks/useToast';
-
-import Icon from './Icon';
 
 interface JejuMapProps {
   filter?: string;
@@ -50,6 +49,9 @@ const MapTmp = (props: JejuMapProps) => {
   const { state, dispatch } = useContext(AddressContext);
   const { data, isLoading } = useMapsQuery(filter);
   const { showToast, renderToasts } = useToast();
+  const { location } = useCurrentLocation();
+
+  console.log('location', location);
 
   const EventsAndMarkers = () => {
     const map = useMap();

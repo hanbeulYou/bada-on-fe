@@ -7,7 +7,7 @@ interface LocationData {
   timestamp?: number;
 }
 
-export const useLocation = () => {
+export const useCurrentLocation = () => {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
