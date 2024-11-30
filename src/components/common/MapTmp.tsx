@@ -7,6 +7,8 @@ import { AddressContext } from '../../context/AddressContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 
+import Icon from './Icon';
+
 interface JejuMapProps {
   filter?: string;
   onClickMarker?: (place: object) => void;
@@ -214,7 +216,9 @@ const MapTmp = (props: JejuMapProps) => {
         >
           <EventsAndMarkers />
         </Map>
-        <LocationButton onClick={handleLocationButtonClick}>ㅋ</LocationButton>
+        <LocationButton onClick={handleLocationButtonClick}>
+          <Icon name="location" />
+        </LocationButton>
       </Container>
       {renderToasts()}
     </>
@@ -236,8 +240,8 @@ const Container = styled.div`
 
 const LocationButton = styled.button`
   position: absolute;
-  bottom: 120px;
-  right: 16px;
+  top: 160px;
+  right: 20px;
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -248,7 +252,7 @@ const LocationButton = styled.button`
   justify-content: center;
   border: none;
   cursor: pointer;
-  z-index: 2;
+  z-index: 1;
 
   &:active {
     background-color: ${({ theme }) => theme.colors.gray50};
