@@ -1,10 +1,10 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import styled from 'styled-components';
 
 import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
-import { useCurrentLocation } from '../../hooks/useCurrentLocation';
+import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 
 interface JejuMapProps {
@@ -13,7 +13,11 @@ interface JejuMapProps {
 }
 
 // 지도 내 드래그와 바운더리 처리
-const MapEventController = () => {
+const MapEventController = ({
+  setFixedLocation,
+}: {
+  setFixedLocation: (value: boolean) => void;
+}) => {
   const map = useMap();
 
   useEffect(() => {
@@ -32,6 +36,7 @@ const MapEventController = () => {
       ) {
         map.panTo(new kakao.maps.LatLng(33.3617, 126.5292));
       }
+      setFixedLocation(false);
     };
 
     kakao.maps.event.addListener(map, 'drag', handleDrag);
@@ -39,7 +44,7 @@ const MapEventController = () => {
     return () => {
       kakao.maps.event.removeListener(map, 'drag', handleDrag);
     };
-  }, [map]);
+  }, [map, setFixedLocation]);
 
   return null;
 };
@@ -49,26 +54,34 @@ const MapTmp = (props: JejuMapProps) => {
   const { state, dispatch } = useContext(AddressContext);
   const { data, isLoading } = useMapsQuery(filter);
   const { showToast, renderToasts } = useToast();
-  const { location } = useCurrentLocation();
+  const { sendToRN } = useReactNativeBridge();
+  const [fixedLocation, setFixedLocation] = useState(false);
 
-  const sendToRN = () => {
-    if (window.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ data: 'hello' }));
+  useEffect(() => {
+    sendToRN({ type: 'GET_LOCATION' });
+  }, []);
+
+  const handleLocationButtonClick = () => {
+    if (!fixedLocation && !isObjectEmpty(state.location)) {
+      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
     } else {
-      alert('not found');
+      setFixedLocation(false);
     }
   };
 
-  window.addEventListener('message', e => alert(e.data));
-
-  useEffect(() => {
-    sendToRN();
-  }, []);
-
-  console.log('location', location);
-
   const EventsAndMarkers = () => {
     const map = useMap();
+
+    useEffect(() => {
+      if (fixedLocation && map && !isObjectEmpty(state.location)) {
+        map.panTo(
+          new kakao.maps.LatLng(
+            Number(state.location.latitude),
+            Number(state.location.longitude),
+          ),
+        );
+      }
+    }, [fixedLocation]);
 
     // 검색 결과 처리
     useEffect(() => {
@@ -119,9 +132,24 @@ const MapTmp = (props: JejuMapProps) => {
       }
     }, [state.currentAddress]);
 
+    useEffect(() => {
+      if (isObjectEmpty(state.location)) return;
+
+      console.log('location', state.location);
+
+      // if (map) {
+      //   map.panTo(
+      //     new kakao.maps.LatLng(
+      //       Number(state.location.latitude),
+      //       Number(state.location.longitude),
+      //     ),
+      //   );
+      // }
+    }, [state.location]);
+
     return (
       <>
-        <MapEventController />
+        <MapEventController setFixedLocation={setFixedLocation} />
 
         {!isLoading &&
           data?.map((item: any, index: number) => (
@@ -148,11 +176,11 @@ const MapTmp = (props: JejuMapProps) => {
             />
           ))}
 
-        {!isObjectEmpty(state.currentAddress) && (
+        {!isObjectEmpty(state.location) && (
           <MapMarker
             position={{
-              lat: Number(state.currentAddress.y),
-              lng: Number(state.currentAddress.x),
+              lat: Number(state.location.latitude),
+              lng: Number(state.location.longitude),
             }}
             image={{
               src: '/pin/location.png',
@@ -186,7 +214,7 @@ const MapTmp = (props: JejuMapProps) => {
         >
           <EventsAndMarkers />
         </Map>
-        <LocationButton onClick={() => console.log('click')}>ㅋ</LocationButton>
+        <LocationButton onClick={handleLocationButtonClick}>ㅋ</LocationButton>
       </Container>
       {renderToasts()}
     </>
