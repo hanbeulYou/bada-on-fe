@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,10 +8,22 @@ import FooterButton from '../components/common/FooterButton';
 import Icon from '../components/common/Icon';
 import { LABEL_MAPPING } from '../consts/label';
 import type { Label } from '../consts/label';
+import { SafeAreaContext } from '../context/SafeAreaContext';
 
 const IntroPage = () => {
   const [selectedLabel, setSelectedLabel] = useState<Label | ''>('');
   const navigate = useNavigate();
+  const { dispatch } = useContext(SafeAreaContext);
+
+  useEffect(() => {
+    const safeAreaInsets = (window as any).safeAreaInsets;
+    if (safeAreaInsets) {
+      dispatch({
+        type: 'SET_SAFE_AREA',
+        payload: safeAreaInsets,
+      });
+    }
+  }, []);
 
   const btnNextDisabled = selectedLabel === '';
 

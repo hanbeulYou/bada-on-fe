@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+
+import { SafeAreaContext } from '../../context/SafeAreaContext';
 
 interface FooterButtonProps {
   onClick: () => void;
@@ -10,16 +12,19 @@ const FooterButton: React.FC<FooterButtonProps> = ({
   onClick,
   disabled = false,
 }) => {
+  const { state } = useContext(SafeAreaContext);
+
   return (
-    <Button onClick={onClick} disabled={disabled}>
+    <Button onClick={onClick} disabled={disabled} safeAreaBottom={state.bottom}>
       찾아보기
     </Button>
   );
 };
 
-const Button = styled.button`
+const Button = styled.button<{ safeAreaBottom: number }>`
   width: 100%;
-  height: 56px;
+  height: calc(${({ safeAreaBottom }) => safeAreaBottom}px + 56px);
+  padding-bottom: ${({ safeAreaBottom }) => safeAreaBottom}px;
   position: fixed;
   bottom: 0;
   color: ${({ theme }) => theme.colors.white};
