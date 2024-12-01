@@ -10,6 +10,7 @@ import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { AddressContext } from '../context/AddressContext';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
@@ -38,6 +39,7 @@ function Home() {
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
 
   useEffect(() => {
     sendToRN({ type: 'GET_LOCATION' });
@@ -112,9 +114,9 @@ function Home() {
 
   return (
     <Container>
-      <Header>
+      <Header safeArea={safeAreaState}>
         {isBottomSheetFull ? (
-          <CloseBottomSheet>
+          <CloseBottomSheet safeArea={safeAreaState}>
             <button
               onClick={() => {
                 setIsBottomSheetFull(false);
@@ -181,20 +183,25 @@ function Home() {
 
 const Container = styled.div``;
 
-const Header = styled.header`
+const Header = styled.header<{ safeArea: SafeAreaState }>`
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
   position: absolute;
+  top: ${({ safeArea }) => safeArea.top}px;
   z-index: 12;
 `;
 
-const CloseBottomSheet = styled.div`
+const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
   width: 100%;
   height: 84px;
-  padding: 18px 32px 12px 32px;
+  padding-top: calc(18px + ${({ safeArea }) => safeArea.top}px);
+  padding-bottom: 12px;
+  padding-left: 32px;
+  padding-right: 32px;
+  margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
 `;

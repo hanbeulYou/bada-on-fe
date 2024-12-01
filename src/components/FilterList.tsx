@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { LABEL_MAPPING, LABELS } from '../consts/label';
+import { SafeAreaContext } from '../context/SafeAreaContext';
 
 import FilterButton from './common/FilterButton';
 
@@ -14,6 +15,7 @@ const FilterList = (props: FilterListProps) => {
   const { onFilterChange = () => {} } = props;
   const [searchParams, setSearchParams] = useSearchParams();
   const selected = searchParams.get('selected');
+  const { state: safeAreaState } = useContext(SafeAreaContext);
 
   useEffect(() => {
     if (selected) onFilterChange(selected);
@@ -29,7 +31,7 @@ const FilterList = (props: FilterListProps) => {
   };
 
   return (
-    <FilterListContainer>
+    <FilterListContainer safeArea={safeAreaState}>
       {LABELS.map((item, index) => (
         <FilterButton
           key={index}
@@ -42,14 +44,16 @@ const FilterList = (props: FilterListProps) => {
   );
 };
 
-const FilterListContainer = styled.div`
+const FilterListContainer = styled.div<{ safeArea: SafeAreaState }>`
   width: 100%;
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
   position: absolute;
   z-index: 2;
-  top: 92px; // TODO: 헤더 높이를 변수로 주도록
+  top: calc(
+    76px + ${({ safeArea }) => safeArea.top}px
+  ); // TODO: 헤더 높이를 변수로 주도록
   gap: 6px;
   padding: 0 24px;
 
