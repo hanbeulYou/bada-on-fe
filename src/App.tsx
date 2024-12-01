@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import { AddressProvider } from './context/AddressProvider';
@@ -9,15 +8,6 @@ import NotFound from './pages/NotFound';
 import { Layout } from './styles/Layout';
 
 function App() {
-  useEffect(() => {
-    const safeAreaInsets = (window as any).safeAreaInsets;
-    if (safeAreaInsets) {
-      dispatch({
-        type: 'SET_SAFE_AREA',
-        payload: safeAreaInsets,
-      });
-    }
-  }, []);
   return (
     <SafeAreaProvider>
       <AddressProvider>

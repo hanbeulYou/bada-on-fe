@@ -12,7 +12,7 @@ export const initialState: SafeAreaState = {
   left: 0,
 };
 
-type SafeAreaAction = {
+export type SafeAreaAction = {
   type: 'SET_SAFE_AREA';
   payload: SafeAreaState;
 };
@@ -21,6 +21,9 @@ export const safeAreaReducer = (
   state: SafeAreaState,
   action: SafeAreaAction,
 ): SafeAreaState => {
+  window.alert(
+    `SafeArea 리듀서 실행\n이전 상태: ${JSON.stringify(state)}\n액션: ${JSON.stringify(action)}`,
+  );
   switch (action.type) {
     case 'SET_SAFE_AREA':
       return {
