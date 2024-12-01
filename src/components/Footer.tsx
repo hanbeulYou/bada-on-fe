@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+
+import { SafeAreaContext } from '../context/SafeAreaContext';
 
 import Icon from './common/Icon';
 import TimeFlow from './TimeFlow';
@@ -15,6 +17,7 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
   setPickHour,
   defaultTime,
 }) => {
+  const { state: safeAreaState } = useContext(SafeAreaContext);
   return ReactDOM.createPortal(
     <Footer>
       <TimerWrapper>
@@ -22,7 +25,7 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
         <Time>{pickHour % 24}:00</Time>
         <Triangle />
       </TimerWrapper>
-      <TimeFlowContainer>
+      <TimeFlowContainer safeArea={safeAreaState}>
         <TimeFlow setState={setPickHour} defaultTime={defaultTime} />
       </TimeFlowContainer>
     </Footer>,
@@ -33,6 +36,7 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
 export default FooterTimer;
 
 const Footer = styled.div`
+  width: 100%;
   position: fixed;
   isolation: isolate;
   bottom: 0px;
@@ -65,6 +69,7 @@ const Triangle = styled.div`
   border-top: 8px solid ${({ theme }) => theme.colors.gray600};
 `;
 
-const TimeFlowContainer = styled.div`
+const TimeFlowContainer = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
+  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
 `;

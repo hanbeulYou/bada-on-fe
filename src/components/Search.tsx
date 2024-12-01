@@ -17,7 +17,6 @@ const Container = styled.div`
   background-color: #fff;
   width: 100%;
   height: 100%;
-}
 `;
 
 const WarningText = styled.div`
