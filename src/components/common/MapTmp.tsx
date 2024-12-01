@@ -4,7 +4,6 @@ import styled from 'styled-components';
 
 import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
-import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 
 import Icon from './Icon';
@@ -56,12 +55,7 @@ const MapTmp = (props: JejuMapProps) => {
   const { state, dispatch } = useContext(AddressContext);
   const { data, isLoading } = useMapsQuery(filter);
   const { showToast, renderToasts } = useToast();
-  const { sendToRN } = useReactNativeBridge();
   const [fixedLocation, setFixedLocation] = useState(false);
-
-  useEffect(() => {
-    sendToRN({ type: 'GET_LOCATION' });
-  }, []);
 
   const handleLocationButtonClick = () => {
     if (!fixedLocation && !isObjectEmpty(state.location)) {
