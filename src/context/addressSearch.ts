@@ -3,6 +3,7 @@ const initialState = {
   searchKeyword: '',
   currentAddress: {},
   histories: [],
+  location: {},
 };
 
 const addressReducer = (state, action) => {
@@ -13,6 +14,8 @@ const addressReducer = (state, action) => {
       return { ...state, searchKeyword: action.payload };
     case 'SET_CURRENT_ADDRESS':
       return { ...state, currentAddress: action.payload };
+    case 'SET_LOCATION':
+      return { ...state, location: action.payload };
     case 'DELETE_HISTORY':
       return {
         ...state,

@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
 import BottomSheet from '../components/BottomSheet';
 import Icon from '../components/common/Icon';
-import Map from '../components/common/Map';
+// import Map from '../components/common/Map';
+import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
@@ -12,6 +13,13 @@ import { AddressContext } from '../context/AddressContext';
 import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
+import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
+
+// 제주 시청 위치
+const initialLocation: LocationData = {
+  latitude: 33.4890113,
+  longitude: 126.4983023,
+};
 
 function Home() {
   const currentHour = new Date().getHours();
@@ -24,11 +32,16 @@ function Home() {
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState('');
   const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
-  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
+  // const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
+  const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
+
+  useEffect(() => {
+    sendToRN({ type: 'GET_LOCATION' });
+  }, []);
 
   useEffect(() => {
     setSearchValueDebounce();
@@ -132,7 +145,12 @@ function Home() {
         {!isBottomSheetFull && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        <Map filter={filter} onClickMarker={handleClickMarker} />
+        {/* <Map
+          filter={filter}
+          onClickMarker={handleClickMarker}
+          location={location ?? initialLocation}
+        /> */}
+        <MapTmp filter={filter} onClickMarker={handleClickMarker} />
         {isBottomSheetOpen && selectedMarker && (
           <BottomSheet
             title={selectedMarker.name}
@@ -174,7 +192,7 @@ const Header = styled.header`
 
 const CloseBottomSheet = styled.div`
   display: flex;
-  width: 375px;
+  width: 100%;
   height: 84px;
   padding: 18px 32px 12px 32px;
   background-color: ${({ theme }) => theme.colors.white};
