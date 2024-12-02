@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Icon from './Icon';
 
 interface SearchItemProps {
+  children: React.ReactNode;
   isHistory: boolean;
   onClick?: () => void;
   onDelete?: () => void;

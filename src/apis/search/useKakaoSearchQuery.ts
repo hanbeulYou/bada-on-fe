@@ -21,7 +21,7 @@ interface ResMeta {
   };
 }
 
-interface ResDocument {
+export interface Address {
   id: string;
   place_name: string;
   category_name: string;
@@ -38,7 +38,7 @@ interface ResDocument {
 
 interface KakaoSearchResponse {
   meta: ResMeta;
-  documents: ResDocument[];
+  documents: Address[];
 }
 
 const getKakaoSearchData = async ({
