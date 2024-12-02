@@ -53,18 +53,11 @@ const MapEventController = ({
 const MapTmp = (props: JejuMapProps) => {
   const { filter = '', onClickMarker = () => {} } = props;
   const { state, dispatch } = useContext(AddressContext);
-  const { data, isLoading } = useMapsQuery(filter);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
+  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
 
-  const handleLocationButtonClick = () => {
-    if (!fixedLocation && !isObjectEmpty(state.location)) {
-      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
-    } else {
-      setFixedLocation(false);
-    }
-  };
-
+  // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
     const map = useMap();
 
@@ -79,76 +72,31 @@ const MapTmp = (props: JejuMapProps) => {
       }
     }, [fixedLocation]);
 
-    // 검색 결과 처리
     useEffect(() => {
-      if (state.searchKeyword) {
-        const ps = new kakao.maps.services.Places();
-        ps.keywordSearch(state.searchKeyword, (places, status) => {
-          const JEJUPlaces = places.filter(place => {
-            return place.address_name.includes('제주특별자치도');
-          });
-          const hasInvalidPlaces = places.length > JEJUPlaces.length;
-
-          if (JEJUPlaces.length === 0 && hasInvalidPlaces) {
-            showToast({
-              message: '제주도 내의 검색 결과가 없습니다.',
-              toastType: 'warning',
-              timeout: 1000,
-            });
-          } else if (status === kakao.maps.services.Status.OK) {
-            dispatch({ type: 'SET_SEARCH_RESULTS', payload: JEJUPlaces });
-          } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-            showToast({
-              message: '검색 결과가 없습니다.',
-              toastType: 'warning',
-              timeout: 1000,
-            });
-          }
-        });
-      }
-    }, [state.searchKeyword]);
-
-    // 현재 주소 마커 처리
-    useEffect(() => {
-      if (!isObjectEmpty(state.currentAddress)) {
-        showToast({
-          message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
-          toastType: 'warning',
-          timeout: 1000,
-        });
-
-        if (map) {
-          map.panTo(
-            new kakao.maps.LatLng(
-              Number(state.currentAddress.y),
-              Number(state.currentAddress.x),
-            ),
-          );
-        }
+      // if (isObjectEmpty(state.currentAddress)) {
+      //   showToast({
+      //     message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
+      //     toastType: 'warning',
+      //     timeout: 1000,
+      //   });
+      //   return;
+      // }
+      if (map && !isObjectEmpty(state.currentAddress)) {
+        map.panTo(
+          new kakao.maps.LatLng(
+            Number(state.currentAddress.y),
+            Number(state.currentAddress.x),
+          ),
+        );
       }
     }, [state.currentAddress]);
-
-    useEffect(() => {
-      if (isObjectEmpty(state.location)) return;
-
-      console.log('location', state.location);
-
-      // if (map) {
-      //   map.panTo(
-      //     new kakao.maps.LatLng(
-      //       Number(state.location.latitude),
-      //       Number(state.location.longitude),
-      //     ),
-      //   );
-      // }
-    }, [state.location]);
 
     return (
       <>
         <MapEventController setFixedLocation={setFixedLocation} />
-
-        {!isLoading &&
-          data?.map((item: any, index: number) => (
+        {/* 기존 마커 렌더링 로직 유지 */}
+        {!mapsIsLoading &&
+          mapsData?.map((item: any, index: number) => (
             <MapMarker
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
@@ -197,6 +145,14 @@ const MapTmp = (props: JejuMapProps) => {
     );
   };
 
+  const handleLocationButtonClick = () => {
+    if (!fixedLocation && !isObjectEmpty(state.location)) {
+      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
+    } else {
+      setFixedLocation(false);
+    }
+  };
+
   return (
     <>
       <Container>
@@ -220,6 +176,7 @@ const MapTmp = (props: JejuMapProps) => {
 };
 
 const isObjectEmpty = (obj: object) => {
+  console.log(obj);
   return Object.keys(obj).length === 0;
 };
 
