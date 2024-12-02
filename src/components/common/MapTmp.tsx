@@ -2,7 +2,7 @@ import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import styled from 'styled-components';
 
-import useMapsQuery from '../../apis/maps/useMapQuery';
+import { useKakaoSearchQuery } from '../../apis/search/useKakaoSearchQuery';
 import { AddressContext } from '../../context/AddressContext';
 import useToast from '../../hooks/useToast';
 
@@ -53,18 +53,50 @@ const MapEventController = ({
 const MapTmp = (props: JejuMapProps) => {
   const { filter = '', onClickMarker = () => {} } = props;
   const { state, dispatch } = useContext(AddressContext);
-  const { data, isLoading } = useMapsQuery(filter);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
 
-  const handleLocationButtonClick = () => {
-    if (!fixedLocation && !isObjectEmpty(state.location)) {
-      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
+  // 검색어와 위치를 기반으로 쿼리 실행
+  const { data, isLoading } = useKakaoSearchQuery(
+    state.searchKeyword,
+    state.location.longitude || 126.5311884, // 제주시청의 경도
+    state.location.latitude || 33.4996213, // 제주시청의 위도
+  );
+
+  // 검색 로직을 별도 함수로 분리
+  const handleSearch = (keyword: string) => {
+    if (!keyword) return;
+
+    if (!data || data.documents.length === 0) {
+      showToast({
+        message: '제주도 내의 검색 결과가 없습니다.',
+        toastType: 'warning',
+        timeout: 1000,
+      });
+    } else if (data && data.documents.length > 0) {
+      // 이전 결과와 동일한 경우 dispatch 하지 않음
+      if (
+        JSON.stringify(state.searchResults) !== JSON.stringify(data.documents)
+      ) {
+        dispatch({ type: 'SET_SEARCH_RESULTS', payload: data.documents });
+      }
     } else {
-      setFixedLocation(false);
+      showToast({
+        message: '검색 결과가 없습니다.',
+        toastType: 'warning',
+        timeout: 1000,
+      });
     }
   };
 
+  // 검색어 변경 시 검색 실행
+  useEffect(() => {
+    if (state.searchKeyword) {
+      handleSearch(state.searchKeyword);
+    }
+  }, [state.searchKeyword, data]);
+
+  // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
     const map = useMap();
 
@@ -79,36 +111,6 @@ const MapTmp = (props: JejuMapProps) => {
       }
     }, [fixedLocation]);
 
-    // 검색 결과 처리
-    useEffect(() => {
-      if (state.searchKeyword) {
-        const ps = new kakao.maps.services.Places();
-        ps.keywordSearch(state.searchKeyword, (places, status) => {
-          const JEJUPlaces = places.filter(place => {
-            return place.address_name.includes('제주특별자치도');
-          });
-          const hasInvalidPlaces = places.length > JEJUPlaces.length;
-
-          if (JEJUPlaces.length === 0 && hasInvalidPlaces) {
-            showToast({
-              message: '제주도 내의 검색 결과가 없습니다.',
-              toastType: 'warning',
-              timeout: 1000,
-            });
-          } else if (status === kakao.maps.services.Status.OK) {
-            dispatch({ type: 'SET_SEARCH_RESULTS', payload: JEJUPlaces });
-          } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-            showToast({
-              message: '검색 결과가 없습니다.',
-              toastType: 'warning',
-              timeout: 1000,
-            });
-          }
-        });
-      }
-    }, [state.searchKeyword]);
-
-    // 현재 주소 마커 처리
     useEffect(() => {
       if (!isObjectEmpty(state.currentAddress)) {
         showToast({
@@ -128,27 +130,12 @@ const MapTmp = (props: JejuMapProps) => {
       }
     }, [state.currentAddress]);
 
-    useEffect(() => {
-      if (isObjectEmpty(state.location)) return;
-
-      console.log('location', state.location);
-
-      // if (map) {
-      //   map.panTo(
-      //     new kakao.maps.LatLng(
-      //       Number(state.location.latitude),
-      //       Number(state.location.longitude),
-      //     ),
-      //   );
-      // }
-    }, [state.location]);
-
     return (
       <>
         <MapEventController setFixedLocation={setFixedLocation} />
-
+        {/* 기존 마커 렌더링 로직 유지 */}
         {!isLoading &&
-          data?.map((item: any, index: number) => (
+          data?.documents?.map((item: any, index: number) => (
             <MapMarker
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
@@ -195,6 +182,14 @@ const MapTmp = (props: JejuMapProps) => {
         )}
       </>
     );
+  };
+
+  const handleLocationButtonClick = () => {
+    if (!fixedLocation && !isObjectEmpty(state.location)) {
+      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
+    } else {
+      setFixedLocation(false);
+    }
   };
 
   return (

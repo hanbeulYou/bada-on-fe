@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 
 import type { Activity } from '../../consts/label';
 import mockData from '../../mocks/map';
-import instance from '../instance';
+// import instance from '../instance';
 
 interface MapData {
   id: number;
