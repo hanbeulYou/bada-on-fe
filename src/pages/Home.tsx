@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
-import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
+import { Address } from '../apis/search/useKakaoSearchQuery';
 import BottomSheet from '../components/BottomSheet';
 import Icon from '../components/common/Icon';
 // import Map from '../components/common/Map';
@@ -17,10 +17,10 @@ import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 
 // 제주 시청 위치
-const initialLocation: LocationData = {
-  latitude: 33.4890113,
-  longitude: 126.4983023,
-};
+// const initialLocation: LocationData = {
+//   latitude: 33.4890113,
+//   longitude: 126.4983023,
+// };
 
 function Home() {
   const currentHour = new Date().getHours();
@@ -73,7 +73,7 @@ function Home() {
     setIsSearchPage(false);
   };
 
-  const deleteHistory = (id: number) => {
+  const deleteHistory = (id: string) => {
     if (dbManager) dbManager.delete(id);
     dispatch({ type: 'DELETE_HISTORY', payload: id });
   };
@@ -90,15 +90,13 @@ function Home() {
     setFilter(selected);
   };
 
-  const updateCurrentAddress = (address: object) => {
+  const updateCurrentAddress = (address: Address) => {
     const MAX_HISTORY = 15;
 
     if (state.histories.some(history => history.id === address.id)) {
       dispatch({ type: 'DELETE_HISTORY', payload: address.id });
       dbManager.delete(address.id);
-    }
-
-    if (state.histories.length >= MAX_HISTORY) {
+    } else if (state.histories.length >= MAX_HISTORY) {
       const oldestHistory = state.histories.at(-1);
       dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
       dbManager.delete(oldestHistory.id);
@@ -152,11 +150,6 @@ function Home() {
         {!isBottomSheetFull && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        {/* <Map
-          filter={filter}
-          onClickMarker={handleClickMarker}
-          location={location ?? initialLocation}
-        /> */}
         <MapTmp filter={filter} onClickMarker={handleClickMarker} />
         {isBottomSheetOpen && selectedMarker && (
           <BottomSheet

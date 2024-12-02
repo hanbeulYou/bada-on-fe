@@ -2,7 +2,7 @@ import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import styled from 'styled-components';
 
-import { useKakaoSearchQuery } from '../../apis/search/useKakaoSearchQuery';
+import useMapsQuery from '../../apis/maps/useMapQuery';
 import { AddressContext } from '../../context/AddressContext';
 import useToast from '../../hooks/useToast';
 
@@ -55,46 +55,7 @@ const MapTmp = (props: JejuMapProps) => {
   const { state, dispatch } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
-
-  // 검색어와 위치를 기반으로 쿼리 실행
-  const { data, isLoading } = useKakaoSearchQuery(
-    state.searchKeyword,
-    state.location.longitude || 126.5311884, // 제주시청의 경도
-    state.location.latitude || 33.4996213, // 제주시청의 위도
-  );
-
-  // 검색 로직을 별도 함수로 분리
-  const handleSearch = (keyword: string) => {
-    if (!keyword) return;
-
-    if (!data || data.documents.length === 0) {
-      showToast({
-        message: '제주도 내의 검색 결과가 없습니다.',
-        toastType: 'warning',
-        timeout: 1000,
-      });
-    } else if (data && data.documents.length > 0) {
-      // 이전 결과와 동일한 경우 dispatch 하지 않음
-      if (
-        JSON.stringify(state.searchResults) !== JSON.stringify(data.documents)
-      ) {
-        dispatch({ type: 'SET_SEARCH_RESULTS', payload: data.documents });
-      }
-    } else {
-      showToast({
-        message: '검색 결과가 없습니다.',
-        toastType: 'warning',
-        timeout: 1000,
-      });
-    }
-  };
-
-  // 검색어 변경 시 검색 실행
-  useEffect(() => {
-    if (state.searchKeyword) {
-      handleSearch(state.searchKeyword);
-    }
-  }, [state.searchKeyword, data]);
+  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
 
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
@@ -112,21 +73,21 @@ const MapTmp = (props: JejuMapProps) => {
     }, [fixedLocation]);
 
     useEffect(() => {
-      if (!isObjectEmpty(state.currentAddress)) {
-        showToast({
-          message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
-          toastType: 'warning',
-          timeout: 1000,
-        });
-
-        if (map) {
-          map.panTo(
-            new kakao.maps.LatLng(
-              Number(state.currentAddress.y),
-              Number(state.currentAddress.x),
-            ),
-          );
-        }
+      // if (isObjectEmpty(state.currentAddress)) {
+      //   showToast({
+      //     message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
+      //     toastType: 'warning',
+      //     timeout: 1000,
+      //   });
+      //   return;
+      // }
+      if (map && !isObjectEmpty(state.currentAddress)) {
+        map.panTo(
+          new kakao.maps.LatLng(
+            Number(state.currentAddress.y),
+            Number(state.currentAddress.x),
+          ),
+        );
       }
     }, [state.currentAddress]);
 
@@ -134,8 +95,8 @@ const MapTmp = (props: JejuMapProps) => {
       <>
         <MapEventController setFixedLocation={setFixedLocation} />
         {/* 기존 마커 렌더링 로직 유지 */}
-        {!isLoading &&
-          data?.documents?.map((item: any, index: number) => (
+        {!mapsIsLoading &&
+          mapsData?.map((item: any, index: number) => (
             <MapMarker
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
@@ -215,6 +176,7 @@ const MapTmp = (props: JejuMapProps) => {
 };
 
 const isObjectEmpty = (obj: object) => {
+  console.log(obj);
   return Object.keys(obj).length === 0;
 };
 

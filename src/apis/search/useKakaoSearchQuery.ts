@@ -22,7 +22,7 @@ interface ResMeta {
 }
 
 export interface Address {
-  id: string;
+  id: number;
   place_name: string;
   category_name: string;
   category_group_code: string;
