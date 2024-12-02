@@ -93,13 +93,18 @@ function Home() {
   const updateCurrentAddress = (address: object) => {
     const MAX_HISTORY = 15;
 
+    if (state.histories.some(history => history.id === address.id)) {
+      dispatch({ type: 'DELETE_HISTORY', payload: address.id });
+      dbManager.delete(address.id);
+    }
+
     if (state.histories.length >= MAX_HISTORY) {
       const oldestHistory = state.histories.at(-1);
       dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
       dbManager.delete(oldestHistory.id);
     }
 
-    setSearchValue(address.address_name);
+    setSearchValue(address.place_name);
     dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
     dbManager.add(address);
