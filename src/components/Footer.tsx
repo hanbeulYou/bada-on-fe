@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 import Icon from './common/Icon';
-import TimeFlow from './TimeFlow';
 
 interface FooterTimerProps {
   timeIndex: number;
@@ -101,7 +100,7 @@ const Row = styled.div`
 
 const TimeBlock = styled.div<{ filled: boolean }>`
   flex: 1;
-  height: 10px;
+  height: 8px;
   background-color: ${({ filled, theme }) =>
     filled ? theme.colors.primary : theme.colors.gray100};
   margin: none;

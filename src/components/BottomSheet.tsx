@@ -95,13 +95,15 @@ function BottomSheet({
       safeArea={safeAreaState}
     >
       {renderToasts()}
-      <HandlerWrapper
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {!isFull && <Handler />}
-      </HandlerWrapper>
+      {!isFull && (
+        <HandlerWrapper
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Handler />
+        </HandlerWrapper>
+      )}
       <Header>
         <Title>{title}</Title>
         {alert && (
