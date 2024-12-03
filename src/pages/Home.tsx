@@ -23,8 +23,8 @@ import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 // };
 
 function Home() {
-  const currentHour = new Date().getHours();
-  const [pickHour, setPickHour] = useState<number>(currentHour);
+  const currentHour = new Date();
+  const [timeIndex, setTimeIndex] = useState<number>(0);
 
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -160,11 +160,11 @@ function Home() {
                 ? '다이빙 금지구역'
                 : ''
             }
-            dangerValue={DETAILS_TMP[pickHour - currentHour].score}
-            recommends={DETAILS_TMP[pickHour - currentHour].feedback}
-            defaultTime={currentHour}
-            pickHour={pickHour}
-            setPickHour={setPickHour}
+            dangerValue={DETAILS_TMP[0].score}
+            recommends={DETAILS_TMP[0].feedback}
+            currentHour={currentHour}
+            timeIndex={timeIndex}
+            setTimeIndex={setTimeIndex}
             onClosed={() => {
               setIsBottomSheetOpen(false);
               setIsBottomSheetFull(false);

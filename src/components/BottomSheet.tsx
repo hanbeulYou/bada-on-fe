@@ -15,13 +15,13 @@ interface BottomSheetProps {
   alert?: string;
   dangerValue: number;
   recommends?: Record<string, string>;
-  pickHour: number;
-  setPickHour: React.Dispatch<React.SetStateAction<number>>;
+  timeIndex: number;
+  setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
   onClosed?: () => void;
   onFull?: () => void;
   onMiddle?: () => void;
   isFull: boolean;
-  defaultTime: number;
+  currentHour: Date;
 }
 
 function BottomSheet({
@@ -29,13 +29,13 @@ function BottomSheet({
   alert,
   dangerValue,
   recommends,
-  pickHour,
-  setPickHour,
+  timeIndex,
+  setTimeIndex,
   onClosed,
   onFull,
   onMiddle,
   isFull,
-  defaultTime,
+  currentHour,
 }: BottomSheetProps) {
   const [position, setPosition] = useState(-400);
   const [isFooterVisible, setFooterVisible] = useState(true);
@@ -235,9 +235,9 @@ function BottomSheet({
       )}
       {isFooterVisible && (
         <FooterTimer
-          pickHour={pickHour}
-          setPickHour={setPickHour}
-          defaultTime={defaultTime}
+          timeIndex={timeIndex}
+          setTimeIndex={setTimeIndex}
+          currentHour={currentHour}
         />
       )}
     </Container>
