@@ -2,14 +2,15 @@ import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import styled from 'styled-components';
 
-import useMapsQuery from '../../apis/maps/useMapQuery';
+import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
+import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import useToast from '../../hooks/useToast';
 
 import Icon from './Icon';
 
 interface JejuMapProps {
-  filter?: string;
+  filter?: Activity;
   onClickMarker?: (place: object) => void;
 }
 
@@ -51,8 +52,8 @@ const MapEventController = ({
 };
 
 const MapTmp = (props: JejuMapProps) => {
-  const { filter = '', onClickMarker = () => {} } = props;
-  const { state, dispatch } = useContext(AddressContext);
+  const { filter = 'snorkeling', onClickMarker = () => {} } = props;
+  const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
@@ -96,7 +97,7 @@ const MapTmp = (props: JejuMapProps) => {
         <MapEventController setFixedLocation={setFixedLocation} />
         {/* 기존 마커 렌더링 로직 유지 */}
         {!mapsIsLoading &&
-          mapsData?.map((item: any, index: number) => (
+          mapsData?.map((item: MapData, index: number) => (
             <MapMarker
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
@@ -176,7 +177,7 @@ const MapTmp = (props: JejuMapProps) => {
 };
 
 const isObjectEmpty = (obj: object) => {
-  console.log(obj);
+  // console.log(obj);
   return Object.keys(obj).length === 0;
 };
 

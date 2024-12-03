@@ -1,6 +1,5 @@
 import { Address } from '../apis/search/useKakaoSearchQuery';
-
-interface AddressContextState {
+export interface AddressContextState {
   searchResults: Address[];
   searchKeyword: string;
   currentAddress: Address;
@@ -11,7 +10,7 @@ interface AddressContextState {
   };
 }
 
-type AddressAction =
+export type AddressAction =
   | { type: 'SET_SEARCH_RESULTS'; payload: Address[] }
   | { type: 'SET_SEARCH_KEYWORD'; payload: string }
   | { type: 'SET_CURRENT_ADDRESS'; payload: Address }
