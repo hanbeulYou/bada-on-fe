@@ -15,7 +15,7 @@ export const LABELS: Label[] = [
   '카약/패들보드',
 ];
 
-export const DISABLED_LABELS: Label[] = [];
+export const DISABLED_LABELS: Label[] = ['해수욕', '서핑', '카약/패들보드'];
 
 export const LABEL_MAPPING: Record<Label, Activity> = {
   스노클링: 'snorkeling',
