@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
+import useWeatherQuery, { Details } from '../apis/weather/useWeatherQuery';
 import BottomSheet from '../components/BottomSheet';
 import Icon from '../components/common/Icon';
 // import Map from '../components/common/Map';
@@ -9,9 +10,10 @@ import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
+import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
-import { DETAILS_TMP } from '../data/data';
+// import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
@@ -31,15 +33,17 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
-  // const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
+  const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
   const { state: safeAreaState } = useContext(SafeAreaContext);
+
+  console.log(data);
 
   useEffect(() => {
     sendToRN({ type: 'GET_LOCATION' });
@@ -86,7 +90,7 @@ function Home() {
     setIsSearching(false);
   };
 
-  const handleFilterChange = (selected: string) => {
+  const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
   };
 
@@ -151,7 +155,7 @@ function Home() {
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <MapTmp filter={filter} onClickMarker={handleClickMarker} />
-        {isBottomSheetOpen && selectedMarker && (
+        {isBottomSheetOpen && selectedMarker && data && (
           <BottomSheet
             title={selectedMarker.name}
             alert={
@@ -160,8 +164,9 @@ function Home() {
                 ? '다이빙 금지구역'
                 : ''
             }
-            dangerValue={DETAILS_TMP[0].score}
-            recommends={DETAILS_TMP[0].feedback}
+            dangerValue={data.summary[timeIndex].score}
+            recommends={data.summary[timeIndex].message}
+            activity={filter}
             currentHour={currentHour}
             timeIndex={timeIndex}
             setTimeIndex={setTimeIndex}
@@ -172,6 +177,7 @@ function Home() {
             isFull={isBottomSheetFull}
             onMiddle={() => setIsBottomSheetFull(false)}
             onFull={() => setIsBottomSheetFull(true)}
+            detailData={data.details[timeIndex]}
           />
         )}
       </>

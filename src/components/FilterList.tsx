@@ -2,19 +2,19 @@ import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { LABEL_MAPPING, LABELS } from '../consts/label';
+import { Activity, LABEL_MAPPING, LABELS } from '../consts/label';
 import { SafeAreaContext } from '../context/SafeAreaContext';
 
 import FilterButton from './common/FilterButton';
 
 interface FilterListProps {
-  onFilterChange: (selected: string) => void;
+  onFilterChange: (selected: Activity) => void;
 }
 
 const FilterList = (props: FilterListProps) => {
   const { onFilterChange = () => {} } = props;
   const [searchParams, setSearchParams] = useSearchParams();
-  const selected = searchParams.get('selected');
+  const selected = searchParams.get('selected') as Activity;
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
   useEffect(() => {

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
-import { LABEL_MAPPING_REVERSE } from '../consts/label';
+import { Details } from '../apis/weather/useWeatherQuery';
+import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
 
@@ -9,12 +10,18 @@ import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
 import FooterTimer from './Footer';
 
+const TimeFormat = (time: string) => {
+  // const YYYYMMDD = time.split('T')[0];
+  const [hour, minute, second] = time.split('T')[1].split(':');
+  return `${hour}:${minute}`;
+};
+
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
   title: string;
   alert?: string;
   dangerValue: number;
-  recommends?: Record<string, string>;
+  recommends?: string;
   timeIndex: number;
   setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
   onClosed?: () => void;
@@ -22,6 +29,8 @@ interface BottomSheetProps {
   onMiddle?: () => void;
   isFull: boolean;
   currentHour: Date;
+  activity: Activity;
+  detailData: Details;
 }
 
 function BottomSheet({
@@ -36,6 +45,8 @@ function BottomSheet({
   onMiddle,
   isFull,
   currentHour,
+  activity,
+  detailData,
 }: BottomSheetProps) {
   const [position, setPosition] = useState(-400);
   const [isFooterVisible, setFooterVisible] = useState(true);
@@ -123,28 +134,21 @@ function BottomSheet({
       </Header>
       <DoughnutChart chartValue={dangerValue} />
       <RecommendContainer>
-        {recommends &&
-          Object.entries(recommends).map((recommend, index) => (
-            <RecommendItem key={index}>
-              <RecommendTitleWrapper>
-                <RecommendTitle>
-                  {
-                    LABEL_MAPPING_REVERSE[
-                      recommend[0] as keyof typeof LABEL_MAPPING_REVERSE
-                    ]
-                  }
-                </RecommendTitle>
-              </RecommendTitleWrapper>
-              <RecommendDescription>{recommend[1]}</RecommendDescription>
-            </RecommendItem>
-          ))}
+        {recommends && (
+          <RecommendItem>
+            <RecommendTitleWrapper>
+              <RecommendTitle>{LABEL_MAPPING_REVERSE[activity]}</RecommendTitle>
+            </RecommendTitleWrapper>
+            <RecommendDescription>{recommends}</RecommendDescription>
+          </RecommendItem>
+        )}
       </RecommendContainer>
       {isFull && (
         <DetailContainer>
           <HorizontalLineLg />
           <DetailInfoContainer>
             <DetailTitle>상세정보</DetailTitle>
-            <DetailInfoColContainer>
+            {/* <DetailInfoColContainer>
               <DetailInfoRowContainer>
                 <FlexBox>
                   <span>화장실</span>
@@ -161,57 +165,81 @@ function BottomSheet({
                 <span>최근 1년간 8번</span>
               </FlexBox>
             </DetailInfoColContainer>
-            <HorizontalLineSm />
+            <HorizontalLineSm /> */}
             <DetailContentContainer>
-              <ContentBox
-                title="물때"
-                data={[
-                  { label: '만조', value: '10:10 / 21:56' },
-                  { label: '간조', value: '04:04 / 16:30' },
-                  { label: '일출', value: '06:52' },
-                  { label: '일몰', value: '17:43' },
-                ]}
-              />
               <ContentBox
                 title="날씨"
                 data={[
-                  { label: '오전', value: '구름 많음' },
-                  { label: '오후', value: '흐리고 한때 비' },
+                  { label: '상태', value: detailData.skyCondition },
+                  {
+                    label: '기온',
+                    value: detailData.hourlyTemperature + '°C',
+                  },
+                  { label: '습도', value: detailData.humidity + '%' },
                 ]}
               />
               <ContentBox
-                title="기온"
+                title="강수/강설"
                 data={[
-                  { label: '최저', value: '21°' },
-                  { label: '최고', value: '23°' },
+                  {
+                    label: '확률',
+                    value: detailData.precipitationProbability + '%',
+                  },
+                  { label: '형태', value: detailData.precipitationType },
+                  {
+                    label: '강수량',
+                    value:
+                      (detailData.hourlyPrecipitation === -99
+                        ? 0
+                        : detailData.hourlyPrecipitation) + 'mm',
+                  },
+                  {
+                    label: '강설량',
+                    value:
+                      (detailData.hourlySnowAccumulation === -99
+                        ? 0
+                        : detailData.hourlySnowAccumulation) + 'cm',
+                  },
                 ]}
               />
               <ContentBox
-                title="강수"
+                title="바람"
                 data={[
-                  { label: '확률', value: '40%' },
-                  { label: '강수량', value: '2mm' },
+                  { label: '풍속', value: detailData.windSpeed + 'm/s' },
+                  { label: '풍향', value: detailData.windDirection + '°' },
                 ]}
               />
               <ContentBox
-                title="풍속"
+                title="수온/파고"
                 data={[
-                  { label: '오전', value: '9-14' },
-                  { label: '오후', value: '9-13' },
+                  { label: '수온', value: detailData.waterTemperature + '°C' },
+                  { label: '파고', value: detailData.waveHeight + 'm' },
                 ]}
               />
               <ContentBox
-                title="파고"
+                title="물때"
                 data={[
-                  { label: '오전', value: '1.5-3.5' },
-                  { label: '오후', value: '1.5-2.5' },
+                  {
+                    label: '만조(오전)',
+                    value: `${TimeFormat(detailData.tideInfoList[0].tidalTime)} (${detailData.tideInfoList[0].tidalLevel}cm)`,
+                  },
+                  // {
+                  //   label: '간조(오전)',
+                  //   value: `${detailData.tideInfoList[1].tidalTime} (${detailData.tideInfoList[1].tidalLevel}cm)`,
+                  // },
+                  // {
+                  //   label: '만조(오후)',
+                  //   value: `${detailData.tideInfoList[2].tidalTime} (${detailData.tideInfoList[2].tidalLevel}cm)`,
+                  // },
+                  // {
+                  //   label: '간조(오후)',
+                  //   value: `${detailData.tideInfoList[3].tidalTime} (${detailData.tideInfoList[3].tidalLevel}cm)`,
+                  // },
                 ]}
               />
-              <ContentBox title="유속" data={['53.7cm/s']} />
-              <ContentBox title="수온" data={['23°']} />
             </DetailContentContainer>
-            <HorizontalLineSm />
-            <PhoneContainer>
+            {/* <HorizontalLineSm /> */}
+            {/* <PhoneContainer>
               <PhoneTitle>해수욕장 근처 긴급 구조대 연락처</PhoneTitle>
               <PhoneContentContainer>
                 <PhoneContent>
@@ -231,7 +259,7 @@ function BottomSheet({
                   <PhoneNum>제주동부보건소(783-2504)</PhoneNum>
                 </PhoneContent>
               </PhoneContentContainer>
-            </PhoneContainer>
+            </PhoneContainer> */}
           </DetailInfoContainer>
         </DetailContainer>
       )}
