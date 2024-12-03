@@ -8,6 +8,7 @@ import useToast from '../hooks/useToast';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
+import Icon from './common/Icon';
 import FooterTimer from './Footer';
 
 const TimeFormat = (time: string) => {
@@ -48,14 +49,19 @@ function BottomSheet({
   activity,
   detailData,
 }: BottomSheetProps) {
-  const [position, setPosition] = useState(-400);
+  const [position, setPosition] = useState(60);
   const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
-  const initialPosition = useRef<number>(-400);
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
   const { showToast, renderToasts } = useToast();
+
+  const POSITIONS = {
+    FULL: 0, // 완전히 펼쳐진 상태
+    MIDDLE: 60, // 중간 상태
+    HIDDEN: 100, // 숨겨진 상태
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -63,37 +69,37 @@ function BottomSheet({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current === null) return;
+
     const deltaY = startY.current - e.touches[0].clientY;
+    const containerHeight = containerRef.current?.clientHeight || 0;
 
-    let newPosition = position + deltaY;
+    // deltaY를 percentage로 변환
+    const deltaPercentage = (deltaY / containerHeight) * 100;
+    let newPosition = position - deltaPercentage;
 
-    // 하단 위치
-    if (newPosition < -800) newPosition = -800;
-    // 상단 위치
-    if (newPosition > -84) newPosition = -84;
+    // 범위 제한
+    if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
+    if (newPosition > POSITIONS.HIDDEN) newPosition = POSITIONS.HIDDEN;
 
     setPosition(newPosition);
   };
 
   const handleTouchEnd = () => {
-    if (position >= -84) {
-      setPosition(-84);
+    // 위치 스냅
+    if (position < 25) {
+      setPosition(POSITIONS.FULL);
       if (onFull) onFull();
-    } else if (position < -700) {
-      setPosition(-800);
+    } else if (position > 75) {
+      setPosition(POSITIONS.HIDDEN);
       setFooterVisible(false);
       if (onClosed) {
         setTimeout(() => {
-          if (onClosed) {
-            onClosed();
-          }
+          if (onClosed) onClosed();
         }, 300);
       }
     } else {
-      if (onMiddle) {
-        onMiddle();
-      }
-      setPosition(initialPosition.current);
+      if (onMiddle) onMiddle();
+      setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
   };
@@ -101,12 +107,18 @@ function BottomSheet({
   return (
     <Container
       ref={containerRef}
-      style={{ bottom: `${position}px` }}
+      position={position}
       isFull={isFull}
       safeArea={safeAreaState}
     >
       {renderToasts()}
-      {!isFull && (
+      {isFull ? (
+        <CloseBottomSheet safeArea={safeAreaState}>
+          <button onClick={onClosed}>
+            <Icon name="chevron-down" />
+          </button>
+        </CloseBottomSheet>
+      ) : (
         <HandlerWrapper
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -146,7 +158,7 @@ function BottomSheet({
       {isFull && (
         <DetailContainer>
           <HorizontalLineLg />
-          <DetailInfoContainer>
+          <DetailInfoContainer safeArea={safeAreaState}>
             <DetailTitle>상세정보</DetailTitle>
             {/* <DetailInfoColContainer>
               <DetailInfoRowContainer>
@@ -274,24 +286,28 @@ function BottomSheet({
   );
 }
 
-const Container = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
+const Container = styled.div<{
+  position: number;
+  isFull: boolean;
+  safeArea: SafeAreaState;
+}>`
   position: fixed;
+  bottom: 0;
+  transform: translateY(${props => props.position}%);
   display: flex;
-  left: 50%;
-  transform: translateX(-50%);
   flex-direction: column;
   align-items: center;
   z-index: 1;
   height: 100vh;
   width: 100%;
-  padding-top: 14px;
+  /* padding-top: 14px; */
   padding-left: 24px;
   padding-right: 24px;
   padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
   background-color: white;
   border: ${props => !props.isFull && '1px solid #e0e0e0'};
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
-  transition: bottom 0.5s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
 
   box-shadow: ${props =>
@@ -311,6 +327,7 @@ const HandlerWrapper = styled.div`
   justify-content: center;
   width: 100%;
   height: 6px;
+  padding-top: 14px;
   padding-bottom: 20px;
 `;
 
@@ -407,11 +424,11 @@ const HorizontalLineSm = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const DetailInfoContainer = styled.div`
+const DetailInfoContainer = styled.div<{ safeArea: SafeAreaState }>`
   width: 100%;
   padding: 24px;
 
-  margin-bottom: 160px;
+  margin-bottom: calc(48px + ${({ safeArea }) => safeArea.bottom}px);
 `;
 
 const DetailTitle = styled.div`
@@ -486,3 +503,19 @@ const PhoneNum = styled.div`
 `;
 
 export default BottomSheet;
+
+const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
+  position: sticky;
+  top: 0px;
+  z-index: 2;
+  display: flex;
+  width: calc(100% + 2px);
+  height: 84px;
+  padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
+  padding-bottom: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-top: ${({ safeArea }) => -safeArea.top}px;
+  background-color: ${({ theme }) => theme.colors.white};
+  align-items: center;
+`;

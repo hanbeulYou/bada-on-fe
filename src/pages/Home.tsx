@@ -43,8 +43,6 @@ function Home() {
   const { state, dispatch } = useContext(AddressContext);
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
-  console.log(data);
-
   useEffect(() => {
     sendToRN({ type: 'GET_LOCATION' });
   }, []);
@@ -122,18 +120,7 @@ function Home() {
   return (
     <Container>
       <Header safeArea={safeAreaState}>
-        {isBottomSheetFull ? (
-          <CloseBottomSheet safeArea={safeAreaState}>
-            <button
-              onClick={() => {
-                setIsBottomSheetFull(false);
-                setIsBottomSheetOpen(false);
-              }}
-            >
-              <Icon name="chevron-down" />
-            </button>
-          </CloseBottomSheet>
-        ) : (
+        {!isBottomSheetFull && (
           <SearchBar
             isSearchPage={isSearchPage}
             onClick={openSearchPage}
@@ -195,19 +182,6 @@ const Header = styled.header<{ safeArea: SafeAreaState }>`
   position: absolute;
   top: ${({ safeArea }) => safeArea.top}px;
   z-index: 12;
-`;
-
-const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
-  display: flex;
-  width: 100%;
-  height: 84px;
-  padding-top: calc(18px + ${({ safeArea }) => safeArea.top}px);
-  padding-bottom: 12px;
-  padding-left: 32px;
-  padding-right: 32px;
-  margin-top: ${({ safeArea }) => -safeArea.top}px;
-  background-color: ${({ theme }) => theme.colors.white};
-  align-items: center;
 `;
 
 export default Home;
