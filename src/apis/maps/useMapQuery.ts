@@ -26,8 +26,6 @@ const getMapsData = async (activity: Activity): Promise<MapData[]> => {
   // TODO 테스트를 위해 임시로 mockData를 사용합니다.
   // const data = mockData[activity as Activity];
 
-  console.log(response.data);
-
   return response.data.places;
 };
 
