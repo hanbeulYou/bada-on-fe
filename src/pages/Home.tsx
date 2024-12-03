@@ -73,7 +73,7 @@ function Home() {
     setIsSearchPage(false);
   };
 
-  const deleteHistory = (id: string) => {
+  const deleteHistory = (id: number) => {
     if (dbManager) dbManager.delete(id);
     dispatch({ type: 'DELETE_HISTORY', payload: id });
   };
@@ -95,17 +95,17 @@ function Home() {
 
     if (state.histories.some(history => history.id === address.id)) {
       dispatch({ type: 'DELETE_HISTORY', payload: address.id });
-      dbManager.delete(address.id);
+      if (dbManager) dbManager.delete(address.id);
     } else if (state.histories.length >= MAX_HISTORY) {
-      const oldestHistory = state.histories.at(-1);
+      const oldestHistory = state.histories[state.histories.length - 1];
       dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
-      dbManager.delete(oldestHistory.id);
+      if (dbManager) dbManager.delete(oldestHistory.id);
     }
 
     setSearchValue(address.place_name);
     dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
-    dbManager.add(address);
+    if (dbManager) dbManager.add(address);
     setIsSearchPage(false);
   };
 

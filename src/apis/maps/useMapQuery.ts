@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 import type { Activity } from '../../consts/label';
-import mockData from '../../mocks/map';
-// import instance from '../instance';
+// import mockData from '../../mocks/map';
+import instance from '../instance';
 
-interface MapData {
+export interface MapData {
   id: number;
   name: string;
   latitude: number;
@@ -13,20 +13,25 @@ interface MapData {
   activity: Activity;
 }
 
-const getMapsData = async (activity: string): Promise<MapData[]> => {
+interface GetMapsDataResponse {
+  total: number;
+  places: MapData[];
+}
+
+const getMapsData = async (activity: Activity): Promise<MapData[]> => {
+  const response = await instance.get<GetMapsDataResponse>(
+    `places/find?activity=${activity}`,
+  );
+
   // TODO 테스트를 위해 임시로 mockData를 사용합니다.
-  // const response = await instance.get<MapData[]>(
-  //   `markers/find?activity=${activity}`,
-  // );
+  // const data = mockData[activity as Activity];
 
-  const data = mockData[activity as Activity];
+  console.log(response.data);
 
-  console.log(data);
-
-  return data;
+  return response.data.places;
 };
 
-const useMapsQuery = (activity: string) => {
+const useMapsQuery = (activity: Activity) => {
   return useQuery<MapData[], AxiosError>({
     queryKey: ['mapsData', activity],
     queryFn: () => getMapsData(activity),
