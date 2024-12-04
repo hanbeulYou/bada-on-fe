@@ -13,7 +13,7 @@ import { SafeAreaContext } from '../context/SafeAreaContext';
 const IntroPage = () => {
   const [selectedLabel, setSelectedLabel] = useState<Label | ''>('');
   const navigate = useNavigate();
-  const { dispatch } = useContext(SafeAreaContext);
+  const { state: safeAreaState, dispatch } = useContext(SafeAreaContext);
 
   useEffect(() => {
     const safeAreaInsets = (window as any).safeAreaInsets;
@@ -45,7 +45,7 @@ const IntroPage = () => {
         clickedLabel={selectedLabel}
         setClickedLabel={setSelectedLabel}
       />
-      <WarningText>
+      <WarningText safeAreaState={safeAreaState}>
         <Icon name="alert-triangle" width={16} height={16} />
         <Text>
           본 서비스에서 제공되는 위험도 계산과 정보는 참고용으로 제공되며 어떠한
@@ -90,9 +90,9 @@ const Description = styled.div`
   color: ${({ theme }) => theme.colors.gray500};
 `;
 
-const WarningText = styled.div`
+const WarningText = styled.div<{ safeAreaState: SafeAreaState }>`
   position: absolute;
-  bottom: 76px;
+  bottom: ${({ safeAreaState }) => safeAreaState.bottom + 76}px;
   ${({ theme }) => theme.typography.Body};
   color: ${({ theme }) => theme.colors.red500};
   display: flex;
