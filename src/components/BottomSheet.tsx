@@ -49,18 +49,20 @@ function BottomSheet({
   activity,
   detailData,
 }: BottomSheetProps) {
-  const [position, setPosition] = useState(60);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
+  const [position, setPosition] = useState(
+    window.innerHeight - 340 - safeAreaState.bottom,
+  );
   const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
-  const { state: safeAreaState } = useContext(SafeAreaContext);
 
   const { showToast, renderToasts } = useToast();
 
   const POSITIONS = {
-    FULL: 0, // 완전히 펼쳐진 상태
-    MIDDLE: 60, // 중간 상태
-    HIDDEN: 100, // 숨겨진 상태
+    FULL: 0,
+    MIDDLE: 340 + safeAreaState.bottom,
+    HIDDEN: window.innerHeight,
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -71,13 +73,9 @@ function BottomSheet({
     if (startY.current === null) return;
 
     const deltaY = startY.current - e.touches[0].clientY;
-    const containerHeight = containerRef.current?.clientHeight || 0;
+    let newPosition = position - deltaY;
 
-    // deltaY를 percentage로 변환
-    const deltaPercentage = (deltaY / containerHeight) * 100;
-    let newPosition = position - deltaPercentage;
-
-    // 범위 제한
+    // 범위 제한 (픽셀 단위)
     if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
     if (newPosition > POSITIONS.HIDDEN) newPosition = POSITIONS.HIDDEN;
 
@@ -86,10 +84,10 @@ function BottomSheet({
 
   const handleTouchEnd = () => {
     // 위치 스냅
-    if (position < 25) {
+    if (position < window.innerHeight * 0.25) {
       setPosition(POSITIONS.FULL);
       if (onFull) onFull();
-    } else if (position > 75) {
+    } else if (position > window.innerHeight * 0.75) {
       setPosition(POSITIONS.HIDDEN);
       setFooterVisible(false);
       if (onClosed) {
@@ -252,7 +250,7 @@ const Container = styled.div<{
 }>`
   position: fixed;
   bottom: 0;
-  transform: translateY(${props => props.position}%);
+  transform: translateY(${props => props.position}px);
   display: flex;
   flex-direction: column;
   align-items: center;
