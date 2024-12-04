@@ -172,24 +172,6 @@ function BottomSheet({
           <HorizontalLineLg />
           <DetailInfoContainer safeArea={safeAreaState}>
             <DetailTitle>상세정보</DetailTitle>
-            {/* <DetailInfoColContainer>
-              <DetailInfoRowContainer>
-                <FlexBox>
-                  <span>화장실</span>
-                  <span>없음</span>
-                </FlexBox>
-                <FlexBox>
-                  <span>샤워실</span>
-                  <span>없음</span>
-                </FlexBox>
-              </DetailInfoRowContainer>
-
-              <FlexBox>
-                <span>최근 사고 발생</span>
-                <span>최근 1년간 8번</span>
-              </FlexBox>
-            </DetailInfoColContainer>
-            <HorizontalLineSm /> */}
             <DetailContentContainer>
               <ContentBox
                 title="날씨"
@@ -245,28 +227,10 @@ function BottomSheet({
                 data={formatTideData(detailData.tideInfoList)}
               />
             </DetailContentContainer>
-            {/* <HorizontalLineSm /> */}
-            {/* <PhoneContainer>
-              <PhoneTitle>해수욕장 근처 긴급 구조대 연락처</PhoneTitle>
-              <PhoneContentContainer>
-                <PhoneContent>
-                  <PhoneType>경찰</PhoneType>
-                  <PhoneNum>구좌파출소(783-2112)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>소방</PhoneType>
-                  <PhoneNum>구좌119센터(783-0119)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>지원세력</PhoneType>
-                  <PhoneNum>구좌읍사무소(783-3001)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>보건소</PhoneType>
-                  <PhoneNum>제주동부보건소(783-2504)</PhoneNum>
-                </PhoneContent>
-              </PhoneContentContainer>
-            </PhoneContainer> */}
+            <ReferenceContainer>
+              <ReferenceTitle>자료</ReferenceTitle>
+              <ReferenceContent>기상청, 국립해양조사원</ReferenceContent>
+            </ReferenceContainer>
           </DetailInfoContainer>
         </DetailContainer>
       )}
@@ -294,8 +258,7 @@ const Container = styled.div<{
   align-items: center;
   z-index: 1;
   height: 100vh;
-  width: 100%;
-  /* padding-top: 14px; */
+  width: 100vw;
   padding-left: 24px;
   padding-right: 24px;
   padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
@@ -304,6 +267,7 @@ const Container = styled.div<{
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
+  overflow-x: hidden;
 
   box-shadow: ${props =>
     !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
@@ -413,15 +377,15 @@ const HorizontalLineLg = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const HorizontalLineSm = styled.div`
-  height: 2px;
-  width: 329px;
-  background-color: ${({ theme }) => theme.colors.gray100};
-`;
+// const HorizontalLineSm = styled.div`
+//   height: 2px;
+//   width: 329px;
+//   background-color: ${({ theme }) => theme.colors.gray100};
+// `;
 
 const DetailInfoContainer = styled.div<{ safeArea: SafeAreaState }>`
   width: 100%;
-  padding: 24px;
+  padding: 24px 0px;
 
   margin-bottom: calc(48px + ${({ safeArea }) => safeArea.bottom}px);
 `;
@@ -431,70 +395,11 @@ const DetailTitle = styled.div`
   margin-bottom: 24px;
 `;
 
-const DetailInfoColContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const DetailInfoRowContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const FlexBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.colors.gray50};
-`;
-
 const DetailContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   margin: 12px 0;
-`;
-
-const PhoneContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-`;
-
-const PhoneTitle = styled.div`
-  ${({ theme }) => theme.typography.Body_Bold};
-  color: ${({ theme }) => theme.colors.red500};
-  margin-bottom: 8px;
-`;
-
-const PhoneContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background-color: ${({ theme }) => theme.colors.red50};
-  padding: 12px;
-`;
-
-const PhoneContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 8px;
-`;
-
-const PhoneType = styled.div`
-  ${({ theme }) => theme.typography.Body_Bold};
-`;
-
-const PhoneNum = styled.div`
-  ${({ theme }) => theme.typography.Body};
 `;
 
 export default BottomSheet;
@@ -513,4 +418,21 @@ const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
+`;
+
+const ReferenceContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const ReferenceTitle = styled.div`
+  ${({ theme }) => theme.typography.Label};
+  color: ${({ theme }) => theme.colors.gray300};
+`;
+
+const ReferenceContent = styled.div`
+  ${({ theme }) => theme.typography.Label};
+  color: ${({ theme }) => theme.colors.gray500};
 `;

@@ -6,16 +6,18 @@ import {
   useKakaoSearchQuery,
 } from '../apis/search/useKakaoSearchQuery';
 import { AddressContext } from '../context/AddressContext';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 import ColList from './common/ColList';
 import Icon from './common/Icon';
 import SearchItem from './common/SearchItem';
 
-const Container = styled.div`
+const Container = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px 20px 20px; // TODO: padding-top을 검색바 높이만큼 조절하기!
+  padding: ${({ safeArea }) => safeArea.top + 84}px 20px
+    ${({ safeArea }) => safeArea.bottom + 20}px;
   position: absolute;
   z-index: 3;
   background-color: #fff;
@@ -84,6 +86,7 @@ const Search: React.FC<SearchProps> = ({
   isSearching,
 }) => {
   const { state } = useContext(AddressContext);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
   // 검색어와 위치를 기반으로 쿼리 실행
   const { data: searchData, isLoading: searchIsLoading } = useKakaoSearchQuery(
     state.searchKeyword,
@@ -92,7 +95,7 @@ const Search: React.FC<SearchProps> = ({
   );
 
   return (
-    <Container>
+    <Container safeArea={safeAreaState}>
       {isSearching ? (
         <>
           {searchIsLoading || searchData?.documents?.length === 0 ? (
