@@ -1,30 +1,58 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
+
 import Icon from './common/Icon';
-import TimeFlow from './TimeFlow';
 
 interface FooterTimerProps {
-  pickHour: number;
-  setPickHour: React.Dispatch<React.SetStateAction<number>>;
-  defaultTime: number;
+  timeIndex: number;
+  setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
+  currentHour: Date;
 }
 const FooterTimer: React.FC<FooterTimerProps> = ({
-  pickHour,
-  setPickHour,
-  defaultTime,
+  timeIndex,
+  setTimeIndex,
+  currentHour,
 }) => {
+  const { state: safeAreaState } = useContext(SafeAreaContext);
+
+  const formatDate = (date: Date) => {
+    const newDate = new Date(date);
+    newDate.setHours(newDate.getHours() + timeIndex);
+
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const day = String(newDate.getDate()).padStart(2, '0');
+    const hours = String(newDate.getHours()).padStart(2, '0');
+
+    return `${year}.${month}.${day} ${hours}:00`;
+  };
+
+  const handleTimeIndex = (value: number) => {
+    if (timeIndex + value < 0 || timeIndex + value > 71) return;
+    setTimeIndex(prev => prev + value);
+  };
+
   return ReactDOM.createPortal(
-    <Footer>
-      <TimerWrapper>
-        <Icon name="clock" />
-        <Time>{pickHour % 24}:00</Time>
-        <Triangle />
-      </TimerWrapper>
-      <TimeFlowContainer>
-        <TimeFlow setState={setPickHour} defaultTime={defaultTime} />
+    <Footer safeArea={safeAreaState}>
+      <TimeFlowContainer safeArea={safeAreaState}>
+        <Row>
+          {Array.from({ length: 72 }).map((_, index) => (
+            <TimeBlock key={index} filled={index <= timeIndex} />
+          ))}
+        </Row>
       </TimeFlowContainer>
+      <TimerWrapper safeArea={safeAreaState}>
+        <Button value={-1} onClick={() => handleTimeIndex(-1)}>
+          <Icon name="chevron-left" />
+        </Button>
+        <Time>{formatDate(currentHour)}</Time>
+        <Button value={1} onClick={() => handleTimeIndex(1)}>
+          <Icon name="chevron-right" />
+        </Button>
+      </TimerWrapper>
     </Footer>,
     document.body,
   );
@@ -32,39 +60,54 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
 
 export default FooterTimer;
 
-const Footer = styled.div`
+const Footer = styled.div<{ safeArea: SafeAreaState }>`
+  width: 100%;
   position: fixed;
   isolation: isolate;
   bottom: 0px;
   z-index: 100;
+  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
+  background-color: #e0eaf6;
 `;
 
-const TimerWrapper = styled.div`
+const TimerWrapper = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
   position: relative;
   width: 100%;
-  height: 35px;
-  background-color: ${({ theme }) => theme.colors.gray600};
-  color: ${({ theme }) => theme.colors.white};
+  height: calc(48px + ${({ safeArea }) => safeArea.bottom}px);
+  color: ${({ theme }) => theme.colors.blue700};
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 0 16px;
 `;
 
 const Time = styled.span`
   display: flex;
   margin: 0 8px;
+  ${({ theme }) => theme.typography.Title_2_Bold};
 `;
 
-const Triangle = styled.div`
-  position: absolute;
-  width: 0;
-  height: 0;
-  bottom: -7px;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-top: 8px solid ${({ theme }) => theme.colors.gray600};
-`;
-
-const TimeFlowContainer = styled.div`
+const TimeFlowContainer = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
+  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  width: 100%;
+  gap: 0;
+`;
+
+const TimeBlock = styled.div<{ filled: boolean }>`
+  flex: 1;
+  height: 8px;
+  background-color: ${({ filled, theme }) =>
+    filled ? theme.colors.primary : theme.colors.gray100};
+  margin: none;
+`;
+
+const Button = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

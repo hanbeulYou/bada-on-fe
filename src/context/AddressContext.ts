@@ -1,5 +1,17 @@
-import { createContext } from 'react';
+import { createContext, Dispatch } from 'react';
 
-import { initialState } from './addressSearch';
+import {
+  AddressAction,
+  AddressContextState,
+  initialState,
+} from './addressSearch';
 
-export const AddressContext = createContext({ state: initialState });
+interface AddressContextType {
+  state: AddressContextState;
+  dispatch: Dispatch<AddressAction>;
+}
+
+export const AddressContext = createContext<AddressContextType>({
+  state: initialState,
+  dispatch: () => null,
+});

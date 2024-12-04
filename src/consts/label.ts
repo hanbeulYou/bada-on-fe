@@ -1,46 +1,28 @@
-export type Label =
-  | '스노클링'
-  | '다이빙'
-  | '해수욕'
-  | '서핑'
-  | '스쿠버다이빙'
-  | '스냅촬영'
-  | '일출/일몰';
+export type Label = '스노클링' | '다이빙' | '해수욕' | '서핑' | '카약/패들보드';
 
 export type Activity =
   | 'snorkeling'
   | 'diving'
   | 'swimming'
   | 'surfing'
-  | 'scubaDiving'
-  | 'snap'
-  | 'sunset';
+  | 'kayakingPaddleBoarding';
 
 export const LABELS: Label[] = [
   '스노클링',
   '다이빙',
-  '스냅촬영',
   '해수욕',
   '서핑',
-  '스쿠버다이빙',
-  '일출/일몰',
+  '카약/패들보드',
 ];
 
-export const DISABLED_LABELS: Label[] = [
-  '해수욕',
-  '서핑',
-  '스쿠버다이빙',
-  '일출/일몰',
-];
+export const DISABLED_LABELS: Label[] = ['해수욕', '서핑', '카약/패들보드'];
 
 export const LABEL_MAPPING: Record<Label, Activity> = {
   스노클링: 'snorkeling',
   다이빙: 'diving',
   해수욕: 'swimming',
   서핑: 'surfing',
-  스쿠버다이빙: 'scubaDiving',
-  스냅촬영: 'snap',
-  '일출/일몰': 'sunset',
+  '카약/패들보드': 'kayakingPaddleBoarding',
 };
 
 export const LABEL_MAPPING_REVERSE: Record<Activity, Label> = {
@@ -48,7 +30,5 @@ export const LABEL_MAPPING_REVERSE: Record<Activity, Label> = {
   diving: '다이빙',
   swimming: '해수욕',
   surfing: '서핑',
-  scubaDiving: '스쿠버다이빙',
-  snap: '스냅촬영',
-  sunset: '일출/일몰',
+  kayakingPaddleBoarding: '카약/패들보드',
 };

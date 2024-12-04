@@ -1,34 +1,50 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
-import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
+import { Address } from '../apis/search/useKakaoSearchQuery';
 import BottomSheet from '../components/BottomSheet';
 import Icon from '../components/common/Icon';
-import Map from '../components/common/Map';
+// import Map from '../components/common/Map';
+import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
+import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
+import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
+
+// 제주 시청 위치
+// const initialLocation: LocationData = {
+//   latitude: 33.4890113,
+//   longitude: 126.4983023,
+// };
 
 function Home() {
-  const currentHour = new Date().getHours();
-  const [pickHour, setPickHour] = useState<number>(currentHour);
+  const currentHour = new Date();
+  const [timeIndex, setTimeIndex] = useState<number>(0);
 
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
-  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
+  // const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
+  const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
+
+  useEffect(() => {
+    sendToRN({ type: 'GET_LOCATION' });
+  }, []);
 
   useEffect(() => {
     setSearchValueDebounce();
@@ -71,23 +87,26 @@ function Home() {
     setIsSearching(false);
   };
 
-  const handleFilterChange = (selected: string) => {
+  const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
   };
 
-  const updateCurrentAddress = (address: object) => {
+  const updateCurrentAddress = (address: Address) => {
     const MAX_HISTORY = 15;
 
-    if (state.histories.length >= MAX_HISTORY) {
-      const oldestHistory = state.histories.at(-1);
+    if (state.histories.some(history => history.id === address.id)) {
+      dispatch({ type: 'DELETE_HISTORY', payload: address.id });
+      if (dbManager) dbManager.delete(address.id);
+    } else if (state.histories.length >= MAX_HISTORY) {
+      const oldestHistory = state.histories[state.histories.length - 1];
       dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
-      dbManager.delete(oldestHistory.id);
+      if (dbManager) dbManager.delete(oldestHistory.id);
     }
 
-    setSearchValue(address.address_name);
+    setSearchValue(address.place_name);
     dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
-    dbManager.add(address);
+    if (dbManager) dbManager.add(address);
     setIsSearchPage(false);
   };
 
@@ -99,9 +118,9 @@ function Home() {
 
   return (
     <Container>
-      <Header>
+      <Header safeArea={safeAreaState}>
         {isBottomSheetFull ? (
-          <CloseBottomSheet>
+          <CloseBottomSheet safeArea={safeAreaState}>
             <button
               onClick={() => {
                 setIsBottomSheetFull(false);
@@ -132,7 +151,7 @@ function Home() {
         {!isBottomSheetFull && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        <Map filter={filter} onClickMarker={handleClickMarker} />
+        <MapTmp filter={filter} onClickMarker={handleClickMarker} />
         {isBottomSheetOpen && selectedMarker && (
           <BottomSheet
             title={selectedMarker.name}
@@ -142,11 +161,11 @@ function Home() {
                 ? '다이빙 금지구역'
                 : ''
             }
-            dangerValue={DETAILS_TMP[pickHour - currentHour].score}
-            recommends={DETAILS_TMP[pickHour - currentHour].feedback}
-            defaultTime={currentHour}
-            pickHour={pickHour}
-            setPickHour={setPickHour}
+            dangerValue={DETAILS_TMP[0].score}
+            recommends={DETAILS_TMP[0].feedback}
+            currentHour={currentHour}
+            timeIndex={timeIndex}
+            setTimeIndex={setTimeIndex}
             onClosed={() => {
               setIsBottomSheetOpen(false);
               setIsBottomSheetFull(false);
@@ -163,20 +182,25 @@ function Home() {
 
 const Container = styled.div``;
 
-const Header = styled.header`
+const Header = styled.header<{ safeArea: SafeAreaState }>`
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
   position: absolute;
+  top: ${({ safeArea }) => safeArea.top}px;
   z-index: 12;
 `;
 
-const CloseBottomSheet = styled.div`
+const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
-  width: 375px;
+  width: 100%;
   height: 84px;
-  padding: 18px 32px 12px 32px;
+  padding-top: calc(18px + ${({ safeArea }) => safeArea.top}px);
+  padding-bottom: 12px;
+  padding-left: 32px;
+  padding-right: 32px;
+  margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
 `;

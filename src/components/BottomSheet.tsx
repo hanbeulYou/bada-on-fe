@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
 import { LABEL_MAPPING_REVERSE } from '../consts/label';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
 
 import DoughnutChart from './chart/Doughnut';
@@ -14,13 +15,13 @@ interface BottomSheetProps {
   alert?: string;
   dangerValue: number;
   recommends?: Record<string, string>;
-  pickHour: number;
-  setPickHour: React.Dispatch<React.SetStateAction<number>>;
+  timeIndex: number;
+  setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
   onClosed?: () => void;
   onFull?: () => void;
   onMiddle?: () => void;
   isFull: boolean;
-  defaultTime: number;
+  currentHour: Date;
 }
 
 function BottomSheet({
@@ -28,19 +29,20 @@ function BottomSheet({
   alert,
   dangerValue,
   recommends,
-  pickHour,
-  setPickHour,
+  timeIndex,
+  setTimeIndex,
   onClosed,
   onFull,
   onMiddle,
   isFull,
-  defaultTime,
+  currentHour,
 }: BottomSheetProps) {
   const [position, setPosition] = useState(-400);
   const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const initialPosition = useRef<number>(-400);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
 
   const { showToast, renderToasts } = useToast();
 
@@ -90,15 +92,18 @@ function BottomSheet({
       ref={containerRef}
       style={{ bottom: `${position}px` }}
       isFull={isFull}
+      safeArea={safeAreaState}
     >
       {renderToasts()}
-      <HandlerWrapper
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {!isFull && <Handler />}
-      </HandlerWrapper>
+      {!isFull && (
+        <HandlerWrapper
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Handler />
+        </HandlerWrapper>
+      )}
       <Header>
         <Title>{title}</Title>
         {alert && (
@@ -232,16 +237,16 @@ function BottomSheet({
       )}
       {isFooterVisible && (
         <FooterTimer
-          pickHour={pickHour}
-          setPickHour={setPickHour}
-          defaultTime={defaultTime}
+          timeIndex={timeIndex}
+          setTimeIndex={setTimeIndex}
+          currentHour={currentHour}
         />
       )}
     </Container>
   );
 }
 
-const Container = styled.div<{ isFull: boolean }>`
+const Container = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   position: fixed;
   display: flex;
   left: 50%;
@@ -250,8 +255,11 @@ const Container = styled.div<{ isFull: boolean }>`
   align-items: center;
   z-index: 1;
   height: 100vh;
-  width: 375px;
-  padding: 14px 24px 0px 24px;
+  width: 100%;
+  padding-top: 14px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
   background-color: white;
   border: ${props => !props.isFull && '1px solid #e0e0e0'};
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
