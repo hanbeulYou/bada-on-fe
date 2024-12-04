@@ -66,6 +66,19 @@ const MapTmp = (props: JejuMapProps) => {
   const EventsAndMarkers = () => {
     const map = useMap();
 
+    const handleClickMarker = (marker: object) => {
+      onClickMarker(marker);
+
+      if (map) {
+        map.panTo(
+          new kakao.maps.LatLng(
+            Number(marker.latitude),
+            Number(marker.longitude),
+          ),
+        );
+      }
+    };
+
     useEffect(() => {
       if (fixedLocation && map && !isObjectEmpty(state.location)) {
         map.panTo(
@@ -121,7 +134,7 @@ const MapTmp = (props: JejuMapProps) => {
                   },
                 },
               }}
-              onClick={() => onClickMarker(item)}
+              onClick={() => handleClickMarker(item)}
             />
           ))}
 

@@ -367,6 +367,7 @@ const DetailContainer = styled.div`
   flex-direction: column;
   align-items: center;
   margin-top: 24px;
+  width: 100%;
 `;
 
 const HorizontalLineLg = styled.div`
@@ -407,12 +408,12 @@ const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   top: 0px;
   z-index: 2;
   display: flex;
-  width: calc(100% + 2px);
+  width: 100vw;
   height: 84px;
   padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
   padding-bottom: 12px;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: 32px;
+  padding-right: 32px;
   margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
