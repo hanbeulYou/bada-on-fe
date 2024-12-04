@@ -104,8 +104,8 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
     <ChartWrapper>
       <Doughnut data={data} options={options} />
       <ChartLabel>
-        <ValueLabel>위험도</ValueLabel>
-        <Value>{chartValue}%</Value>
+        <ValueLabel>추천 점수</ValueLabel>
+        <Value>{chartValue}</Value>
       </ChartLabel>
     </ChartWrapper>
   );
