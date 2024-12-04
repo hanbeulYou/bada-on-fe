@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
+import useWeatherQuery, { Details } from '../apis/weather/useWeatherQuery';
 import BottomSheet from '../components/BottomSheet';
 import Icon from '../components/common/Icon';
 // import Map from '../components/common/Map';
@@ -12,7 +13,7 @@ import SearchBar from '../components/SearchBar';
 import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
-import { DETAILS_TMP } from '../data/data';
+// import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
@@ -34,7 +35,7 @@ function Home() {
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
-  // const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
+  const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
   const { sendToRN } = useReactNativeBridge();
@@ -119,18 +120,7 @@ function Home() {
   return (
     <Container>
       <Header safeArea={safeAreaState}>
-        {isBottomSheetFull ? (
-          <CloseBottomSheet safeArea={safeAreaState}>
-            <button
-              onClick={() => {
-                setIsBottomSheetFull(false);
-                setIsBottomSheetOpen(false);
-              }}
-            >
-              <Icon name="chevron-down" />
-            </button>
-          </CloseBottomSheet>
-        ) : (
+        {!isBottomSheetFull && (
           <SearchBar
             isSearchPage={isSearchPage}
             onClick={openSearchPage}
@@ -152,7 +142,7 @@ function Home() {
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <MapTmp filter={filter} onClickMarker={handleClickMarker} />
-        {isBottomSheetOpen && selectedMarker && (
+        {isBottomSheetOpen && selectedMarker && data && (
           <BottomSheet
             title={selectedMarker.name}
             alert={
@@ -161,8 +151,9 @@ function Home() {
                 ? '다이빙 금지구역'
                 : ''
             }
-            dangerValue={DETAILS_TMP[0].score}
-            recommends={DETAILS_TMP[0].feedback}
+            dangerValue={data.summary[timeIndex].score}
+            recommends={data.summary[timeIndex].message}
+            activity={filter}
             currentHour={currentHour}
             timeIndex={timeIndex}
             setTimeIndex={setTimeIndex}
@@ -173,6 +164,7 @@ function Home() {
             isFull={isBottomSheetFull}
             onMiddle={() => setIsBottomSheetFull(false)}
             onFull={() => setIsBottomSheetFull(true)}
+            detailData={data.details[timeIndex]}
           />
         )}
       </>
@@ -190,19 +182,6 @@ const Header = styled.header<{ safeArea: SafeAreaState }>`
   position: absolute;
   top: ${({ safeArea }) => safeArea.top}px;
   z-index: 12;
-`;
-
-const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
-  display: flex;
-  width: 100%;
-  height: 84px;
-  padding-top: calc(18px + ${({ safeArea }) => safeArea.top}px);
-  padding-bottom: 12px;
-  padding-left: 32px;
-  padding-right: 32px;
-  margin-top: ${({ safeArea }) => -safeArea.top}px;
-  background-color: ${({ theme }) => theme.colors.white};
-  align-items: center;
 `;
 
 export default Home;
