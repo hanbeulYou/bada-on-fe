@@ -2,6 +2,8 @@ import { useContext, useEffect } from 'react';
 
 import { AddressContext } from '../context/AddressContext';
 
+import useToast from './useToast';
+
 type MessageType = {
   type?: 'GET_LOCATION';
   [key: string]: any;
@@ -9,6 +11,7 @@ type MessageType = {
 
 export const useReactNativeBridge = () => {
   const { dispatch } = useContext(AddressContext);
+  const { showToast } = useToast();
 
   const sendToRN = <T extends MessageType>(message: T) => {
     if (window.ReactNativeWebView) {
@@ -55,6 +58,13 @@ export const useReactNativeBridge = () => {
           dispatch({
             type: 'SET_LOCATION',
             payload: parsedData.payload,
+          });
+        }
+        if (parsedData.type === 'notice' && parsedData.payload) {
+          showToast({
+            message: parsedData.payload.message,
+            toastType: parsedData.payload.type,
+            timeout: 2000,
           });
         }
       } catch (error) {
