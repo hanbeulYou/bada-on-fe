@@ -90,6 +90,7 @@ function Home() {
 
   const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
+    setIsBottomSheetOpen(false);
   };
 
   const updateCurrentAddress = (address: Address) => {
