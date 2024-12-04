@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from 'react';
+import { useEffect, useContext, useState, useRef } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -62,6 +62,8 @@ const MapTmp = (props: JejuMapProps) => {
   const { state: safeArea } = useContext(SafeAreaContext);
   const navigate = useNavigate();
 
+  const previousAddressRef = useRef(state.currentAddress);
+
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
     const map = useMap();
@@ -91,21 +93,14 @@ const MapTmp = (props: JejuMapProps) => {
     }, [fixedLocation]);
 
     useEffect(() => {
-      // if (isObjectEmpty(state.currentAddress)) {
-      //   showToast({
-      //     message: '해당 위치는 정보가 없습니다. 다른 지역을 검색해 보세요.',
-      //     toastType: 'warning',
-      //     timeout: 1000,
-      //   });
-      //   return;
-      // }
-      if (map && !isObjectEmpty(state.currentAddress)) {
+      if (previousAddressRef.current !== state.currentAddress) {
         map.panTo(
           new kakao.maps.LatLng(
             Number(state.currentAddress.y),
             Number(state.currentAddress.x),
           ),
         );
+        previousAddressRef.current = state.currentAddress;
       }
     }, [state.currentAddress]);
 
@@ -165,7 +160,7 @@ const MapTmp = (props: JejuMapProps) => {
 
   const handleLocationButtonClick = () => {
     if (!fixedLocation && !isObjectEmpty(state.location)) {
-      setFixedLocation(true); // map.panTo는 useEffect에서 처리됨
+      setFixedLocation(true);
     } else {
       setFixedLocation(false);
     }
