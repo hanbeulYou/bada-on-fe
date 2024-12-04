@@ -40,7 +40,14 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
       <TimeFlowContainer safeArea={safeAreaState}>
         <Row>
           {Array.from({ length: 72 }).map((_, index) => (
-            <TimeBlock key={index} filled={index <= timeIndex} />
+            <TimeBlock
+              key={index}
+              filled={index <= timeIndex}
+              onClick={() => {
+                console.log(index);
+                setTimeIndex(index);
+              }}
+            />
           ))}
         </Row>
       </TimeFlowContainer>
