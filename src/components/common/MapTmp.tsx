@@ -1,10 +1,12 @@
 import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
 import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
+import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import useToast from '../../hooks/useToast';
 
 import Icon from './Icon';
@@ -57,6 +59,8 @@ const MapTmp = (props: JejuMapProps) => {
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
+  const { state: safeArea } = useContext(SafeAreaContext);
+  const navigate = useNavigate();
 
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
@@ -162,14 +166,21 @@ const MapTmp = (props: JejuMapProps) => {
           style={{ width: '100%', height: '100%' }}
           level={10}
           minLevel={10}
-          maxLevel={5}
+          maxLevel={3}
           disableDoubleClick={true}
         >
           <EventsAndMarkers />
         </Map>
-        <LocationButton onClick={handleLocationButtonClick}>
-          <Icon name="location" />
+        <LocationButton safeArea={safeArea} onClick={handleLocationButtonClick}>
+          {fixedLocation ? (
+            <Icon name="location" />
+          ) : (
+            <Icon name="location-grey" />
+          )}
         </LocationButton>
+        <TermsButton safeArea={safeArea} onClick={() => navigate('/terms')}>
+          <Icon name="terms" />
+        </TermsButton>
       </Container>
       {renderToasts()}
     </>
@@ -190,13 +201,11 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const LocationButton = styled.button`
+const MapButton = styled.button`
   position: absolute;
-  top: 160px;
-  right: 20px;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 20px;
   background-color: ${({ theme }) => theme.colors.white};
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -209,4 +218,14 @@ const LocationButton = styled.button`
   &:active {
     background-color: ${({ theme }) => theme.colors.gray50};
   }
+`;
+
+const LocationButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
+  bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
+  right: 20px;
+`;
+
+const TermsButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
+  bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
+  left: 20px;
 `;
