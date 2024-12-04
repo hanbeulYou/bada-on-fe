@@ -74,7 +74,7 @@ const TimerWrapper = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
   position: relative;
   width: 100%;
-  height: calc(48px + ${({ safeArea }) => safeArea.bottom}px);
+  height: 48px;
   color: ${({ theme }) => theme.colors.blue700};
   align-items: center;
   justify-content: space-between;
@@ -89,7 +89,6 @@ const Time = styled.span`
 
 const TimeFlowContainer = styled.div<{ safeArea: SafeAreaState }>`
   display: flex;
-  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
 `;
 
 const Row = styled.div`
