@@ -24,7 +24,7 @@ const Input = styled.input`
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ direction: 'left' | 'right'; value: string }>`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
