@@ -1,7 +1,7 @@
 import React, { useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Details } from '../apis/weather/useWeatherQuery';
+import { Details, TideInfo } from '../apis/weather/useWeatherQuery';
 import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
@@ -102,6 +102,18 @@ function BottomSheet({
       setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
+  };
+
+  const formatTideData = (tideInfoList: TideInfo[]) => {
+    const tideLabels = {
+      저조: '간조(저조)',
+      고조: '만조(고조)',
+    };
+
+    return tideInfoList.map(tide => ({
+      label: tideLabels[tide.code],
+      value: `${TimeFormat(tide.tidalTime)} (${tide.tidalLevel}cm)`,
+    }));
   };
 
   return (
@@ -230,24 +242,7 @@ function BottomSheet({
               />
               <ContentBox
                 title="물때"
-                data={[
-                  {
-                    label: '만조(오전)',
-                    value: `${TimeFormat(detailData.tideInfoList[0].tidalTime)} (${detailData.tideInfoList[0].tidalLevel}cm)`,
-                  },
-                  // {
-                  //   label: '간조(오전)',
-                  //   value: `${detailData.tideInfoList[1].tidalTime} (${detailData.tideInfoList[1].tidalLevel}cm)`,
-                  // },
-                  // {
-                  //   label: '만조(오후)',
-                  //   value: `${detailData.tideInfoList[2].tidalTime} (${detailData.tideInfoList[2].tidalLevel}cm)`,
-                  // },
-                  // {
-                  //   label: '간조(오후)',
-                  //   value: `${detailData.tideInfoList[3].tidalTime} (${detailData.tideInfoList[3].tidalLevel}cm)`,
-                  // },
-                ]}
+                data={formatTideData(detailData.tideInfoList)}
               />
             </DetailContentContainer>
             {/* <HorizontalLineSm /> */}

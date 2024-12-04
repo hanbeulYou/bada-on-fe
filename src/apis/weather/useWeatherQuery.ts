@@ -25,13 +25,13 @@ export interface Details {
   windDirection: number;
   windSpeed: number;
   waterTemperature: number;
-  tideInfoList: [
-    {
-      tidalLevel: number;
-      tidalTime: string;
-      code: string;
-    },
-  ];
+  tideInfoList: TideInfo[];
+}
+
+export interface TideInfo {
+  tidalLevel: number;
+  tidalTime: string;
+  code: '저조' | '고조';
 }
 
 interface WeatherInfo {
