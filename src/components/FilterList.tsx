@@ -2,19 +2,19 @@ import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { LABEL_MAPPING, LABELS } from '../consts/label';
-import { SafeAreaContext } from '../context/SafeAreaContext';
+import { Activity, Label, LABEL_MAPPING, LABELS } from '../consts/label';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 import FilterButton from './common/FilterButton';
 
 interface FilterListProps {
-  onFilterChange: (selected: string) => void;
+  onFilterChange: (selected: Activity) => void;
 }
 
 const FilterList = (props: FilterListProps) => {
   const { onFilterChange = () => {} } = props;
   const [searchParams, setSearchParams] = useSearchParams();
-  const selected = searchParams.get('selected');
+  const selected = searchParams.get('selected') as Activity;
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const FilterList = (props: FilterListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
-  const handleFilterButtonClick = (item: string) => {
+  const handleFilterButtonClick = (item: Label) => {
     const mappedItem = LABEL_MAPPING[item];
     if (selected === mappedItem) {
       return; // 이미 선택된 항목이면 아무 작업도 하지 않음

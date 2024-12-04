@@ -9,6 +9,7 @@ import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
+import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import { DETAILS_TMP } from '../data/data';
@@ -31,7 +32,7 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
   // const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
@@ -86,7 +87,7 @@ function Home() {
     setIsSearching(false);
   };
 
-  const handleFilterChange = (selected: string) => {
+  const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
   };
 
