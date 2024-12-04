@@ -1,5 +1,6 @@
 import { useEffect, useContext, useState } from 'react';
 import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
@@ -58,8 +59,8 @@ const MapTmp = (props: JejuMapProps) => {
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
-
   const { state: safeArea } = useContext(SafeAreaContext);
+  const navigate = useNavigate();
 
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
@@ -177,7 +178,7 @@ const MapTmp = (props: JejuMapProps) => {
             <Icon name="location-grey" />
           )}
         </LocationButton>
-        <TermsButton safeArea={safeArea} onClick={handleLocationButtonClick}>
+        <TermsButton safeArea={safeArea} onClick={() => navigate('/terms')}>
           <Icon name="terms" />
         </TermsButton>
       </Container>
