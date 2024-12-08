@@ -217,7 +217,13 @@ function BottomSheet({
                 title="수온/파고"
                 data={[
                   { label: '수온', value: detailData.waterTemperature + '°C' },
-                  { label: '파고', value: detailData.waveHeight + 'm' },
+                  {
+                    label: '파고',
+                    value:
+                      detailData.waveHeight === -999
+                        ? '0m'
+                        : detailData.waveHeight + 'm',
+                  },
                 ]}
               />
               <ContentBox
@@ -277,6 +283,8 @@ const Container = styled.div<{
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  touch-action: none;
 `;
 
 const HandlerWrapper = styled.div`
