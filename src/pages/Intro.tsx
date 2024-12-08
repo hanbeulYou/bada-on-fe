@@ -28,8 +28,7 @@ const IntroPage = () => {
   const btnNextDisabled = selectedLabel === '';
 
   const handleNextPage = () => {
-    // navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
-    throw new Error('sentry test');
+    navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
   };
 
   return (
