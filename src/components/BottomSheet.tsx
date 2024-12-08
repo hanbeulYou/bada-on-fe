@@ -137,7 +137,7 @@ function BottomSheet({
           <Handler />
         </HandlerWrapper>
       )}
-      <Header>
+      <Header isFull={isFull} safeArea={safeAreaState}>
         <Title>{title}</Title>
         {alert && (
           <Alert
@@ -295,7 +295,7 @@ const Handler = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const Header = styled.div`
+const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -303,6 +303,7 @@ const Header = styled.div`
   width: 327px;
   height: 38px;
   margin-bottom: 24px;
+  padding-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top + 34 : 0)}px;
 `;
 
 const Title = styled.div`
