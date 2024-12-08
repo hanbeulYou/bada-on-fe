@@ -58,6 +58,7 @@ const MapTmp = (props: JejuMapProps) => {
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
+  const [clickedMarker, setClickedMarker] = useState<number>(0);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
   const { state: safeArea } = useContext(SafeAreaContext);
   const navigate = useNavigate();
@@ -69,6 +70,7 @@ const MapTmp = (props: JejuMapProps) => {
     const map = useMap();
 
     const handleClickMarker = (marker: object) => {
+      setClickedMarker(marker.id);
       onClickMarker(marker);
 
       if (map) {
@@ -117,7 +119,10 @@ const MapTmp = (props: JejuMapProps) => {
                 lng: Number(item.longitude),
               }}
               image={{
-                src: `/pin/${filter}.png`,
+                src:
+                  clickedMarker === item.id
+                    ? `/pin/${filter}-active.png`
+                    : `/pin/${filter}.png`,
                 size: {
                   width: 36,
                   height: 37,
