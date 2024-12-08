@@ -171,6 +171,22 @@ const MapTmp = (props: JejuMapProps) => {
             />
           ))}
 
+        {!isObjectEmpty(state.currentAddress) && (
+          <MapMarker
+            position={{
+              lat: Number(state.currentAddress.y),
+              lng: Number(state.currentAddress.x),
+            }}
+            image={{
+              src: '/pin/search.png',
+              size: {
+                width: 36,
+                height: 37,
+              },
+            }}
+          />
+        )}
+
         {!isObjectEmpty(state.location) && (
           <MapMarker
             position={{
