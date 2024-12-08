@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery, { Details } from '../apis/weather/useWeatherQuery';
 import BottomSheet from '../components/BottomSheet';
-import Icon from '../components/common/Icon';
 // import Map from '../components/common/Map';
 import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
@@ -24,6 +23,13 @@ import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 //   longitude: 126.4983023,
 // };
 
+export type Marker = {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+};
+
 function Home() {
   const currentHour = new Date();
   const [timeIndex, setTimeIndex] = useState<number>(0);
@@ -34,7 +40,7 @@ function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState<Activity>('snorkeling');
-  const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
   const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
@@ -91,6 +97,7 @@ function Home() {
   const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
     setIsBottomSheetOpen(false);
+    setSelectedMarker(null);
   };
 
   const updateCurrentAddress = (address: Address) => {
@@ -112,7 +119,7 @@ function Home() {
     setIsSearchPage(false);
   };
 
-  const handleClickMarker = (marker: object) => {
+  const handleClickMarker = (marker: Marker) => {
     setSelectedMarker(marker);
 
     setIsBottomSheetOpen(true);
@@ -142,7 +149,11 @@ function Home() {
         {!isBottomSheetFull && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        <MapTmp filter={filter} onClickMarker={handleClickMarker} />
+        <MapTmp
+          filter={filter}
+          onClickMarker={handleClickMarker}
+          selectedMarker={selectedMarker}
+        />
         {isBottomSheetOpen && selectedMarker && data && (
           <BottomSheet
             title={selectedMarker.name}

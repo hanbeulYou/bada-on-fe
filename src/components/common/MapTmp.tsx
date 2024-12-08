@@ -8,12 +8,14 @@ import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import useToast from '../../hooks/useToast';
+import { Marker } from '../../pages/Home';
 
 import Icon from './Icon';
 
 interface JejuMapProps {
   filter?: Activity;
-  onClickMarker?: (place: object) => void;
+  selectedMarker?: Marker | null;
+  onClickMarker?: (place: Marker) => void;
 }
 
 // 지도 내 드래그와 바운더리 처리
@@ -54,11 +56,14 @@ const MapEventController = ({
 };
 
 const MapTmp = (props: JejuMapProps) => {
-  const { filter = 'snorkeling', onClickMarker = () => {} } = props;
+  const {
+    filter = 'snorkeling',
+    onClickMarker = () => {},
+    selectedMarker,
+  } = props;
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
-  const [clickedMarker, setClickedMarker] = useState<number>(0);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
   const { state: safeArea } = useContext(SafeAreaContext);
   const navigate = useNavigate();
@@ -69,8 +74,7 @@ const MapTmp = (props: JejuMapProps) => {
   const EventsAndMarkers = () => {
     const map = useMap();
 
-    const handleClickMarker = (marker: object) => {
-      setClickedMarker(marker.id);
+    const handleClickMarker = (marker: Marker) => {
       onClickMarker(marker);
 
       if (map) {
@@ -120,7 +124,7 @@ const MapTmp = (props: JejuMapProps) => {
               }}
               image={{
                 src:
-                  clickedMarker === item.id
+                  selectedMarker && selectedMarker?.id === item.id
                     ? `/pin/${filter}-active.png`
                     : `/pin/${filter}.png`,
                 size: {
