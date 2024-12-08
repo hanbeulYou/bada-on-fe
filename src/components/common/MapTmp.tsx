@@ -36,12 +36,41 @@ const MapEventController = ({
 
     const handleDrag = () => {
       const mapBounds = map.getBounds();
-      if (
-        !bounds.contain(mapBounds.getSouthWest()) ||
-        !bounds.contain(mapBounds.getNorthEast())
-      ) {
-        map.panTo(new kakao.maps.LatLng(33.3617, 126.5292));
+      const mapCenter = map.getCenter();
+
+      // 지도의 현재 영역이 제한 영역을 벗어났는지 확인
+      const sw = mapBounds.getSouthWest();
+      const ne = mapBounds.getNorthEast();
+
+      let lat = mapCenter.getLat();
+      let lng = mapCenter.getLng();
+      let needsAdjustment = false;
+
+      // 남쪽 경계를 벗어난 경우
+      if (sw.getLat() < bounds.getSouthWest().getLat()) {
+        lat += bounds.getSouthWest().getLat() - sw.getLat();
+        needsAdjustment = true;
       }
+      // 북쪽 경계를 벗어난 경우
+      if (ne.getLat() > bounds.getNorthEast().getLat()) {
+        lat -= ne.getLat() - bounds.getNorthEast().getLat();
+        needsAdjustment = true;
+      }
+      // 서쪽 경계를 벗어난 경우
+      if (sw.getLng() < bounds.getSouthWest().getLng()) {
+        lng += bounds.getSouthWest().getLng() - sw.getLng();
+        needsAdjustment = true;
+      }
+      // 동쪽 경계를 벗어난 경우
+      if (ne.getLng() > bounds.getNorthEast().getLng()) {
+        lng -= ne.getLng() - bounds.getNorthEast().getLng();
+        needsAdjustment = true;
+      }
+
+      if (needsAdjustment) {
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+      }
+
       setFixedLocation(false);
     };
 
