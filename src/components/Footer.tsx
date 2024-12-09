@@ -44,7 +44,6 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
               key={index}
               filled={index <= timeIndex}
               onClick={() => {
-                console.log(index);
                 setTimeIndex(index);
               }}
             />
