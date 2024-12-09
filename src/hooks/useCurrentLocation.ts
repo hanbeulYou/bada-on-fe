@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { useState, useEffect } from 'react';
 
 import useToast from './useToast';
@@ -41,6 +42,7 @@ export const useCurrentLocation = () => {
         }
       } catch (err) {
         console.error('위치 정보 처리 중 오류:', err);
+        Sentry.captureException(err);
       }
     };
 

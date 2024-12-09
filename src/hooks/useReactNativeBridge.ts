@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { useContext, useEffect } from 'react';
 
 import { AddressContext } from '../context/AddressContext';
@@ -69,6 +70,7 @@ export const useReactNativeBridge = () => {
         }
       } catch (error) {
         console.error('메시지 파싱 에러:', error);
+        Sentry.captureException(error);
       }
     };
 
