@@ -97,6 +97,7 @@ function Home() {
   };
 
   const handleFilterChange = (selected: Activity) => {
+    sendToRN({ type: 'POST_ACTIVITY', activity: selected });
     setFilter(selected);
     setBottomSheetStatus('hidden');
     setSelectedMarker(null);

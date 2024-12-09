@@ -5,7 +5,7 @@ import { AddressContext } from '../context/AddressContext';
 import useToast from './useToast';
 
 type MessageType = {
-  type?: 'GET_LOCATION';
+  type?: 'GET_LOCATION' | 'POST_ACTIVITY';
   [key: string]: any;
 };
 
