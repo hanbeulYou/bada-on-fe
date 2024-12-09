@@ -8,7 +8,7 @@ import FooterButton from '../components/common/FooterButton';
 import Icon from '../components/common/Icon';
 import { LABEL_MAPPING } from '../consts/label';
 import type { Label } from '../consts/label';
-import { SafeAreaContext } from '../context/SafeAreaContext';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 
 const IntroPage = () => {
