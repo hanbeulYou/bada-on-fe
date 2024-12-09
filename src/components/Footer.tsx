@@ -110,6 +110,9 @@ const TimeBlock = styled.div<{ filled: boolean }>`
   background-color: ${({ filled, theme }) =>
     filled ? theme.colors.primary : theme.colors.gray100};
   margin: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 `;
 
 const Button = styled.button`

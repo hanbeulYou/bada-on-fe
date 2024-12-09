@@ -53,7 +53,7 @@ const getKakaoSearchData = async ({
       x: longitude,
       y: latitude,
       rect: rect,
-      sort: 'distance',
+      sort: 'accuracy',
     },
   });
   return response.data;
