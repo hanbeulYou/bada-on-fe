@@ -7,20 +7,28 @@ import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
 import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
+import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
+import { Marker } from '../../pages/Home';
 
 import Icon from './Icon';
 
 interface JejuMapProps {
   filter?: Activity;
-  onClickMarker?: (place: object) => void;
+  selectedMarker?: Marker | null;
+  onClickMarker?: (place: Marker) => void;
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'full' | 'hidden'>
+  >;
 }
 
 // 지도 내 드래그와 바운더리 처리
 const MapEventController = ({
   setFixedLocation,
+  setBottomSheetStatus,
 }: {
   setFixedLocation: (value: boolean) => void;
+  setBottomSheetStatus: (value: 'middle' | 'full' | 'hidden') => void;
 }) => {
   const map = useMap();
 
@@ -33,13 +41,43 @@ const MapEventController = ({
     );
 
     const handleDrag = () => {
+      setBottomSheetStatus('hidden');
       const mapBounds = map.getBounds();
-      if (
-        !bounds.contain(mapBounds.getSouthWest()) ||
-        !bounds.contain(mapBounds.getNorthEast())
-      ) {
-        map.panTo(new kakao.maps.LatLng(33.3617, 126.5292));
+      const mapCenter = map.getCenter();
+
+      // 지도의 현재 영역이 제한 영역을 벗어났는지 확인
+      const sw = mapBounds.getSouthWest();
+      const ne = mapBounds.getNorthEast();
+
+      let lat = mapCenter.getLat();
+      let lng = mapCenter.getLng();
+      let needsAdjustment = false;
+
+      // 남쪽 경계를 벗어난 경우
+      if (sw.getLat() < bounds.getSouthWest().getLat()) {
+        lat += bounds.getSouthWest().getLat() - sw.getLat();
+        needsAdjustment = true;
       }
+      // 북쪽 경계를 벗어난 경우
+      if (ne.getLat() > bounds.getNorthEast().getLat()) {
+        lat -= ne.getLat() - bounds.getNorthEast().getLat();
+        needsAdjustment = true;
+      }
+      // 서쪽 경계를 벗어난 경우
+      if (sw.getLng() < bounds.getSouthWest().getLng()) {
+        lng += bounds.getSouthWest().getLng() - sw.getLng();
+        needsAdjustment = true;
+      }
+      // 동쪽 경계를 벗어난 경우
+      if (ne.getLng() > bounds.getNorthEast().getLng()) {
+        lng -= ne.getLng() - bounds.getNorthEast().getLng();
+        needsAdjustment = true;
+      }
+
+      if (needsAdjustment) {
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+      }
+
       setFixedLocation(false);
     };
 
@@ -54,7 +92,12 @@ const MapEventController = ({
 };
 
 const MapTmp = (props: JejuMapProps) => {
-  const { filter = 'snorkeling', onClickMarker = () => {} } = props;
+  const {
+    filter = 'snorkeling',
+    onClickMarker = () => {},
+    selectedMarker,
+    setBottomSheetStatus,
+  } = props;
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
@@ -63,12 +106,13 @@ const MapTmp = (props: JejuMapProps) => {
   const navigate = useNavigate();
 
   const previousAddressRef = useRef(state.currentAddress);
+  const { sendToRN } = useReactNativeBridge();
 
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
     const map = useMap();
 
-    const handleClickMarker = (marker: object) => {
+    const handleClickMarker = (marker: Marker) => {
       onClickMarker(marker);
 
       if (map) {
@@ -106,7 +150,10 @@ const MapTmp = (props: JejuMapProps) => {
 
     return (
       <>
-        <MapEventController setFixedLocation={setFixedLocation} />
+        <MapEventController
+          setFixedLocation={setFixedLocation}
+          setBottomSheetStatus={setBottomSheetStatus}
+        />
         {/* 기존 마커 렌더링 로직 유지 */}
         {!mapsIsLoading &&
           mapsData?.map((item: MapData, index: number) => (
@@ -117,7 +164,10 @@ const MapTmp = (props: JejuMapProps) => {
                 lng: Number(item.longitude),
               }}
               image={{
-                src: `/pin/${filter}.png`,
+                src:
+                  selectedMarker && selectedMarker?.id === item.id
+                    ? `/pin/${filter}-active.png`
+                    : `/pin/${filter}.png`,
                 size: {
                   width: 36,
                   height: 37,
@@ -132,6 +182,22 @@ const MapTmp = (props: JejuMapProps) => {
               onClick={() => handleClickMarker(item)}
             />
           ))}
+
+        {!isObjectEmpty(state.currentAddress) && (
+          <MapMarker
+            position={{
+              lat: Number(state.currentAddress.y),
+              lng: Number(state.currentAddress.x),
+            }}
+            image={{
+              src: '/pin/search.png',
+              size: {
+                width: 36,
+                height: 37,
+              },
+            }}
+          />
+        )}
 
         {!isObjectEmpty(state.location) && (
           <MapMarker
@@ -161,6 +227,13 @@ const MapTmp = (props: JejuMapProps) => {
   const handleLocationButtonClick = () => {
     if (!fixedLocation && !isObjectEmpty(state.location)) {
       setFixedLocation(true);
+    } else if (isObjectEmpty(state.location)) {
+      showToast({
+        message: '현재 위치를 확인할 수 없어요.',
+        toastType: 'warning',
+        timeout: 3000,
+      });
+      sendToRN({ type: 'GET_LOCATION' });
     } else {
       setFixedLocation(false);
     }

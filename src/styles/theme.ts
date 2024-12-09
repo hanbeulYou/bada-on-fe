@@ -33,9 +33,9 @@ const theme = {
     gray900: '#1b1b1b',
     snorkeling: '#A500E6',
     diving: '#00AE85',
-    swimming: '#EB0679',
+    swimming: '#FF7B00',
     surfing: '#1CCAE1',
-    kayakingPaddleBoarding: '#F5C800',
+    kayakingPaddleBoarding: '#EB0679',
     white: '#FFFFFF',
   },
   typography: {

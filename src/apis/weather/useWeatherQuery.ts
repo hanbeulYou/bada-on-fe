@@ -66,10 +66,10 @@ const getMapInfo = async (
   return { details: detailResponse, summary: summaryResponse };
 };
 
-const useWeatherQuery = (id: number, activity: Activity) => {
+const useWeatherQuery = (id: number | undefined, activity: Activity) => {
   return useQuery<WeatherInfo, AxiosError>({
     queryKey: ['weatherSummary', id],
-    queryFn: () => getMapInfo(id, activity),
+    queryFn: () => getMapInfo(id as number, activity),
     enabled: !!id,
   });
 };

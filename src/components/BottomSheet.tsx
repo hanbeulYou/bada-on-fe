@@ -5,6 +5,7 @@ import { Details, TideInfo } from '../apis/weather/useWeatherQuery';
 import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
+import { Marker } from '../pages/Home';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
@@ -25,13 +26,14 @@ interface BottomSheetProps {
   recommends?: string;
   timeIndex: number;
   setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
-  onClosed?: () => void;
-  onFull?: () => void;
-  onMiddle?: () => void;
-  isFull: boolean;
+  bottomSheetStatus: 'middle' | 'full' | 'bottom' | 'hidden';
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'full' | 'hidden'>
+  >;
   currentHour: Date;
   activity: Activity;
   detailData: Details;
+  setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
 }
 
 function BottomSheet({
@@ -41,13 +43,12 @@ function BottomSheet({
   recommends,
   timeIndex,
   setTimeIndex,
-  onClosed,
-  onFull,
-  onMiddle,
-  isFull,
   currentHour,
   activity,
   detailData,
+  bottomSheetStatus,
+  setBottomSheetStatus,
+  setSelectedMarker,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
   const [position, setPosition] = useState(
@@ -86,17 +87,18 @@ function BottomSheet({
     // 위치 스냅
     if (position < window.innerHeight * 0.25) {
       setPosition(POSITIONS.FULL);
-      if (onFull) onFull();
+      if (setBottomSheetStatus) setBottomSheetStatus('full');
     } else if (position > window.innerHeight * 0.75) {
       setPosition(POSITIONS.HIDDEN);
       setFooterVisible(false);
-      if (onClosed) {
+      if (setBottomSheetStatus) {
         setTimeout(() => {
-          if (onClosed) onClosed();
+          setSelectedMarker(null);
+          setBottomSheetStatus('hidden');
         }, 300);
       }
     } else {
-      if (onMiddle) onMiddle();
+      if (setBottomSheetStatus) setBottomSheetStatus('middle');
       setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
@@ -118,13 +120,18 @@ function BottomSheet({
     <Container
       ref={containerRef}
       position={position}
-      isFull={isFull}
+      isFull={bottomSheetStatus === 'full'}
       safeArea={safeAreaState}
     >
       {renderToasts()}
-      {isFull ? (
-        <CloseBottomSheet safeArea={safeAreaState}>
-          <button onClick={onClosed}>
+      {bottomSheetStatus === 'full' ? (
+        <CloseBottomSheet
+          safeArea={safeAreaState}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <button onClick={() => setBottomSheetStatus('hidden')}>
             <Icon name="chevron-down" />
           </button>
         </CloseBottomSheet>
@@ -137,35 +144,46 @@ function BottomSheet({
           <Handler />
         </HandlerWrapper>
       )}
-      <Header>
-        <Title>{title}</Title>
-        {alert && (
-          <Alert
-            onClick={() =>
-              showToast({
-                message:
-                  '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
-                toastType: 'warning',
-                timeout: 3000,
-              })
-            }
-          >
-            {alert}
-          </Alert>
+      <SummaryContainer>
+        {bottomSheetStatus === 'middle' && (
+          <DragHandler
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          />
         )}
-      </Header>
-      <DoughnutChart chartValue={dangerValue} />
-      <RecommendContainer>
-        {recommends && (
-          <RecommendItem>
-            <RecommendTitleWrapper>
-              <RecommendTitle>{LABEL_MAPPING_REVERSE[activity]}</RecommendTitle>
-            </RecommendTitleWrapper>
-            <RecommendDescription>{recommends}</RecommendDescription>
-          </RecommendItem>
-        )}
-      </RecommendContainer>
-      {isFull && (
+        <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
+          <Title>{title}</Title>
+          {alert && (
+            <Alert
+              onClick={() =>
+                showToast({
+                  message:
+                    '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
+                  toastType: 'warning',
+                  timeout: 3000,
+                })
+              }
+            >
+              {alert}
+            </Alert>
+          )}
+        </Header>
+        <DoughnutChart chartValue={dangerValue} />
+        <RecommendContainer>
+          {recommends && (
+            <RecommendItem>
+              <RecommendTitleWrapper>
+                <RecommendTitle>
+                  {LABEL_MAPPING_REVERSE[activity]}
+                </RecommendTitle>
+              </RecommendTitleWrapper>
+              <RecommendDescription>{recommends}</RecommendDescription>
+            </RecommendItem>
+          )}
+        </RecommendContainer>
+      </SummaryContainer>
+      {bottomSheetStatus === 'full' && (
         <DetailContainer>
           <HorizontalLineLg />
           <DetailInfoContainer safeArea={safeAreaState}>
@@ -217,7 +235,13 @@ function BottomSheet({
                 title="수온/파고"
                 data={[
                   { label: '수온', value: detailData.waterTemperature + '°C' },
-                  { label: '파고', value: detailData.waveHeight + 'm' },
+                  {
+                    label: '파고',
+                    value:
+                      detailData.waveHeight === -999
+                        ? '0m'
+                        : detailData.waveHeight + 'm',
+                  },
                 ]}
               />
               <ContentBox
@@ -277,6 +301,14 @@ const Container = styled.div<{
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  touch-action: none;
+`;
+
+const SummaryContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const HandlerWrapper = styled.div`
@@ -295,7 +327,7 @@ const Handler = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const Header = styled.div`
+const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -303,6 +335,7 @@ const Header = styled.div`
   width: 327px;
   height: 38px;
   margin-bottom: 24px;
+  padding-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top + 34 : 0)}px;
 `;
 
 const Title = styled.div`
@@ -434,4 +467,12 @@ const ReferenceTitle = styled.div`
 const ReferenceContent = styled.div`
   ${({ theme }) => theme.typography.Label};
   color: ${({ theme }) => theme.colors.gray500};
+`;
+
+const DragHandler = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 `;
