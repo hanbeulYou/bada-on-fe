@@ -8,12 +8,14 @@ import FooterButton from '../components/common/FooterButton';
 import Icon from '../components/common/Icon';
 import { LABEL_MAPPING } from '../consts/label';
 import type { Label } from '../consts/label';
-import { SafeAreaContext } from '../context/SafeAreaContext';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
+import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 
 const IntroPage = () => {
   const [selectedLabel, setSelectedLabel] = useState<Label | ''>('');
   const navigate = useNavigate();
   const { state: safeAreaState, dispatch } = useContext(SafeAreaContext);
+  const { sendToRN } = useReactNativeBridge();
 
   useEffect(() => {
     const safeAreaInsets = (window as any).safeAreaInsets;
@@ -28,7 +30,13 @@ const IntroPage = () => {
   const btnNextDisabled = selectedLabel === '';
 
   const handleNextPage = () => {
-    navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
+    if (selectedLabel) {
+      sendToRN({
+        type: 'POST_ACTIVITY',
+        activity: LABEL_MAPPING[selectedLabel],
+      });
+      navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
+    }
   };
 
   return (
