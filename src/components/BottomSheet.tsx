@@ -125,7 +125,12 @@ function BottomSheet({
     >
       {renderToasts()}
       {bottomSheetStatus === 'full' ? (
-        <CloseBottomSheet safeArea={safeAreaState}>
+        <CloseBottomSheet
+          safeArea={safeAreaState}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <button onClick={() => setBottomSheetStatus('hidden')}>
             <Icon name="chevron-down" />
           </button>
@@ -139,34 +144,45 @@ function BottomSheet({
           <Handler />
         </HandlerWrapper>
       )}
-      <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
-        <Title>{title}</Title>
-        {alert && (
-          <Alert
-            onClick={() =>
-              showToast({
-                message:
-                  '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
-                toastType: 'warning',
-                timeout: 3000,
-              })
-            }
-          >
-            {alert}
-          </Alert>
+      <SummaryContainer>
+        {bottomSheetStatus === 'middle' && (
+          <DragHandler
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          />
         )}
-      </Header>
-      <DoughnutChart chartValue={dangerValue} />
-      <RecommendContainer>
-        {recommends && (
-          <RecommendItem>
-            <RecommendTitleWrapper>
-              <RecommendTitle>{LABEL_MAPPING_REVERSE[activity]}</RecommendTitle>
-            </RecommendTitleWrapper>
-            <RecommendDescription>{recommends}</RecommendDescription>
-          </RecommendItem>
-        )}
-      </RecommendContainer>
+        <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
+          <Title>{title}</Title>
+          {alert && (
+            <Alert
+              onClick={() =>
+                showToast({
+                  message:
+                    '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
+                  toastType: 'warning',
+                  timeout: 3000,
+                })
+              }
+            >
+              {alert}
+            </Alert>
+          )}
+        </Header>
+        <DoughnutChart chartValue={dangerValue} />
+        <RecommendContainer>
+          {recommends && (
+            <RecommendItem>
+              <RecommendTitleWrapper>
+                <RecommendTitle>
+                  {LABEL_MAPPING_REVERSE[activity]}
+                </RecommendTitle>
+              </RecommendTitleWrapper>
+              <RecommendDescription>{recommends}</RecommendDescription>
+            </RecommendItem>
+          )}
+        </RecommendContainer>
+      </SummaryContainer>
       {bottomSheetStatus === 'full' && (
         <DetailContainer>
           <HorizontalLineLg />
@@ -287,6 +303,12 @@ const Container = styled.div<{
   }
 
   touch-action: none;
+`;
+
+const SummaryContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const HandlerWrapper = styled.div`
@@ -445,4 +467,12 @@ const ReferenceTitle = styled.div`
 const ReferenceContent = styled.div`
   ${({ theme }) => theme.typography.Label};
   color: ${({ theme }) => theme.colors.gray500};
+`;
+
+const DragHandler = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 `;
