@@ -73,13 +73,8 @@ function BottomSheet({
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current === null) return;
 
-    console.log('startY', startY.current);
-    console.log('e.touches[0].clientY', e.touches[0].clientY);
-
     const deltaY = startY.current - e.touches[0].clientY;
     let newPosition = position - deltaY;
-
-    console.log('newPosition', newPosition);
 
     // 범위 제한 (픽셀 단위)
     if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
