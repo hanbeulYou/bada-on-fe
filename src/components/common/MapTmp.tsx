@@ -7,6 +7,7 @@ import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
 import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
+import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
 
@@ -105,6 +106,7 @@ const MapTmp = (props: JejuMapProps) => {
   const navigate = useNavigate();
 
   const previousAddressRef = useRef(state.currentAddress);
+  const { sendToRN } = useReactNativeBridge();
 
   // EventsAndMarkers 컴포넌트
   const EventsAndMarkers = () => {
@@ -225,6 +227,13 @@ const MapTmp = (props: JejuMapProps) => {
   const handleLocationButtonClick = () => {
     if (!fixedLocation && !isObjectEmpty(state.location)) {
       setFixedLocation(true);
+    } else if (isObjectEmpty(state.location)) {
+      showToast({
+        message: '현재 위치를 확인할 수 없어요.',
+        toastType: 'warning',
+        timeout: 3000,
+      });
+      sendToRN({ type: 'GET_LOCATION' });
     } else {
       setFixedLocation(false);
     }
