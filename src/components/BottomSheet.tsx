@@ -62,7 +62,7 @@ function BottomSheet({
 
   const POSITIONS = {
     FULL: 0,
-    MIDDLE: 340 + safeAreaState.bottom,
+    MIDDLE: window.innerHeight - 340 - safeAreaState.bottom,
     HIDDEN: window.innerHeight,
   };
 
@@ -73,8 +73,13 @@ function BottomSheet({
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current === null) return;
 
+    console.log('startY', startY.current);
+    console.log('e.touches[0].clientY', e.touches[0].clientY);
+
     const deltaY = startY.current - e.touches[0].clientY;
     let newPosition = position - deltaY;
+
+    console.log('newPosition', newPosition);
 
     // 범위 제한 (픽셀 단위)
     if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
@@ -84,21 +89,31 @@ function BottomSheet({
   };
 
   const handleTouchEnd = () => {
-    // 위치 스냅
-    if (position < window.innerHeight * 0.25) {
+    // POSITIONS 값들과의 거리를 기준으로 판단
+    const distanceToFull = Math.abs(position - POSITIONS.FULL);
+    const distanceToMiddle = Math.abs(position - POSITIONS.MIDDLE);
+    const distanceToHidden = Math.abs(position - POSITIONS.HIDDEN);
+
+    // 가장 가까운 위치로 스냅
+    const minDistance = Math.min(
+      distanceToFull,
+      distanceToMiddle,
+      distanceToHidden,
+    );
+
+    if (!setBottomSheetStatus) return;
+
+    if (minDistance === distanceToFull) {
       setPosition(POSITIONS.FULL);
-      if (setBottomSheetStatus) setBottomSheetStatus('full');
-    } else if (position > window.innerHeight * 0.75) {
-      setPosition(POSITIONS.HIDDEN);
-      setFooterVisible(false);
-      if (setBottomSheetStatus) {
-        setTimeout(() => {
-          setSelectedMarker(null);
-          setBottomSheetStatus('hidden');
-        }, 300);
-      }
+      setBottomSheetStatus('full');
+    } else if (minDistance === distanceToHidden) {
+      setTimeout(() => {
+        setSelectedMarker(null);
+        setBottomSheetStatus('hidden');
+        setFooterVisible(false);
+      }, 300);
     } else {
-      if (setBottomSheetStatus) setBottomSheetStatus('middle');
+      setBottomSheetStatus('middle');
       setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
@@ -301,8 +316,6 @@ const Container = styled.div<{
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
-
-  touch-action: none;
 `;
 
 const SummaryContainer = styled.section`
@@ -475,4 +488,5 @@ const DragHandler = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 `;
