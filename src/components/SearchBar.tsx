@@ -61,7 +61,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleClear = () => {
+  const handleClear = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setSearchValue('');
   };
 
