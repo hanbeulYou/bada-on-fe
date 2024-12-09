@@ -16,6 +16,7 @@ import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
+import FetchBoundary from '../providers/FetchBoundary';
 
 // 제주 시청 위치
 // const initialLocation: LocationData = {
@@ -142,41 +143,47 @@ function Home() {
       </Header>
       <>
         {isSearchPage && (
-          <Search
-            isSearching={isSearching}
-            onClick={updateCurrentAddress}
-            onDeleteHistory={deleteHistory}
-          />
+          <FetchBoundary>
+            <Search
+              isSearching={isSearching}
+              onClick={updateCurrentAddress}
+              onDeleteHistory={deleteHistory}
+            />
+          </FetchBoundary>
         )}
         {bottomSheetStatus !== 'full' && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        <MapTmp
-          filter={filter}
-          onClickMarker={handleClickMarker}
-          selectedMarker={selectedMarker}
-          setBottomSheetStatus={setBottomSheetStatus}
-        />
-        {bottomSheetStatus !== 'hidden' && selectedMarker && data && (
-          <BottomSheet
-            title={selectedMarker.name}
-            alert={
-              selectedMarker.name === '김녕 세기알 해변' ||
-              selectedMarker.name === '용담포구'
-                ? '다이빙 금지구역'
-                : ''
-            }
-            dangerValue={data.summary[timeIndex].score}
-            recommends={data.summary[timeIndex].message}
-            activity={filter}
-            currentHour={currentHour}
-            timeIndex={timeIndex}
-            setTimeIndex={setTimeIndex}
-            bottomSheetStatus={bottomSheetStatus}
+        <FetchBoundary>
+          <MapTmp
+            filter={filter}
+            onClickMarker={handleClickMarker}
+            selectedMarker={selectedMarker}
             setBottomSheetStatus={setBottomSheetStatus}
-            detailData={data.details[timeIndex]}
-            setSelectedMarker={setSelectedMarker}
           />
+        </FetchBoundary>
+        {bottomSheetStatus !== 'hidden' && selectedMarker && data && (
+          <FetchBoundary>
+            <BottomSheet
+              title={selectedMarker.name}
+              alert={
+                selectedMarker.name === '김녕 세기알 해변' ||
+                selectedMarker.name === '용담포구'
+                  ? '다이빙 금지구역'
+                  : ''
+              }
+              dangerValue={data.summary[timeIndex].score}
+              recommends={data.summary[timeIndex].message}
+              activity={filter}
+              currentHour={currentHour}
+              timeIndex={timeIndex}
+              setTimeIndex={setTimeIndex}
+              bottomSheetStatus={bottomSheetStatus}
+              setBottomSheetStatus={setBottomSheetStatus}
+              detailData={data.details[timeIndex]}
+              setSelectedMarker={setSelectedMarker}
+            />
+          </FetchBoundary>
         )}
       </>
     </Container>

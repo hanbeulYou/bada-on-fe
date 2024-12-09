@@ -1,11 +1,15 @@
 import { Outlet } from 'react-router-dom';
 import { styled } from 'styled-components';
 
+import FetchBoundary from '../providers/FetchBoundary';
+
 const Layout: React.FC = () => {
   return (
     <LayoutContainer>
       <LayoutBox>
-        <Outlet />
+        <FetchBoundary>
+          <Outlet />
+        </FetchBoundary>
       </LayoutBox>
     </LayoutContainer>
   );
