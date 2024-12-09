@@ -5,6 +5,7 @@ import { Details, TideInfo } from '../apis/weather/useWeatherQuery';
 import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
+import { Marker } from '../pages/Home';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
@@ -25,13 +26,14 @@ interface BottomSheetProps {
   recommends?: string;
   timeIndex: number;
   setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
-  onClosed?: () => void;
-  onFull?: () => void;
-  onMiddle?: () => void;
-  isFull: boolean;
+  bottomSheetStatus: 'middle' | 'full' | 'bottom' | 'hidden';
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'full' | 'hidden'>
+  >;
   currentHour: Date;
   activity: Activity;
   detailData: Details;
+  setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
 }
 
 function BottomSheet({
@@ -41,13 +43,12 @@ function BottomSheet({
   recommends,
   timeIndex,
   setTimeIndex,
-  onClosed,
-  onFull,
-  onMiddle,
-  isFull,
   currentHour,
   activity,
   detailData,
+  bottomSheetStatus,
+  setBottomSheetStatus,
+  setSelectedMarker,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
   const [position, setPosition] = useState(
@@ -86,17 +87,18 @@ function BottomSheet({
     // 위치 스냅
     if (position < window.innerHeight * 0.25) {
       setPosition(POSITIONS.FULL);
-      if (onFull) onFull();
+      if (setBottomSheetStatus) setBottomSheetStatus('full');
     } else if (position > window.innerHeight * 0.75) {
       setPosition(POSITIONS.HIDDEN);
       setFooterVisible(false);
-      if (onClosed) {
+      if (setBottomSheetStatus) {
         setTimeout(() => {
-          if (onClosed) onClosed();
+          setSelectedMarker(null);
+          setBottomSheetStatus('hidden');
         }, 300);
       }
     } else {
-      if (onMiddle) onMiddle();
+      if (setBottomSheetStatus) setBottomSheetStatus('middle');
       setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
@@ -118,13 +120,13 @@ function BottomSheet({
     <Container
       ref={containerRef}
       position={position}
-      isFull={isFull}
+      isFull={bottomSheetStatus === 'full'}
       safeArea={safeAreaState}
     >
       {renderToasts()}
-      {isFull ? (
+      {bottomSheetStatus === 'full' ? (
         <CloseBottomSheet safeArea={safeAreaState}>
-          <button onClick={onClosed}>
+          <button onClick={() => setBottomSheetStatus('hidden')}>
             <Icon name="chevron-down" />
           </button>
         </CloseBottomSheet>
@@ -137,7 +139,7 @@ function BottomSheet({
           <Handler />
         </HandlerWrapper>
       )}
-      <Header isFull={isFull} safeArea={safeAreaState}>
+      <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
         <Title>{title}</Title>
         {alert && (
           <Alert
@@ -165,7 +167,7 @@ function BottomSheet({
           </RecommendItem>
         )}
       </RecommendContainer>
-      {isFull && (
+      {bottomSheetStatus === 'full' && (
         <DetailContainer>
           <HorizontalLineLg />
           <DetailInfoContainer safeArea={safeAreaState}>

@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
-import useWeatherQuery, { Details } from '../apis/weather/useWeatherQuery';
+import useWeatherQuery from '../apis/weather/useWeatherQuery';
 import BottomSheet from '../components/BottomSheet';
 // import Map from '../components/common/Map';
 import MapTmp from '../components/common/MapTmp';
@@ -42,8 +42,9 @@ function Home() {
   const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
   const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
-  const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
+  const [bottomSheetStatus, setBottomSheetStatus] = useState<
+    'middle' | 'full' | 'hidden'
+  >('hidden');
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
@@ -96,8 +97,9 @@ function Home() {
 
   const handleFilterChange = (selected: Activity) => {
     setFilter(selected);
-    setIsBottomSheetOpen(false);
+    setBottomSheetStatus('hidden');
     setSelectedMarker(null);
+    setTimeIndex(0);
   };
 
   const updateCurrentAddress = (address: Address) => {
@@ -121,14 +123,14 @@ function Home() {
 
   const handleClickMarker = (marker: Marker) => {
     setSelectedMarker(marker);
-
-    setIsBottomSheetOpen(true);
+    setTimeIndex(0);
+    setBottomSheetStatus('middle');
   };
 
   return (
     <Container>
       <Header safeArea={safeAreaState}>
-        {!isBottomSheetFull && (
+        {bottomSheetStatus !== 'full' && (
           <SearchBar
             isSearchPage={isSearchPage}
             onClick={openSearchPage}
@@ -146,15 +148,16 @@ function Home() {
             onDeleteHistory={deleteHistory}
           />
         )}
-        {!isBottomSheetFull && (
+        {bottomSheetStatus !== 'full' && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <MapTmp
           filter={filter}
           onClickMarker={handleClickMarker}
           selectedMarker={selectedMarker}
+          setBottomSheetStatus={setBottomSheetStatus}
         />
-        {isBottomSheetOpen && selectedMarker && data && (
+        {bottomSheetStatus !== 'hidden' && selectedMarker && data && (
           <BottomSheet
             title={selectedMarker.name}
             alert={
@@ -169,14 +172,10 @@ function Home() {
             currentHour={currentHour}
             timeIndex={timeIndex}
             setTimeIndex={setTimeIndex}
-            onClosed={() => {
-              setIsBottomSheetOpen(false);
-              setIsBottomSheetFull(false);
-            }}
-            isFull={isBottomSheetFull}
-            onMiddle={() => setIsBottomSheetFull(false)}
-            onFull={() => setIsBottomSheetFull(true)}
+            bottomSheetStatus={bottomSheetStatus}
+            setBottomSheetStatus={setBottomSheetStatus}
             detailData={data.details[timeIndex]}
+            setSelectedMarker={setSelectedMarker}
           />
         )}
       </>

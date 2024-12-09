@@ -16,13 +16,18 @@ interface JejuMapProps {
   filter?: Activity;
   selectedMarker?: Marker | null;
   onClickMarker?: (place: Marker) => void;
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'full' | 'hidden'>
+  >;
 }
 
 // 지도 내 드래그와 바운더리 처리
 const MapEventController = ({
   setFixedLocation,
+  setBottomSheetStatus,
 }: {
   setFixedLocation: (value: boolean) => void;
+  setBottomSheetStatus: (value: 'middle' | 'full' | 'hidden') => void;
 }) => {
   const map = useMap();
 
@@ -35,6 +40,7 @@ const MapEventController = ({
     );
 
     const handleDrag = () => {
+      setBottomSheetStatus('hidden');
       const mapBounds = map.getBounds();
       const mapCenter = map.getCenter();
 
@@ -89,6 +95,7 @@ const MapTmp = (props: JejuMapProps) => {
     filter = 'snorkeling',
     onClickMarker = () => {},
     selectedMarker,
+    setBottomSheetStatus,
   } = props;
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
@@ -141,7 +148,10 @@ const MapTmp = (props: JejuMapProps) => {
 
     return (
       <>
-        <MapEventController setFixedLocation={setFixedLocation} />
+        <MapEventController
+          setFixedLocation={setFixedLocation}
+          setBottomSheetStatus={setBottomSheetStatus}
+        />
         {/* 기존 마커 렌더링 로직 유지 */}
         {!mapsIsLoading &&
           mapsData?.map((item: MapData, index: number) => (
