@@ -49,7 +49,18 @@ function Home() {
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
-  const { state: safeAreaState } = useContext(SafeAreaContext);
+  const { state: safeAreaState, dispatch: safeAreaDispatch } =
+    useContext(SafeAreaContext);
+
+  useEffect(() => {
+    const safeAreaInsets = (window as any).safeAreaInsets;
+    if (safeAreaInsets) {
+      safeAreaDispatch({
+        type: 'SET_SAFE_AREA',
+        payload: safeAreaInsets,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     sendToRN({ type: 'GET_LOCATION' });
