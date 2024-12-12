@@ -95,7 +95,7 @@ const Search: React.FC<SearchProps> = ({
   );
 
   return (
-    <Container safeArea={safeAreaState}>
+    <Container safeArea={safeAreaState} style={{ zIndex: 5 }}>
       {isSearching ? (
         <>
           {searchIsLoading || searchData?.documents?.length === 0 ? (
