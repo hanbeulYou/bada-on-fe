@@ -37,8 +37,8 @@ const Button = styled.button<{ safeAreaBottom: number }>`
   cursor: pointer;
 
   &:disabled {
-    color: ${({ theme }) => theme.colors.gray200};
-    background-color: ${({ theme }) => theme.colors.gray100};
+    color: ${({ theme }) => theme.colors.gray500};
+    background-color: ${({ theme }) => theme.colors.gray300};
     cursor: not-allowed;
     box-shadow: none;
   }
