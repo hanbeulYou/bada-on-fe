@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import dayjs from 'dayjs';
 
 import { Activity } from '../../consts/label';
 import instance from '../instance';
@@ -67,8 +68,9 @@ const getMapInfo = async (
 };
 
 const useWeatherQuery = (id: number | undefined, activity: Activity) => {
+  const timeKey = dayjs().format('YYYY-MM-DD HH');
   return useQuery<WeatherInfo, AxiosError>({
-    queryKey: ['weatherSummary', id],
+    queryKey: ['weatherSummary', id, timeKey],
     queryFn: () => getMapInfo(id as number, activity),
     enabled: !!id,
   });
