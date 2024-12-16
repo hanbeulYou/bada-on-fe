@@ -112,6 +112,14 @@ const MapTmp = (props: JejuMapProps) => {
   const EventsAndMarkers = () => {
     const map = useMap();
 
+    const isLocationInJeju = (lat: number, lng: number) => {
+      const jejuBounds = new kakao.maps.LatLngBounds(
+        new kakao.maps.LatLng(32.78442221352914, 125.8539291788811),
+        new kakao.maps.LatLng(33.95418174379797, 127.20556660191247),
+      );
+      return jejuBounds.contain(new kakao.maps.LatLng(lat, lng));
+    };
+
     const handleClickMarker = (marker: Marker) => {
       onClickMarker(marker);
 
@@ -127,17 +135,28 @@ const MapTmp = (props: JejuMapProps) => {
 
     useEffect(() => {
       if (fixedLocation && map && !isObjectEmpty(state.location)) {
-        map.panTo(
-          new kakao.maps.LatLng(
-            Number(state.location.latitude),
-            Number(state.location.longitude),
-          ),
-        );
+        const lat = Number(state.location.latitude);
+        const lng = Number(state.location.longitude);
+
+        if (!isLocationInJeju(lat, lng)) {
+          showToast({
+            message: '현재 위치가 제주도 밖입니다.',
+            toastType: 'warning',
+            timeout: 3000,
+          });
+          setFixedLocation(false);
+          return;
+        }
+
+        map.panTo(new kakao.maps.LatLng(lat, lng));
       }
     }, [fixedLocation]);
 
     useEffect(() => {
-      if (previousAddressRef.current !== state.currentAddress) {
+      if (
+        previousAddressRef.current !== state.currentAddress &&
+        !isObjectEmpty(state.currentAddress)
+      ) {
         map.panTo(
           new kakao.maps.LatLng(
             Number(state.currentAddress.y),

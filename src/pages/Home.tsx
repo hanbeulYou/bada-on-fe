@@ -174,29 +174,32 @@ function Home() {
             setBottomSheetStatus={setBottomSheetStatus}
           />
         </FetchBoundary>
-        {bottomSheetStatus !== 'hidden' && selectedMarker && data && (
-          <FetchBoundary>
-            <BottomSheet
-              title={selectedMarker.name}
-              alert={
-                selectedMarker.name === '김녕 세기알 해변' ||
-                selectedMarker.name === '용담포구'
-                  ? '다이빙 금지구역'
-                  : ''
-              }
-              dangerValue={data.summary[timeIndex].score}
-              recommends={data.summary[timeIndex].message}
-              activity={filter}
-              currentHour={currentHour}
-              timeIndex={timeIndex}
-              setTimeIndex={setTimeIndex}
-              bottomSheetStatus={bottomSheetStatus}
-              setBottomSheetStatus={setBottomSheetStatus}
-              detailData={data.details[timeIndex]}
-              setSelectedMarker={setSelectedMarker}
-            />
-          </FetchBoundary>
-        )}
+        {bottomSheetStatus !== 'hidden' &&
+          !isSearchPage &&
+          selectedMarker &&
+          data && (
+            <FetchBoundary>
+              <BottomSheet
+                title={selectedMarker.name}
+                alert={
+                  selectedMarker.name === '김녕 세기알 해변' ||
+                  selectedMarker.name === '용담포구'
+                    ? '다이빙 금지구역'
+                    : ''
+                }
+                dangerValue={data.summary[timeIndex].score}
+                recommends={data.summary[timeIndex].message}
+                activity={filter}
+                currentHour={currentHour}
+                timeIndex={timeIndex}
+                setTimeIndex={setTimeIndex}
+                bottomSheetStatus={bottomSheetStatus}
+                setBottomSheetStatus={setBottomSheetStatus}
+                detailData={data.details[timeIndex]}
+                setSelectedMarker={setSelectedMarker}
+              />
+            </FetchBoundary>
+          )}
       </>
     </Container>
   );
