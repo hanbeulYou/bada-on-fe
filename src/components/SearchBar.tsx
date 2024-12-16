@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+
+import { Address } from '../apis/search/useKakaoSearchQuery';
+import { AddressContext } from '../context/AddressContext';
 
 import Icon from './common/Icon';
 
@@ -55,6 +58,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   isSearchPage,
   setSearchValue,
 }) => {
+  const { dispatch } = useContext(AddressContext);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +68,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleClear = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setSearchValue('');
+    dispatch({ type: 'SET_CURRENT_ADDRESS', payload: {} as Address });
   };
 
   const handleBtnBackward = (e: React.MouseEvent<HTMLButtonElement>) => {

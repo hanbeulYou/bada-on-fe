@@ -137,7 +137,10 @@ const MapTmp = (props: JejuMapProps) => {
     }, [fixedLocation]);
 
     useEffect(() => {
-      if (previousAddressRef.current !== state.currentAddress) {
+      if (
+        previousAddressRef.current !== state.currentAddress &&
+        !isObjectEmpty(state.currentAddress)
+      ) {
         map.panTo(
           new kakao.maps.LatLng(
             Number(state.currentAddress.y),
