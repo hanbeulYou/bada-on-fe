@@ -379,10 +379,11 @@ const RecommendItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 8px;
 `;
 
 const RecommendTitleWrapper = styled.div`
-  width: 72px;
+  min-width: 72px;
 `;
 
 const RecommendTitle = styled.div`
