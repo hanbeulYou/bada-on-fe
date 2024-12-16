@@ -70,7 +70,7 @@ const getMapInfo = async (
 const useWeatherQuery = (id: number | undefined, activity: Activity) => {
   const timeKey = dayjs().format('YYYY-MM-DD HH');
   return useQuery<WeatherInfo, AxiosError>({
-    queryKey: ['weatherSummary', id, timeKey],
+    queryKey: ['weatherSummary', id, activity, timeKey],
     queryFn: () => getMapInfo(id as number, activity),
     enabled: !!id,
   });
