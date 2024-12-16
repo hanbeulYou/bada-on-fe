@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
+import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import theme from '../../styles/theme';
 
 interface ToastProps {
@@ -11,10 +12,23 @@ interface ToastProps {
   onClose: () => void;
 }
 
-const ToastWrapper = styled.div<{ toastType: 'success' | 'error' | 'warning' }>`
+const fadeOut = keyframes`
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+`;
+
+const ToastWrapper = styled.div<{
+  toastType: 'success' | 'error' | 'warning';
+  safeArea: SafeAreaState;
+  isClosing: boolean;
+}>`
   position: absolute;
   width: 330px;
-  bottom: 82px;
+  bottom: ${({ safeArea }) => safeArea.bottom + 72}px;
   left: 50%;
   transform: translateX(-50%);
   padding: 12px;
@@ -25,6 +39,8 @@ const ToastWrapper = styled.div<{ toastType: 'success' | 'error' | 'warning' }>`
   z-index: 1000;
   background-color: ${({ toastType }) =>
     toastType === 'warning' ? 'rgba(8, 33, 63, 0.88)' : theme.colors.red500};
+
+  animation: ${({ isClosing }) => isClosing && fadeOut} 0.3s ease-in-out;
 `;
 
 const Toast: React.FC<ToastProps> = ({
@@ -33,16 +49,28 @@ const Toast: React.FC<ToastProps> = ({
   timeout,
   onClose,
 }) => {
+  const { state: safeAreaState } = useContext(SafeAreaContext);
+  const [isClosing, setIsClosing] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      onClose();
-    }, timeout);
+      setIsClosing(true);
+      setTimeout(() => {
+        onClose();
+      }, 300);
+    }, timeout - 300);
 
     return () => clearTimeout(timer);
   }, [timeout, onClose]);
 
   return ReactDOM.createPortal(
-    <ToastWrapper toastType={toastType}>{message}</ToastWrapper>,
+    <ToastWrapper
+      toastType={toastType}
+      safeArea={safeAreaState}
+      isClosing={isClosing}
+    >
+      {message}
+    </ToastWrapper>,
     document.body,
   );
 };
