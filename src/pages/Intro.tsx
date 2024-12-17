@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,15 +8,35 @@ import FooterButton from '../components/common/FooterButton';
 import Icon from '../components/common/Icon';
 import { LABEL_MAPPING } from '../consts/label';
 import type { Label } from '../consts/label';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
+import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 
 const IntroPage = () => {
   const [selectedLabel, setSelectedLabel] = useState<Label | ''>('');
   const navigate = useNavigate();
+  const { state: safeAreaState, dispatch } = useContext(SafeAreaContext);
+  const { sendToRN } = useReactNativeBridge();
+
+  useEffect(() => {
+    const safeAreaInsets = (window as any).safeAreaInsets;
+    if (safeAreaInsets) {
+      dispatch({
+        type: 'SET_SAFE_AREA',
+        payload: safeAreaInsets,
+      });
+    }
+  }, []);
 
   const btnNextDisabled = selectedLabel === '';
 
   const handleNextPage = () => {
-    navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
+    if (selectedLabel) {
+      sendToRN({
+        type: 'POST_ACTIVITY',
+        activity: LABEL_MAPPING[selectedLabel],
+      });
+      navigate(`/home?selected=${LABEL_MAPPING[selectedLabel]}`);
+    }
   };
 
   return (
@@ -33,7 +53,7 @@ const IntroPage = () => {
         clickedLabel={selectedLabel}
         setClickedLabel={setSelectedLabel}
       />
-      <WarningText>
+      <WarningText safeAreaState={safeAreaState}>
         <Icon name="alert-triangle" width={16} height={16} />
         <Text>
           본 서비스에서 제공되는 위험도 계산과 정보는 참고용으로 제공되며 어떠한
@@ -55,6 +75,7 @@ const PageContainer = styled.section`
   width: 100%;
   padding: 110px 24px 50px 24px;
   background-image: url(${Background_img});
+  background-size: cover;
   gap: 40px;
 `;
 
@@ -77,9 +98,9 @@ const Description = styled.div`
   color: ${({ theme }) => theme.colors.gray500};
 `;
 
-const WarningText = styled.div`
+const WarningText = styled.div<{ safeAreaState: SafeAreaState }>`
   position: absolute;
-  bottom: 76px;
+  bottom: ${({ safeAreaState }) => safeAreaState.bottom + 76}px;
   ${({ theme }) => theme.typography.Body};
   color: ${({ theme }) => theme.colors.red500};
   display: flex;

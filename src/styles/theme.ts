@@ -1,5 +1,6 @@
 const theme = {
   colors: {
+    primary: '#1764be',
     blue50: '#ecf1f6',
     blue100: '#b2cbe9',
     blue200: '#8bb2df',
@@ -33,10 +34,8 @@ const theme = {
     snorkeling: '#A500E6',
     diving: '#00AE85',
     swimming: '#FF7B00',
-    scubaDiving: '#00AE85',
-    surfing: '#EC0779',
-    sunset: '#F5C800',
-    snap: '#FF7B00',
+    surfing: '#1CCAE1',
+    kayakingPaddleBoarding: '#EB0679',
     white: '#FFFFFF',
   },
   typography: {

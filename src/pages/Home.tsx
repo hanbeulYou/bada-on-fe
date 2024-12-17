@@ -1,34 +1,70 @@
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
-import useMapInfoQuery from '../apis/maps/useMapInfoQuery';
+import { Address } from '../apis/search/useKakaoSearchQuery';
+import useWeatherQuery from '../apis/weather/useWeatherQuery';
 import BottomSheet from '../components/BottomSheet';
-import Icon from '../components/common/Icon';
-import Map from '../components/common/Map';
+// import Map from '../components/common/Map';
+import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
+import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
-import { DETAILS_TMP } from '../data/data';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
+// import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
+import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
+import FetchBoundary from '../providers/FetchBoundary';
+
+// 제주 시청 위치
+// const initialLocation: LocationData = {
+//   latitude: 33.4890113,
+//   longitude: 126.4983023,
+// };
+
+export type Marker = {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+};
 
 function Home() {
-  const currentHour = new Date().getHours();
-  const [pickHour, setPickHour] = useState<number>(currentHour);
+  // const currentHour = new Date();
+  const [timeIndex, setTimeIndex] = useState<number>(0);
 
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState('');
-  const [selectedMarker, setSelectedMarker] = useState<object | null>(null);
-  const { data, isLoading } = useMapInfoQuery(selectedMarker?.id);
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
-  const [isBottomSheetFull, setIsBottomSheetFull] = useState(false);
+  const [filter, setFilter] = useState<Activity>('snorkeling');
+  const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
+  const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
+  const [bottomSheetStatus, setBottomSheetStatus] = useState<
+    'middle' | 'full' | 'hidden'
+  >('hidden');
+  const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
+  const { state: safeAreaState, dispatch: safeAreaDispatch } =
+    useContext(SafeAreaContext);
+
+  useEffect(() => {
+    const safeAreaInsets = (window as any).safeAreaInsets;
+    if (safeAreaInsets) {
+      safeAreaDispatch({
+        type: 'SET_SAFE_AREA',
+        payload: safeAreaInsets,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    sendToRN({ type: 'GET_LOCATION' });
+  }, []);
 
   useEffect(() => {
     setSearchValueDebounce();
@@ -71,47 +107,43 @@ function Home() {
     setIsSearching(false);
   };
 
-  const handleFilterChange = (selected: string) => {
+  const handleFilterChange = (selected: Activity) => {
+    sendToRN({ type: 'POST_ACTIVITY', activity: selected });
     setFilter(selected);
+    setBottomSheetStatus('hidden');
+    setSelectedMarker(null);
+    setTimeIndex(0);
   };
 
-  const updateCurrentAddress = (address: object) => {
+  const updateCurrentAddress = (address: Address) => {
     const MAX_HISTORY = 15;
 
-    if (state.histories.length >= MAX_HISTORY) {
-      const oldestHistory = state.histories.at(-1);
+    if (state.histories.some(history => history.id === address.id)) {
+      dispatch({ type: 'DELETE_HISTORY', payload: address.id });
+      if (dbManager) dbManager.delete(address.id);
+    } else if (state.histories.length >= MAX_HISTORY) {
+      const oldestHistory = state.histories[state.histories.length - 1];
       dispatch({ type: 'DELETE_HISTORY', payload: oldestHistory.id });
-      dbManager.delete(oldestHistory.id);
+      if (dbManager) dbManager.delete(oldestHistory.id);
     }
 
-    setSearchValue(address.address_name);
+    setSearchValue(address.place_name);
     dispatch({ type: 'ADD_HISTORY', payload: address });
     dispatch({ type: 'SET_CURRENT_ADDRESS', payload: address });
-    dbManager.add(address);
+    if (dbManager) dbManager.add(address);
     setIsSearchPage(false);
   };
 
-  const handleClickMarker = (marker: object) => {
+  const handleClickMarker = (marker: Marker) => {
     setSelectedMarker(marker);
-
-    setIsBottomSheetOpen(true);
+    setTimeIndex(0);
+    setBottomSheetStatus('middle');
   };
 
   return (
     <Container>
-      <Header>
-        {isBottomSheetFull ? (
-          <CloseBottomSheet>
-            <button
-              onClick={() => {
-                setIsBottomSheetFull(false);
-                setIsBottomSheetOpen(false);
-              }}
-            >
-              <Icon name="chevron-down" />
-            </button>
-          </CloseBottomSheet>
-        ) : (
+      <Header safeArea={safeAreaState}>
+        {bottomSheetStatus !== 'full' && (
           <SearchBar
             isSearchPage={isSearchPage}
             onClick={openSearchPage}
@@ -123,39 +155,52 @@ function Home() {
       </Header>
       <>
         {isSearchPage && (
-          <Search
-            isSearching={isSearching}
-            onClick={updateCurrentAddress}
-            onDeleteHistory={deleteHistory}
-          />
+          <FetchBoundary>
+            <Search
+              isSearching={isSearching}
+              onClick={updateCurrentAddress}
+              onDeleteHistory={deleteHistory}
+            />
+          </FetchBoundary>
         )}
-        {!isBottomSheetFull && (
+        {bottomSheetStatus !== 'full' && (
           <FilterList onFilterChange={handleFilterChange} />
         )}
-        <Map filter={filter} onClickMarker={handleClickMarker} />
-        {isBottomSheetOpen && selectedMarker && (
-          <BottomSheet
-            title={selectedMarker.name}
-            alert={
-              selectedMarker.name === '김녕 세기알 해변' ||
-              selectedMarker.name === '용담포구'
-                ? '다이빙 금지구역'
-                : ''
-            }
-            dangerValue={DETAILS_TMP[pickHour - currentHour].score}
-            recommends={DETAILS_TMP[pickHour - currentHour].feedback}
-            defaultTime={currentHour}
-            pickHour={pickHour}
-            setPickHour={setPickHour}
-            onClosed={() => {
-              setIsBottomSheetOpen(false);
-              setIsBottomSheetFull(false);
-            }}
-            isFull={isBottomSheetFull}
-            onMiddle={() => setIsBottomSheetFull(false)}
-            onFull={() => setIsBottomSheetFull(true)}
+        <FetchBoundary>
+          <MapTmp
+            filter={filter}
+            onClickMarker={handleClickMarker}
+            selectedMarker={selectedMarker}
+            setBottomSheetStatus={setBottomSheetStatus}
           />
-        )}
+        </FetchBoundary>
+        {bottomSheetStatus !== 'hidden' &&
+          !isSearchPage &&
+          selectedMarker &&
+          data && (
+            <FetchBoundary>
+              <BottomSheet
+                title={selectedMarker.name}
+                alert={
+                  selectedMarker.name === '김녕 세기알 해변' ||
+                  selectedMarker.name === '용담포구'
+                    ? '다이빙 금지구역'
+                    : ''
+                }
+                dangerValue={data.summary[timeIndex].score}
+                recommends={data.summary[timeIndex].message}
+                activity={filter}
+                // currentHour={currentHour}
+                timeIndex={timeIndex}
+                setTimeIndex={setTimeIndex}
+                bottomSheetStatus={bottomSheetStatus}
+                setBottomSheetStatus={setBottomSheetStatus}
+                detailData={data.details[timeIndex]}
+                detailDataLength={data.details.length}
+                setSelectedMarker={setSelectedMarker}
+              />
+            </FetchBoundary>
+          )}
       </>
     </Container>
   );
@@ -163,22 +208,14 @@ function Home() {
 
 const Container = styled.div``;
 
-const Header = styled.header`
+const Header = styled.header<{ safeArea: SafeAreaState }>`
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
   position: absolute;
+  top: ${({ safeArea }) => safeArea.top}px;
   z-index: 12;
-`;
-
-const CloseBottomSheet = styled.div`
-  display: flex;
-  width: 375px;
-  height: 84px;
-  padding: 18px 32px 12px 32px;
-  background-color: ${({ theme }) => theme.colors.white};
-  align-items: center;
 `;
 
 export default Home;

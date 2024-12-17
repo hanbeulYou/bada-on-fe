@@ -2,53 +2,43 @@ export type Label =
   | '스노클링'
   | '다이빙'
   | '해수욕'
+  | '카약/패들보드'
   | '서핑'
-  | '스쿠버다이빙'
-  | '스냅촬영'
-  | '일출/일몰';
+  | '스쿠버다이빙';
 
 export type Activity =
   | 'snorkeling'
   | 'diving'
   | 'swimming'
+  | 'kayakingPaddleBoarding'
   | 'surfing'
-  | 'scubaDiving'
-  | 'snap'
-  | 'sunset';
+  | 'scuba';
 
 export const LABELS: Label[] = [
   '스노클링',
   '다이빙',
-  '스냅촬영',
   '해수욕',
+  '카약/패들보드',
   '서핑',
   '스쿠버다이빙',
-  '일출/일몰',
 ];
 
-export const DISABLED_LABELS: Label[] = [
-  '해수욕',
-  '서핑',
-  '스쿠버다이빙',
-  '일출/일몰',
-];
+export const DISABLED_LABELS: Label[] = ['스쿠버다이빙'];
 
 export const LABEL_MAPPING: Record<Label, Activity> = {
   스노클링: 'snorkeling',
   다이빙: 'diving',
   해수욕: 'swimming',
+  '카약/패들보드': 'kayakingPaddleBoarding',
   서핑: 'surfing',
-  스쿠버다이빙: 'scubaDiving',
-  스냅촬영: 'snap',
-  '일출/일몰': 'sunset',
+  스쿠버다이빙: 'scuba',
 };
 
 export const LABEL_MAPPING_REVERSE: Record<Activity, Label> = {
   snorkeling: '스노클링',
   diving: '다이빙',
   swimming: '해수욕',
+  kayakingPaddleBoarding: '카약/패들보드',
   surfing: '서핑',
-  scubaDiving: '스쿠버다이빙',
-  snap: '스냅촬영',
-  sunset: '일출/일몰',
+  scuba: '스쿠버다이빙',
 };

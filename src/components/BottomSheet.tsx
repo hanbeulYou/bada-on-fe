@@ -1,26 +1,40 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
 
-import { LABEL_MAPPING_REVERSE } from '../consts/label';
+import { Details, TideInfo } from '../apis/weather/useWeatherQuery';
+import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
+import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import useToast from '../hooks/useToast';
+import { Marker } from '../pages/Home';
 
 import DoughnutChart from './chart/Doughnut';
 import ContentBox from './common/ContentBox';
+import Icon from './common/Icon';
 import FooterTimer from './Footer';
+
+const TimeFormat = (time: string) => {
+  // const YYYYMMDD = time.split('T')[0];
+  const [hour, minute, second] = time.split('T')[1].split(':');
+  return `${hour}:${minute}`;
+};
 
 // 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
   title: string;
   alert?: string;
   dangerValue: number;
-  recommends?: Record<string, string>;
-  pickHour: number;
-  setPickHour: React.Dispatch<React.SetStateAction<number>>;
-  onClosed?: () => void;
-  onFull?: () => void;
-  onMiddle?: () => void;
-  isFull: boolean;
-  defaultTime: number;
+  recommends?: string;
+  timeIndex: number;
+  setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
+  bottomSheetStatus: 'middle' | 'full' | 'bottom' | 'hidden';
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'full' | 'hidden'>
+  >;
+  // currentHour: Date;
+  activity: Activity;
+  detailData: Details;
+  detailDataLength: number;
+  setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
 }
 
 function BottomSheet({
@@ -28,21 +42,31 @@ function BottomSheet({
   alert,
   dangerValue,
   recommends,
-  pickHour,
-  setPickHour,
-  onClosed,
-  onFull,
-  onMiddle,
-  isFull,
-  defaultTime,
+  timeIndex,
+  setTimeIndex,
+  // currentHour,
+  activity,
+  detailData,
+  detailDataLength,
+  bottomSheetStatus,
+  setBottomSheetStatus,
+  setSelectedMarker,
 }: BottomSheetProps) {
-  const [position, setPosition] = useState(-400);
+  const { state: safeAreaState } = useContext(SafeAreaContext);
+  const [position, setPosition] = useState(
+    window.innerHeight - 340 - safeAreaState.bottom,
+  );
   const [isFooterVisible, setFooterVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
-  const initialPosition = useRef<number>(-400);
 
   const { showToast, renderToasts } = useToast();
+
+  const POSITIONS = {
+    FULL: 0,
+    MIDDLE: window.innerHeight - 340 - safeAreaState.bottom,
+    HIDDEN: window.innerHeight,
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -50,213 +74,236 @@ function BottomSheet({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current === null) return;
+
     const deltaY = startY.current - e.touches[0].clientY;
+    let newPosition = position - deltaY;
 
-    let newPosition = position + deltaY;
-
-    // 하단 위치
-    if (newPosition < -800) newPosition = -800;
-    // 상단 위치
-    if (newPosition > -84) newPosition = -84;
+    // 범위 제한 (픽셀 단위)
+    if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
+    if (newPosition > POSITIONS.HIDDEN) newPosition = POSITIONS.HIDDEN;
 
     setPosition(newPosition);
   };
 
   const handleTouchEnd = () => {
-    if (position >= -84) {
-      setPosition(-84);
-      if (onFull) onFull();
-    } else if (position < -700) {
-      setPosition(-800);
-      setFooterVisible(false);
-      if (onClosed) {
-        setTimeout(() => {
-          if (onClosed) {
-            onClosed();
-          }
-        }, 300);
-      }
+    // POSITIONS 값들과의 거리를 기준으로 판단
+    const distanceToFull = Math.abs(position - POSITIONS.FULL);
+    const distanceToMiddle = Math.abs(position - POSITIONS.MIDDLE);
+    const distanceToHidden = Math.abs(position - POSITIONS.HIDDEN);
+
+    // 가장 가까운 위치로 스냅
+    const minDistance = Math.min(
+      distanceToFull,
+      distanceToMiddle,
+      distanceToHidden,
+    );
+
+    if (!setBottomSheetStatus) return;
+
+    if (minDistance === distanceToFull) {
+      setPosition(POSITIONS.FULL);
+      setBottomSheetStatus('full');
+    } else if (minDistance === distanceToHidden) {
+      setTimeout(() => {
+        setSelectedMarker(null);
+        setBottomSheetStatus('hidden');
+        setFooterVisible(false);
+      }, 300);
     } else {
-      if (onMiddle) {
-        onMiddle();
-      }
-      setPosition(initialPosition.current);
+      setBottomSheetStatus('middle');
+      setPosition(POSITIONS.MIDDLE);
     }
     startY.current = null;
+  };
+
+  const formatTideData = (tideInfoList: TideInfo[]) => {
+    const tideLabels = {
+      저조: '간조(저조)',
+      고조: '만조(고조)',
+    };
+
+    return tideInfoList.map(tide => ({
+      label: tideLabels[tide.code],
+      value: `${TimeFormat(tide.tidalTime)} (${tide.tidalLevel}cm)`,
+    }));
   };
 
   return (
     <Container
       ref={containerRef}
-      style={{ bottom: `${position}px` }}
-      isFull={isFull}
+      position={position}
+      isFull={bottomSheetStatus === 'full'}
+      safeArea={safeAreaState}
     >
       {renderToasts()}
-      <HandlerWrapper
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {!isFull && <Handler />}
-      </HandlerWrapper>
-      <Header>
-        <Title>{title}</Title>
-        {alert && (
-          <Alert
-            onClick={() =>
-              showToast({
-                message:
-                  '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
-                toastType: 'warning',
-                timeout: 3000,
-              })
-            }
-          >
-            {alert}
-          </Alert>
+      {bottomSheetStatus === 'full' ? (
+        <CloseBottomSheet
+          safeArea={safeAreaState}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <button onClick={() => setBottomSheetStatus('hidden')}>
+            <Icon name="chevron-down" />
+          </button>
+        </CloseBottomSheet>
+      ) : (
+        <HandlerWrapper
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Handler />
+        </HandlerWrapper>
+      )}
+      <SummaryContainer>
+        {bottomSheetStatus === 'middle' && (
+          <DragHandler
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          />
         )}
-      </Header>
-      <DoughnutChart chartValue={dangerValue} />
-      <RecommendContainer>
-        {recommends &&
-          Object.entries(recommends).map((recommend, index) => (
-            <RecommendItem key={index}>
+        <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
+          <Title>{title}</Title>
+          {alert && (
+            <Alert
+              onClick={() =>
+                showToast({
+                  message:
+                    '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
+                  toastType: 'warning',
+                  timeout: 3000,
+                })
+              }
+            >
+              {alert}
+            </Alert>
+          )}
+        </Header>
+        <DoughnutChart chartValue={dangerValue} />
+        <RecommendContainer>
+          {recommends && (
+            <RecommendItem>
               <RecommendTitleWrapper>
                 <RecommendTitle>
-                  {
-                    LABEL_MAPPING_REVERSE[
-                      recommend[0] as keyof typeof LABEL_MAPPING_REVERSE
-                    ]
-                  }
+                  {LABEL_MAPPING_REVERSE[activity]}
                 </RecommendTitle>
               </RecommendTitleWrapper>
-              <RecommendDescription>{recommend[1]}</RecommendDescription>
+              <RecommendDescription>{recommends}</RecommendDescription>
             </RecommendItem>
-          ))}
-      </RecommendContainer>
-      {isFull && (
+          )}
+        </RecommendContainer>
+      </SummaryContainer>
+      {bottomSheetStatus === 'full' && (
         <DetailContainer>
           <HorizontalLineLg />
-          <DetailInfoContainer>
+          <DetailInfoContainer safeArea={safeAreaState}>
             <DetailTitle>상세정보</DetailTitle>
-            <DetailInfoColContainer>
-              <DetailInfoRowContainer>
-                <FlexBox>
-                  <span>화장실</span>
-                  <span>없음</span>
-                </FlexBox>
-                <FlexBox>
-                  <span>샤워실</span>
-                  <span>없음</span>
-                </FlexBox>
-              </DetailInfoRowContainer>
-
-              <FlexBox>
-                <span>최근 사고 발생</span>
-                <span>최근 1년간 8번</span>
-              </FlexBox>
-            </DetailInfoColContainer>
-            <HorizontalLineSm />
             <DetailContentContainer>
-              <ContentBox
-                title="물때"
-                data={[
-                  { label: '만조', value: '10:10 / 21:56' },
-                  { label: '간조', value: '04:04 / 16:30' },
-                  { label: '일출', value: '06:52' },
-                  { label: '일몰', value: '17:43' },
-                ]}
-              />
               <ContentBox
                 title="날씨"
                 data={[
-                  { label: '오전', value: '구름 많음' },
-                  { label: '오후', value: '흐리고 한때 비' },
+                  { label: '상태', value: detailData.skyCondition },
+                  {
+                    label: '기온',
+                    value: detailData.hourlyTemperature + '°C',
+                  },
+                  { label: '습도', value: detailData.humidity + '%' },
                 ]}
               />
               <ContentBox
-                title="기온"
+                title="강수/강설"
                 data={[
-                  { label: '최저', value: '21°' },
-                  { label: '최고', value: '23°' },
+                  {
+                    label: '확률',
+                    value: detailData.precipitationProbability + '%',
+                  },
+                  { label: '형태', value: detailData.precipitationType },
+                  {
+                    label: '강수량',
+                    value:
+                      (detailData.hourlyPrecipitation === -99
+                        ? 0
+                        : detailData.hourlyPrecipitation) + 'mm',
+                  },
+                  {
+                    label: '강설량',
+                    value:
+                      (detailData.hourlySnowAccumulation === -99
+                        ? 0
+                        : detailData.hourlySnowAccumulation) + 'cm',
+                  },
                 ]}
               />
               <ContentBox
-                title="강수"
+                title="바람"
                 data={[
-                  { label: '확률', value: '40%' },
-                  { label: '강수량', value: '2mm' },
+                  { label: '풍속', value: detailData.windSpeed + 'm/s' },
+                  { label: '풍향', value: detailData.windDirection + '°' },
                 ]}
               />
               <ContentBox
-                title="풍속"
+                title="수온/파고"
                 data={[
-                  { label: '오전', value: '9-14' },
-                  { label: '오후', value: '9-13' },
+                  { label: '수온', value: detailData.waterTemperature + '°C' },
+                  {
+                    label: '파고',
+                    value:
+                      detailData.waveHeight === -999
+                        ? '0m'
+                        : detailData.waveHeight + 'm',
+                  },
                 ]}
               />
               <ContentBox
-                title="파고"
-                data={[
-                  { label: '오전', value: '1.5-3.5' },
-                  { label: '오후', value: '1.5-2.5' },
-                ]}
+                title="물때"
+                data={formatTideData(detailData.tideInfoList)}
               />
-              <ContentBox title="유속" data={['53.7cm/s']} />
-              <ContentBox title="수온" data={['23°']} />
             </DetailContentContainer>
-            <HorizontalLineSm />
-            <PhoneContainer>
-              <PhoneTitle>해수욕장 근처 긴급 구조대 연락처</PhoneTitle>
-              <PhoneContentContainer>
-                <PhoneContent>
-                  <PhoneType>경찰</PhoneType>
-                  <PhoneNum>구좌파출소(783-2112)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>소방</PhoneType>
-                  <PhoneNum>구좌119센터(783-0119)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>지원세력</PhoneType>
-                  <PhoneNum>구좌읍사무소(783-3001)</PhoneNum>
-                </PhoneContent>
-                <PhoneContent>
-                  <PhoneType>보건소</PhoneType>
-                  <PhoneNum>제주동부보건소(783-2504)</PhoneNum>
-                </PhoneContent>
-              </PhoneContentContainer>
-            </PhoneContainer>
+            <ReferenceContainer>
+              <ReferenceTitle>자료</ReferenceTitle>
+              <ReferenceContent>기상청, 국립해양조사원</ReferenceContent>
+            </ReferenceContainer>
           </DetailInfoContainer>
         </DetailContainer>
       )}
       {isFooterVisible && (
         <FooterTimer
-          pickHour={pickHour}
-          setPickHour={setPickHour}
-          defaultTime={defaultTime}
+          detailData={detailData}
+          detailDataLength={detailDataLength}
+          timeIndex={timeIndex}
+          setTimeIndex={setTimeIndex}
+          // currentHour={currentHour}
         />
       )}
     </Container>
   );
 }
 
-const Container = styled.div<{ isFull: boolean }>`
+const Container = styled.div<{
+  position: number;
+  isFull: boolean;
+  safeArea: SafeAreaState;
+}>`
   position: fixed;
+  bottom: 0;
+  transform: translateY(${props => props.position}px);
   display: flex;
-  left: 50%;
-  transform: translateX(-50%);
   flex-direction: column;
   align-items: center;
   z-index: 1;
   height: 100vh;
-  width: 375px;
-  padding: 14px 24px 0px 24px;
+  width: 100vw;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
   background-color: white;
   border: ${props => !props.isFull && '1px solid #e0e0e0'};
   border-radius: ${props => !props.isFull && '28px 28px 0 0'};
-  transition: bottom 0.5s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
+  overflow-x: hidden;
 
   box-shadow: ${props =>
     !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
@@ -270,11 +317,18 @@ const Container = styled.div<{ isFull: boolean }>`
   }
 `;
 
+const SummaryContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const HandlerWrapper = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
   height: 6px;
+  padding-top: 14px;
   padding-bottom: 20px;
 `;
 
@@ -285,7 +339,7 @@ const Handler = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const Header = styled.div`
+const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -293,6 +347,7 @@ const Header = styled.div`
   width: 327px;
   height: 38px;
   margin-bottom: 24px;
+  padding-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top + 34 : 0)}px;
 `;
 
 const Title = styled.div`
@@ -328,10 +383,11 @@ const RecommendItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 8px;
 `;
 
 const RecommendTitleWrapper = styled.div`
-  width: 72px;
+  min-width: 72px;
 `;
 
 const RecommendTitle = styled.div`
@@ -357,6 +413,7 @@ const DetailContainer = styled.div`
   flex-direction: column;
   align-items: center;
   margin-top: 24px;
+  width: 100%;
 `;
 
 const HorizontalLineLg = styled.div`
@@ -365,46 +422,22 @@ const HorizontalLineLg = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-const HorizontalLineSm = styled.div`
-  height: 2px;
-  width: 329px;
-  background-color: ${({ theme }) => theme.colors.gray100};
-`;
+// const HorizontalLineSm = styled.div`
+//   height: 2px;
+//   width: 329px;
+//   background-color: ${({ theme }) => theme.colors.gray100};
+// `;
 
-const DetailInfoContainer = styled.div`
+const DetailInfoContainer = styled.div<{ safeArea: SafeAreaState }>`
   width: 100%;
-  padding: 24px;
+  padding: 24px 0px;
 
-  margin-bottom: 160px;
+  margin-bottom: calc(48px + ${({ safeArea }) => safeArea.bottom}px);
 `;
 
 const DetailTitle = styled.div`
   ${({ theme }) => theme.typography.Title_1_Bold};
   margin-bottom: 24px;
-`;
-
-const DetailInfoColContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const DetailInfoRowContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const FlexBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.colors.gray50};
 `;
 
 const DetailContentContainer = styled.div`
@@ -414,39 +447,46 @@ const DetailContentContainer = styled.div`
   margin: 12px 0;
 `;
 
-const PhoneContainer = styled.div`
+export default BottomSheet;
+
+const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
+  position: sticky;
+  top: 0px;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
-  margin-top: 24px;
+  width: 100vw;
+  height: 84px;
+  padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
+  padding-bottom: 12px;
+  padding-left: 32px;
+  padding-right: 32px;
+  margin-top: ${({ safeArea }) => -safeArea.top}px;
+  background-color: ${({ theme }) => theme.colors.white};
+  align-items: center;
 `;
 
-const PhoneTitle = styled.div`
-  ${({ theme }) => theme.typography.Body_Bold};
-  color: ${({ theme }) => theme.colors.red500};
-  margin-bottom: 8px;
-`;
-
-const PhoneContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background-color: ${({ theme }) => theme.colors.red50};
-  padding: 12px;
-`;
-
-const PhoneContent = styled.div`
+const ReferenceContainer = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  margin-top: 8px;
+  align-items: center;
+  gap: 4px;
 `;
 
-const PhoneType = styled.div`
-  ${({ theme }) => theme.typography.Body_Bold};
+const ReferenceTitle = styled.div`
+  ${({ theme }) => theme.typography.Label};
+  color: ${({ theme }) => theme.colors.gray300};
 `;
 
-const PhoneNum = styled.div`
-  ${({ theme }) => theme.typography.Body};
+const ReferenceContent = styled.div`
+  ${({ theme }) => theme.typography.Label};
+  color: ${({ theme }) => theme.colors.gray500};
 `;
 
-export default BottomSheet;
+const DragHandler = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+`;

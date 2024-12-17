@@ -19,8 +19,8 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
       datasets: [
         {
           data: [chartValue, 100 - chartValue],
-          backgroundColor: [theme.colors.blue700, theme.colors.gray50],
-          hoverBackgroundColor: [theme.colors.blue700, theme.colors.gray50],
+          backgroundColor: [theme.colors.blue100, theme.colors.gray50],
+          hoverBackgroundColor: [theme.colors.blue100, theme.colors.gray50],
           borderWidth: 0,
         },
       ],
@@ -31,12 +31,12 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
         {
           data: [25, chartValue - 25, 100 - chartValue],
           backgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
             theme.colors.gray50,
           ],
           hoverBackgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
             theme.colors.gray50,
           ],
@@ -50,15 +50,15 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
         {
           data: [25, 25, chartValue - 50, 100 - chartValue],
           backgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
-            theme.colors.red300,
+            theme.colors.blue500,
             theme.colors.gray50,
           ],
           hoverBackgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
-            theme.colors.red300,
+            theme.colors.blue500,
             theme.colors.gray50,
           ],
           borderWidth: 0,
@@ -71,17 +71,17 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
         {
           data: [25, 25, 25, chartValue - 75, 100 - chartValue],
           backgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
-            theme.colors.red300,
-            theme.colors.red700,
+            theme.colors.blue500,
+            theme.colors.blue700,
             theme.colors.gray50,
           ],
           hoverBackgroundColor: [
-            theme.colors.blue700,
+            theme.colors.blue100,
             theme.colors.blue300,
-            theme.colors.red300,
-            theme.colors.red700,
+            theme.colors.blue500,
+            theme.colors.blue700,
             theme.colors.gray50,
           ],
           borderWidth: 0,
@@ -104,8 +104,8 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartValue }) => {
     <ChartWrapper>
       <Doughnut data={data} options={options} />
       <ChartLabel>
-        <ValueLabel>위험도</ValueLabel>
-        <Value>{chartValue}%</Value>
+        <ValueLabel>추천 점수</ValueLabel>
+        <Value>{chartValue}</Value>
       </ChartLabel>
     </ChartWrapper>
   );
