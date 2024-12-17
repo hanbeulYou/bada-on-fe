@@ -32,7 +32,7 @@ export type Marker = {
 };
 
 function Home() {
-  const currentHour = new Date();
+  // const currentHour = new Date();
   const [timeIndex, setTimeIndex] = useState<number>(0);
 
   const [isSearchPage, setIsSearchPage] = useState(false);
@@ -190,12 +190,13 @@ function Home() {
                 dangerValue={data.summary[timeIndex].score}
                 recommends={data.summary[timeIndex].message}
                 activity={filter}
-                currentHour={currentHour}
+                // currentHour={currentHour}
                 timeIndex={timeIndex}
                 setTimeIndex={setTimeIndex}
                 bottomSheetStatus={bottomSheetStatus}
                 setBottomSheetStatus={setBottomSheetStatus}
                 detailData={data.details[timeIndex]}
+                detailDataLength={data.details.length}
                 setSelectedMarker={setSelectedMarker}
               />
             </FetchBoundary>

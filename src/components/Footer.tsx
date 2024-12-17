@@ -2,36 +2,47 @@ import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
+import { Details } from '../apis/weather/useWeatherQuery';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 import Icon from './common/Icon';
 
 interface FooterTimerProps {
+  detailData: Details;
+  detailDataLength: number;
   timeIndex: number;
   setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
   currentHour: Date;
 }
 const FooterTimer: React.FC<FooterTimerProps> = ({
+  detailData,
+  detailDataLength,
   timeIndex,
   setTimeIndex,
-  currentHour,
+  // currentHour,
 }) => {
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
-  const formatDate = (date: Date) => {
-    const newDate = new Date(date);
-    newDate.setHours(newDate.getHours() + timeIndex);
+  const formatDate = (date: Details) => {
+    // const newDate = new Date(date);
+    // newDate.setHours(newDate.getHours() + timeIndex);
 
-    const year = newDate.getFullYear();
-    const month = String(newDate.getMonth() + 1).padStart(2, '0');
-    const day = String(newDate.getDate()).padStart(2, '0');
-    const hours = String(newDate.getHours()).padStart(2, '0');
+    // const year = newDate.getFullYear();
+    // const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    // const day = String(newDate.getDate()).padStart(2, '0');
+    // const hours = String(newDate.getHours()).padStart(2, '0');
+
+    const year = date.date.toString().slice(0, 4);
+    const month = date.date.toString().slice(4, 6);
+    const day = date.date.toString().slice(6, 8);
+    const hours = date.time.toString().slice(0, 2);
 
     return `${year}.${month}.${day} ${hours}:00`;
   };
 
   const handleTimeIndex = (value: number) => {
-    if (timeIndex + value < 0 || timeIndex + value > 71) return;
+    if (timeIndex + value < 0 || timeIndex + value > detailDataLength - 1)
+      return;
     setTimeIndex(prev => prev + value);
   };
 
@@ -39,7 +50,7 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
     <Footer safeArea={safeAreaState}>
       <TimeFlowContainer safeArea={safeAreaState}>
         <Row>
-          {Array.from({ length: 72 }).map((_, index) => (
+          {Array.from({ length: detailDataLength }).map((_, index) => (
             <TimeBlock
               key={index}
               filled={index <= timeIndex}
@@ -54,7 +65,7 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
         <Button value={-1} onClick={() => handleTimeIndex(-1)}>
           <Icon name="chevron-left" />
         </Button>
-        <Time>{formatDate(currentHour)}</Time>
+        <Time>{formatDate(detailData)}</Time>
         <Button value={1} onClick={() => handleTimeIndex(1)}>
           <Icon name="chevron-right" />
         </Button>

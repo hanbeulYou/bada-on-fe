@@ -30,9 +30,10 @@ interface BottomSheetProps {
   setBottomSheetStatus: React.Dispatch<
     React.SetStateAction<'middle' | 'full' | 'hidden'>
   >;
-  currentHour: Date;
+  // currentHour: Date;
   activity: Activity;
   detailData: Details;
+  detailDataLength: number;
   setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
 }
 
@@ -43,9 +44,10 @@ function BottomSheet({
   recommends,
   timeIndex,
   setTimeIndex,
-  currentHour,
+  // currentHour,
   activity,
   detailData,
+  detailDataLength,
   bottomSheetStatus,
   setBottomSheetStatus,
   setSelectedMarker,
@@ -268,9 +270,11 @@ function BottomSheet({
       )}
       {isFooterVisible && (
         <FooterTimer
+          detailData={detailData}
+          detailDataLength={detailDataLength}
           timeIndex={timeIndex}
           setTimeIndex={setTimeIndex}
-          currentHour={currentHour}
+          // currentHour={currentHour}
         />
       )}
     </Container>
