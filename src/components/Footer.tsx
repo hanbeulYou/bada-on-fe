@@ -24,18 +24,13 @@ const FooterTimer: React.FC<FooterTimerProps> = ({
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
   const formatDate = (date: Details) => {
-    // const newDate = new Date(date);
-    // newDate.setHours(newDate.getHours() + timeIndex);
-
-    // const year = newDate.getFullYear();
-    // const month = String(newDate.getMonth() + 1).padStart(2, '0');
-    // const day = String(newDate.getDate()).padStart(2, '0');
-    // const hours = String(newDate.getHours()).padStart(2, '0');
-
     const year = date.date.toString().slice(0, 4);
     const month = date.date.toString().slice(4, 6);
     const day = date.date.toString().slice(6, 8);
-    const hours = date.time.toString().slice(0, 2);
+    const hours =
+      date.time.toString().length === 4
+        ? date.time.toString().slice(0, 2)
+        : '0' + date.time.toString().slice(0, 1);
 
     return `${year}.${month}.${day} ${hours}:00`;
   };
