@@ -31,11 +31,12 @@ const Button = styled.button<{ isPrimary: boolean }>`
     isPrimary ? theme.colors.white : theme.colors.gray700};
   background-color: ${({ theme, isPrimary }) =>
     isPrimary ? theme.colors.blue500 : theme.colors.white};
-  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.5);
   border: ${({ theme, isPrimary }) =>
     isPrimary ? 'none' : `1px solid ${theme.colors.gray100}`};
   border-radius: 8px;
   cursor: pointer;
+
+  ${({ theme }) => theme.typography.Title_1_Bold};
 
   &:disabled {
     color: ${({ theme }) => theme.colors.gray500};
