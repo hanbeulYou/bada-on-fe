@@ -25,3 +25,10 @@ export const defaultTermAgree: TermAgreeType = {
   location: false,
   notification: false,
 };
+
+export const TERM_CONTENT = {
+  condition: '바다온 이용약관',
+  personalInfo: '개인정보 수집 및 이용 동의',
+  location: '위치기반서비스 이용약관',
+  notification: '알림 메시지 수신 동의',
+};

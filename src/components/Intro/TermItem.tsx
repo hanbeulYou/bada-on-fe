@@ -1,11 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
+import { TermAgreeType } from '../../consts/terms';
 import CheckToggle from '../common/CheckToggle';
 import Icon from '../common/Icon';
 
 interface TermItemProps {
   termType: '필수' | '선택';
   termContent: string;
+  termKey: keyof TermAgreeType;
   isChecked?: boolean;
   onToggleClick: () => void;
 }
@@ -13,17 +16,24 @@ interface TermItemProps {
 const TermItem = ({
   termType,
   termContent,
+  termKey,
   isChecked,
   onToggleClick,
 }: TermItemProps) => {
+  const navigate = useNavigate();
   return (
     <TermItemContainer>
       <CheckToggle isChecked={isChecked} handleToggle={onToggleClick} />
-      <TermContentContainer>
+      <TermContentContainer onClick={() => navigate(`/terms/${termKey}`)}>
         <TermType>[{termType}]</TermType>
         <TermContent>{termContent}</TermContent>
       </TermContentContainer>
-      <Icon name="chevron-right" width={18} height={18} />
+      <Icon
+        name="chevron-right"
+        width={18}
+        height={18}
+        onClick={() => navigate(`/terms/${termKey}`)}
+      />
     </TermItemContainer>
   );
 };
