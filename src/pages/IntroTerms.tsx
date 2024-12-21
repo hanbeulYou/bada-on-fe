@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
 import FullButton from '../components/common/FullButton';
@@ -12,7 +13,7 @@ import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 const IntroTermsPage = () => {
   const [termAgree, setTermAgree] = useState(defaultTermAgree);
-
+  const navigate = useNavigate();
   const isMandatoryAgree = Object.entries(termAgree)
     .filter(
       ([key]) =>
@@ -38,7 +39,7 @@ const IntroTermsPage = () => {
       <TermItemList termAgree={termAgree} setTermAgree={setTermAgree} />
       <FullButton
         label="다음"
-        onClick={() => console.log('click')}
+        onClick={() => navigate('/home?selected=snorkeling')}
         disabled={!isMandatoryAgree}
       />
     </PageContainer>

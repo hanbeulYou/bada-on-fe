@@ -16,7 +16,7 @@ const TermAllAgree = ({
   return (
     <TermAllAgreeContainer>
       <CheckToggle isChecked={isChecked} handleToggle={onToggleClick} />
-      <TermContentContainer>
+      <TermContentContainer onClick={onToggleClick}>
         <TermContent>{termContent}</TermContent>
       </TermContentContainer>
     </TermAllAgreeContainer>

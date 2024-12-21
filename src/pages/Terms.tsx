@@ -1,13 +1,15 @@
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Icon from '../components/common/Icon';
 import TermsAndConditions from '../components/TermsAndConditions';
+import { TERM_CONTENT, TERM_DOCUMENTS } from '../consts/terms';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 
 const TermsPage = () => {
   const navigate = useNavigate();
+  const { termKey } = useParams();
   const { state: safeAreaState } = useContext(SafeAreaContext);
 
   return (
@@ -16,11 +18,13 @@ const TermsPage = () => {
         <BackButton onClick={() => navigate(-1)}>
           <Icon name="chevron-left" />
         </BackButton>
-        <Title>바다온 이용약관</Title>
+        <Title>{TERM_CONTENT[termKey as keyof typeof TERM_CONTENT]}</Title>
         <div style={{ width: 24, height: 24 }} />
       </HeaderContainer>
       <TermsContainer safeAreaState={safeAreaState}>
-        <TermsAndConditions />
+        <TermsAndConditions
+          data={TERM_DOCUMENTS[termKey as keyof typeof TERM_DOCUMENTS]}
+        />
       </TermsContainer>
     </PageContainer>
   );
