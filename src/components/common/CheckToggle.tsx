@@ -1,30 +1,22 @@
-import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 import Icon from './Icon';
 
 interface CheckToggleProps {
   isChecked?: boolean;
-  onChange?: (checked: boolean) => void;
+  handleToggle: () => void;
 }
 
-const CheckToggle = ({ isChecked = false, onChange }: CheckToggleProps) => {
-  const [checked, setChecked] = useState(isChecked);
+const CheckToggle = ({ isChecked = false, handleToggle }: CheckToggleProps) => {
   const theme = useTheme();
 
-  const handleToggle = () => {
-    const newValue = !checked;
-    setChecked(newValue);
-    onChange?.(newValue);
-  };
-
   return (
-    <ToggleButton onClick={handleToggle} $isChecked={checked}>
+    <ToggleButton onClick={handleToggle} $isChecked={isChecked}>
       <StyledIcon
         name="check"
         width={12.6}
         height={12.6}
-        $color={checked ? theme.colors.white : theme.colors.gray300}
+        $color={isChecked ? theme.colors.white : theme.colors.gray300}
       />
     </ToggleButton>
   );
