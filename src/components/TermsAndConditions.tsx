@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
-import termsData from '../consts/terms.json';
-import { Section, Document, TermsData } from '../types/terms';
+import { Section, Document } from '../types/terms';
 
 const RenderSection = ({ section }: { section: Section }) => (
   <SectionList>
@@ -9,26 +8,16 @@ const RenderSection = ({ section }: { section: Section }) => (
     <SectionContent>{section.content}</SectionContent>
   </SectionList>
 );
-
-const RenderDocument = ({ data }: { data: Document }) => (
-  <DocumentContainer>
-    <DocumentTitle>{data.title}</DocumentTitle>
-    <ul>
-      {data.sections.map((section, index) => (
-        <RenderSection key={index} section={section} />
-      ))}
-    </ul>
-  </DocumentContainer>
-);
-
-const TermsAndConditions = () => {
-  const data: TermsData = termsData;
+const TermsAndConditions = ({ data }: { data: Document }) => {
   return (
-    <div>
-      {Object.entries(data).map(([key, value]) => (
-        <RenderDocument key={key} data={value} />
-      ))}
-    </div>
+    <DocumentContainer>
+      <DocumentTitle>{data.title}</DocumentTitle>
+      <ul>
+        {data.sections.map((section, index) => (
+          <RenderSection key={index} section={section} />
+        ))}
+      </ul>
+    </DocumentContainer>
   );
 };
 
@@ -44,6 +33,7 @@ const SectionTitle = styled.p`
 
 const SectionContent = styled.p`
   ${({ theme }) => theme.typography.Body}
+  word-break: keep-all;
 `;
 
 const DocumentContainer = styled.div`
