@@ -7,7 +7,9 @@ import MapComponent from '../components/common/MapComponent';
 import FilterList from '../components/FilterList';
 import PlaceInfo from '../components/info/PlaceInfo';
 import Search from '../components/Search';
+// import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
+import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
 import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
@@ -93,6 +95,11 @@ function Home() {
     setIsSearchPage(false);
   };
 
+  const handleSearchCloseClick = () => {
+    dispatch({ type: 'SET_CURRENT_ADDRESS', payload: {} as Address });
+    setSearchValue('');
+  };
+
   const deleteHistory = (id: number) => {
     if (dbManager) dbManager.delete(id);
     dispatch({ type: 'DELETE_HISTORY', payload: id });
@@ -142,15 +149,26 @@ function Home() {
   return (
     <Container>
       <Header safeArea={safeAreaState}>
-        {bottomSheetStatus !== 'full' && (
-          <SearchBar
-            isSearchPage={isSearchPage}
-            onClick={openSearchPage}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            onClickBtnBackward={closeSearchPage}
-          />
-        )}
+        {bottomSheetStatus !== 'full' &&
+          (isSearchPage ? (
+            <SearchBar
+              isSearchPage={isSearchPage}
+              onClick={openSearchPage}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onClickBtnBackward={closeSearchPage}
+            />
+          ) : (
+            <TimeSelectHeader
+              date={'28'}
+              time={'23'}
+              onTimeClick={() => console.log('time select')}
+              onMenuClick={() => console.log('menu')}
+              hasSearchValue={searchValue.trim().length > 0}
+              onSearchOpenClick={openSearchPage}
+              onSearchCloseClick={handleSearchCloseClick}
+            />
+          ))}
       </Header>
       <>
         {isSearchPage && (

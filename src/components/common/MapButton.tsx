@@ -6,10 +6,11 @@ interface MapButtonProps {
   onClick: () => void;
   iconName: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const StyledButton = styled.button`
-  position: absolute;
+const StyledButton = styled.button<{ style?: React.CSSProperties }>`
+  position: ${({ style }) => style?.position || 'absolute'};
   width: 40px;
   height: 40px;
   border-radius: 20px;
@@ -27,9 +28,14 @@ const StyledButton = styled.button`
   }
 `;
 
-export const MapButton = ({ onClick, iconName, className }: MapButtonProps) => {
+export const MapButton = ({
+  onClick,
+  iconName,
+  className,
+  style,
+}: MapButtonProps) => {
   return (
-    <StyledButton onClick={onClick} className={className}>
+    <StyledButton onClick={onClick} className={className} style={style}>
       <Icon name={iconName} />
     </StyledButton>
   );
