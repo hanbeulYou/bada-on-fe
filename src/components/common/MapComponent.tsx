@@ -91,7 +91,7 @@ const MapEventController = ({
   return null;
 };
 
-const MapTmp = (props: JejuMapProps) => {
+const MapComponent = (props: JejuMapProps) => {
   const {
     filter = 'snorkeling',
     onClickMarker = () => {},
@@ -291,7 +291,7 @@ const isObjectEmpty = (obj: object) => {
   return Object.keys(obj).length === 0;
 };
 
-export default MapTmp;
+export default MapComponent;
 
 const Container = styled.div`
   position: absolute;

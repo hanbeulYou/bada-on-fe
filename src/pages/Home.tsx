@@ -3,8 +3,7 @@ import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
-// import Map from '../components/common/Map';
-import MapTmp from '../components/common/MapTmp';
+import MapComponent from '../components/common/MapComponent';
 import FilterList from '../components/FilterList';
 import PlaceInfo from '../components/info/PlaceInfo';
 import Search from '../components/Search';
@@ -167,7 +166,7 @@ function Home() {
           <FilterList onFilterChange={handleFilterChange} />
         )}
         <FetchBoundary>
-          <MapTmp
+          <MapComponent
             filter={filter}
             onClickMarker={handleClickMarker}
             selectedMarker={selectedMarker}
