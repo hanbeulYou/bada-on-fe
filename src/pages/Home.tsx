@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
-import BottomSheet from '../components/BottomSheet';
 // import Map from '../components/common/Map';
 import MapTmp from '../components/common/MapTmp';
 import FilterList from '../components/FilterList';
+import PlaceInfo from '../components/info/PlaceInfo';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import { Activity } from '../consts/label';
@@ -179,7 +179,7 @@ function Home() {
           selectedMarker &&
           data && (
             <FetchBoundary>
-              <BottomSheet
+              <PlaceInfo
                 title={selectedMarker.name}
                 alert={
                   selectedMarker.name === '김녕 세기알 해변' ||

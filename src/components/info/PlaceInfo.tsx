@@ -1,24 +1,22 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Details, TideInfo } from '../apis/weather/useWeatherQuery';
-import { Activity, LABEL_MAPPING_REVERSE } from '../consts/label';
-import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
-import useToast from '../hooks/useToast';
-import { Marker } from '../pages/Home';
-
-import DoughnutChart from './chart/Doughnut';
-import ContentBox from './common/ContentBox';
-import Icon from './common/Icon';
-import FooterTimer from './Footer';
+import { Details, TideInfo } from '../../apis/weather/useWeatherQuery';
+import { Activity, LABEL_MAPPING_REVERSE } from '../../consts/label';
+import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
+import useToast from '../../hooks/useToast';
+import { Marker } from '../../pages/Home';
+import DoughnutChart from '../chart/Doughnut';
+import BottomSheet from '../common/BottomSheet';
+import ContentBox from '../common/ContentBox';
+import FooterTimer from '../Footer';
 
 const TimeFormat = (time: string) => {
   // const YYYYMMDD = time.split('T')[0];
-  const [hour, minute, second] = time.split('T')[1].split(':');
+  const [hour, minute] = time.split('T')[1].split(':');
   return `${hour}:${minute}`;
 };
 
-// 아직 미완성이지만, 지도 위에 뜨는 슬라이딩이 가능한 디테일 정보입니다.
 interface BottomSheetProps {
   title: string;
   alert?: string;
@@ -37,7 +35,7 @@ interface BottomSheetProps {
   setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
 }
 
-function BottomSheet({
+function PlaceInfo({
   title,
   alert,
   dangerValue,
@@ -53,68 +51,9 @@ function BottomSheet({
   setSelectedMarker,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
-  const [position, setPosition] = useState(
-    window.innerHeight - 340 - safeAreaState.bottom,
-  );
   const [isFooterVisible, setFooterVisible] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const startY = useRef<number | null>(null);
 
   const { showToast, renderToasts } = useToast();
-
-  const POSITIONS = {
-    FULL: 0,
-    MIDDLE: window.innerHeight - 340 - safeAreaState.bottom,
-    HIDDEN: window.innerHeight,
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startY.current = e.touches[0].clientY;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (startY.current === null) return;
-
-    const deltaY = startY.current - e.touches[0].clientY;
-    let newPosition = position - deltaY;
-
-    // 범위 제한 (픽셀 단위)
-    if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
-    if (newPosition > POSITIONS.HIDDEN) newPosition = POSITIONS.HIDDEN;
-
-    setPosition(newPosition);
-  };
-
-  const handleTouchEnd = () => {
-    // POSITIONS 값들과의 거리를 기준으로 판단
-    const distanceToFull = Math.abs(position - POSITIONS.FULL);
-    const distanceToMiddle = Math.abs(position - POSITIONS.MIDDLE);
-    const distanceToHidden = Math.abs(position - POSITIONS.HIDDEN);
-
-    // 가장 가까운 위치로 스냅
-    const minDistance = Math.min(
-      distanceToFull,
-      distanceToMiddle,
-      distanceToHidden,
-    );
-
-    if (!setBottomSheetStatus) return;
-
-    if (minDistance === distanceToFull) {
-      setPosition(POSITIONS.FULL);
-      setBottomSheetStatus('full');
-    } else if (minDistance === distanceToHidden) {
-      setTimeout(() => {
-        setSelectedMarker(null);
-        setBottomSheetStatus('hidden');
-        setFooterVisible(false);
-      }, 300);
-    } else {
-      setBottomSheetStatus('middle');
-      setPosition(POSITIONS.MIDDLE);
-    }
-    startY.current = null;
-  };
 
   const formatTideData = (tideInfoList: TideInfo[]) => {
     const tideLabels = {
@@ -129,41 +68,16 @@ function BottomSheet({
   };
 
   return (
-    <Container
-      ref={containerRef}
-      position={position}
-      isFull={bottomSheetStatus === 'full'}
-      safeArea={safeAreaState}
+    <BottomSheet
+      handleClose={() => {
+        setBottomSheetStatus('hidden');
+        setSelectedMarker(null);
+        setFooterVisible(false);
+      }}
+      bottomSheetStatus={bottomSheetStatus}
+      setBottomSheetStatus={setBottomSheetStatus}
     >
-      {renderToasts()}
-      {bottomSheetStatus === 'full' ? (
-        <CloseBottomSheet
-          safeArea={safeAreaState}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <button onClick={() => setBottomSheetStatus('hidden')}>
-            <Icon name="chevron-down" />
-          </button>
-        </CloseBottomSheet>
-      ) : (
-        <HandlerWrapper
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <Handler />
-        </HandlerWrapper>
-      )}
       <SummaryContainer>
-        {bottomSheetStatus === 'middle' && (
-          <DragHandler
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          />
-        )}
         <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
           <Title>{title}</Title>
           {alert && (
@@ -274,69 +188,17 @@ function BottomSheet({
           detailDataLength={detailDataLength}
           timeIndex={timeIndex}
           setTimeIndex={setTimeIndex}
-          // currentHour={currentHour}
         />
       )}
-    </Container>
+      {renderToasts()}
+    </BottomSheet>
   );
 }
-
-const Container = styled.div<{
-  position: number;
-  isFull: boolean;
-  safeArea: SafeAreaState;
-}>`
-  position: fixed;
-  bottom: 0;
-  transform: translateY(${props => props.position}px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-  height: 100vh;
-  width: 100vw;
-  padding-left: 24px;
-  padding-right: 24px;
-  padding-bottom: ${({ safeArea }) => safeArea.bottom}px;
-  background-color: white;
-  border: ${props => !props.isFull && '1px solid #e0e0e0'};
-  border-radius: ${props => !props.isFull && '28px 28px 0 0'};
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  box-shadow: ${props =>
-    !props.isFull && '0px -2px 4px 0px rgba(0, 0, 0, 0.16)'};
-
-  /* 스크롤바 숨기기 */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE, Edge */
-
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
-`;
 
 const SummaryContainer = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const HandlerWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 6px;
-  padding-top: 14px;
-  padding-bottom: 20px;
-`;
-
-const Handler = styled.div`
-  height: 6px;
-  width: 45px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
 const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
@@ -447,23 +309,7 @@ const DetailContentContainer = styled.div`
   margin: 12px 0;
 `;
 
-export default BottomSheet;
-
-const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
-  position: sticky;
-  top: 0px;
-  z-index: 2;
-  display: flex;
-  width: 100vw;
-  height: 84px;
-  padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
-  padding-bottom: 12px;
-  padding-left: 32px;
-  padding-right: 32px;
-  margin-top: ${({ safeArea }) => -safeArea.top}px;
-  background-color: ${({ theme }) => theme.colors.white};
-  align-items: center;
-`;
+export default PlaceInfo;
 
 const ReferenceContainer = styled.div`
   display: flex;
@@ -480,13 +326,4 @@ const ReferenceTitle = styled.div`
 const ReferenceContent = styled.div`
   ${({ theme }) => theme.typography.Label};
   color: ${({ theme }) => theme.colors.gray500};
-`;
-
-const DragHandler = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
 `;
