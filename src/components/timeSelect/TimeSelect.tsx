@@ -21,6 +21,7 @@ const TimeSelect = ({ handleClose, setBottomSheetStatus }: TimeSelectProps) => {
       setBottomSheetStatus={setBottomSheetStatus}
       size={290}
       hasBackgroundOverlay={true}
+      canFull={false}
     >
       <SelectContainer>
         <DateSelect />
@@ -37,14 +38,14 @@ const SelectContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 36px;
+  margin-bottom: 12px;
 `;
 
 const HorizontalLine = styled.div`
   width: 100%;
   height: 1px;
   background-color: ${({ theme }) => theme.colors.gray50};
-  margin: 24px 0;
+  margin-top: 24px;
 `;
 
 export default TimeSelect;

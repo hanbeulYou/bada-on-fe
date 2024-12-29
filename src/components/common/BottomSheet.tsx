@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
@@ -13,6 +13,7 @@ interface BottomSheetProps {
     React.SetStateAction<'middle' | 'full' | 'hidden'>
   >;
   size?: number;
+  canFull?: boolean;
   hasBackgroundOverlay?: boolean;
 }
 
@@ -22,45 +23,69 @@ function BottomSheet({
   bottomSheetStatus,
   setBottomSheetStatus,
   size = 340,
+  canFull = true,
   hasBackgroundOverlay = false,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
-  const [position, setPosition] = useState(
-    window.innerHeight - size - safeAreaState.bottom,
-  );
-  const containerRef = useRef<HTMLDivElement>(null);
-  const startY = useRef<number | null>(null);
-
   const POSITIONS = {
     FULL: 0,
     MIDDLE: window.innerHeight - size - safeAreaState.bottom,
     HIDDEN: window.innerHeight,
   };
 
+  const [position, setPosition] = useState(POSITIONS.HIDDEN);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPosition(POSITIONS.MIDDLE);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const lastScrollTop = useRef(0);
+
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (containerRef.current) {
+      lastScrollTop.current = containerRef.current.scrollTop;
+    }
     startY.current = e.touches[0].clientY;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current === null) return;
 
-    const deltaY = startY.current - e.touches[0].clientY;
+    if (containerRef.current && containerRef.current.scrollTop > 0) {
+      return;
+    }
+
+    const currentY = e.touches[0].clientY;
+    if (!isDragging && currentY < startY.current) {
+      return;
+    }
+
+    setIsDragging(true);
+    const deltaY = startY.current - currentY;
     let newPosition = position - deltaY;
 
-    // 범위 제한 (픽셀 단위)
     if (newPosition < POSITIONS.FULL) newPosition = POSITIONS.FULL;
     if (newPosition > POSITIONS.HIDDEN) newPosition = POSITIONS.HIDDEN;
 
     setPosition(newPosition);
+    startY.current = currentY;
   };
 
   const handleTouchEnd = () => {
-    // POSITIONS 값들과의 거리를 기준으로 판단
+    if (!isDragging) return;
+    setIsDragging(false);
+
     const distanceToFull = Math.abs(position - POSITIONS.FULL);
     const distanceToMiddle = Math.abs(position - POSITIONS.MIDDLE);
     const distanceToHidden = Math.abs(position - POSITIONS.HIDDEN);
 
-    // 가장 가까운 위치로 스냅
     const minDistance = Math.min(
       distanceToFull,
       distanceToMiddle,
@@ -69,14 +94,16 @@ function BottomSheet({
 
     if (!setBottomSheetStatus) return;
 
-    if (minDistance === distanceToFull) {
+    if (minDistance === distanceToFull && canFull) {
       setPosition(POSITIONS.FULL);
       setBottomSheetStatus('full');
     } else if (minDistance === distanceToHidden) {
+      // TODO: 실제 기기에서 테스트 후 픽스하기
+      setPosition(POSITIONS.HIDDEN);
       setTimeout(() => {
         handleClose();
         setBottomSheetStatus('hidden');
-      }, 300);
+      }, 500);
     } else {
       setBottomSheetStatus('middle');
       setPosition(POSITIONS.MIDDLE);
@@ -100,6 +127,9 @@ function BottomSheet({
         position={position}
         isFull={bottomSheetStatus === 'full'}
         safeArea={safeAreaState}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {bottomSheetStatus === 'full' ? (
           <CloseBottomSheet
@@ -161,6 +191,12 @@ const Container = styled.div<{
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  touch-action: none;
+
+  /* will-change 속성 추가로 애니메이션 성능 개선 */
+  will-change: transform;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const HandlerWrapper = styled.div`
@@ -203,7 +239,7 @@ const Overlay = styled.div<{ isVisible: boolean }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(27, 27, 27, 0.4);
   z-index: 2;
   opacity: ${props => (props.isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;

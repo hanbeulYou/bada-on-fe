@@ -42,7 +42,7 @@ const TimeSelectRowContainer = styled.div`
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 0px 24px;
+  padding: 24px 24px;
 
   &::-webkit-scrollbar {
     display: none;

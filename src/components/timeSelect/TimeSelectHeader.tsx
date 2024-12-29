@@ -51,7 +51,7 @@ const HeaderContainer = styled.div<{ safeArea: SafeAreaState }>`
   align-items: center;
   padding: ${({ safeArea }) => safeArea.top + 20}px 20px
     ${({ safeArea }) => safeArea.bottom + 20}px;
-  background-color: none;
+  background-color: transparent;
 `;
 
 export default TimeSelectHeader;
