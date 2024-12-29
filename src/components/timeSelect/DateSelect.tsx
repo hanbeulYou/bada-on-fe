@@ -45,6 +45,7 @@ const DateButtonContainer = styled.div`
 
 const DateButtonLabel = styled.span`
   ${({ theme }) => theme.typography.Label}
+  color: ${({ theme }) => theme.colors.gray500};
 `;
 
 export default DateSelect;
