@@ -276,11 +276,6 @@ const MapComponent = (props: JejuMapProps) => {
           onClick={handleLocationButtonClick}
           iconName={fixedLocation ? 'location' : 'location-grey'}
         />
-        <TermsButton
-          safeArea={safeArea}
-          onClick={() => navigate('/terms')}
-          iconName="terms"
-        />
       </Container>
       {renderToasts()}
     </>
@@ -303,9 +298,4 @@ const Container = styled.div`
 const LocationButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
   bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
   right: 20px;
-`;
-
-const TermsButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
-  bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
-  left: 20px;
 `;
