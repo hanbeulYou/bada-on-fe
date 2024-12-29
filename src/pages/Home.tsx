@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
 import MapComponent from '../components/common/MapComponent';
-import FilterList from '../components/FilterList';
 import PlaceInfo from '../components/info/PlaceInfo';
 import Search from '../components/Search';
 // import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
+import TimeSelect from '../components/timeSelect/TimeSelect';
 import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
 import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
@@ -43,10 +43,13 @@ function Home() {
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
-  const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
+  const { data } = useWeatherQuery(selectedMarker?.id, filter);
   const [bottomSheetStatus, setBottomSheetStatus] = useState<
     'middle' | 'full' | 'hidden'
   >('hidden');
+  const [timeSelectStatus, setTimeSelectStatus] = useState<'open' | 'close'>(
+    'close',
+  );
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
@@ -162,7 +165,7 @@ function Home() {
             <TimeSelectHeader
               date={'28'}
               time={'23'}
-              onTimeClick={() => console.log('time select')}
+              onTimeClick={() => setTimeSelectStatus('open')}
               onMenuClick={() => console.log('menu')}
               hasSearchValue={searchValue.trim().length > 0}
               onSearchOpenClick={openSearchPage}
@@ -180,9 +183,9 @@ function Home() {
             />
           </FetchBoundary>
         )}
-        {bottomSheetStatus !== 'full' && (
+        {/* {bottomSheetStatus !== 'full' && (
           <FilterList onFilterChange={handleFilterChange} />
-        )}
+        )} */}
         <FetchBoundary>
           <MapComponent
             filter={filter}
@@ -218,6 +221,7 @@ function Home() {
               />
             </FetchBoundary>
           )}
+        {timeSelectStatus === 'open' && <TimeSelect />}
       </>
     </Container>
   );

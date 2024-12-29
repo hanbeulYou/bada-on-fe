@@ -12,6 +12,7 @@ interface BottomSheetProps {
   setBottomSheetStatus: React.Dispatch<
     React.SetStateAction<'middle' | 'full' | 'hidden'>
   >;
+  size?: number;
 }
 
 function BottomSheet({
@@ -19,17 +20,18 @@ function BottomSheet({
   handleClose,
   bottomSheetStatus,
   setBottomSheetStatus,
+  size = 340,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
   const [position, setPosition] = useState(
-    window.innerHeight - 340 - safeAreaState.bottom,
+    window.innerHeight - size - safeAreaState.bottom,
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
 
   const POSITIONS = {
     FULL: 0,
-    MIDDLE: window.innerHeight - 340 - safeAreaState.bottom,
+    MIDDLE: window.innerHeight - size - safeAreaState.bottom,
     HIDDEN: window.innerHeight,
   };
 
