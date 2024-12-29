@@ -12,14 +12,12 @@ interface FooterTimerProps {
   detailDataLength: number;
   timeIndex: number;
   setTimeIndex: React.Dispatch<React.SetStateAction<number>>;
-  currentHour: Date;
 }
 const FooterTimer: React.FC<FooterTimerProps> = ({
   detailData,
   detailDataLength,
   timeIndex,
   setTimeIndex,
-  // currentHour,
 }) => {
   const { state: safeAreaState } = useContext(SafeAreaContext);
 

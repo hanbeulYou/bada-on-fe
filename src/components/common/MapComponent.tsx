@@ -11,7 +11,7 @@ import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
 
-import Icon from './Icon';
+import { MapButton } from './MapButton';
 
 interface JejuMapProps {
   filter?: Activity;
@@ -91,7 +91,7 @@ const MapEventController = ({
   return null;
 };
 
-const MapTmp = (props: JejuMapProps) => {
+const MapComponent = (props: JejuMapProps) => {
   const {
     filter = 'snorkeling',
     onClickMarker = () => {},
@@ -271,16 +271,11 @@ const MapTmp = (props: JejuMapProps) => {
         >
           <EventsAndMarkers />
         </Map>
-        <LocationButton safeArea={safeArea} onClick={handleLocationButtonClick}>
-          {fixedLocation ? (
-            <Icon name="location" />
-          ) : (
-            <Icon name="location-grey" />
-          )}
-        </LocationButton>
-        <TermsButton safeArea={safeArea} onClick={() => navigate('/terms')}>
-          <Icon name="terms" />
-        </TermsButton>
+        <LocationButton
+          safeArea={safeArea}
+          onClick={handleLocationButtonClick}
+          iconName={fixedLocation ? 'location' : 'location-grey'}
+        />
       </Container>
       {renderToasts()}
     </>
@@ -291,7 +286,7 @@ const isObjectEmpty = (obj: object) => {
   return Object.keys(obj).length === 0;
 };
 
-export default MapTmp;
+export default MapComponent;
 
 const Container = styled.div`
   position: absolute;
@@ -300,31 +295,7 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const MapButton = styled.button`
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.white};
-  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-
-  &:active {
-    background-color: ${({ theme }) => theme.colors.gray50};
-  }
-`;
-
 const LocationButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
   bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
   right: 20px;
-`;
-
-const TermsButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
-  bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
-  left: 20px;
 `;
