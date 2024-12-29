@@ -6,24 +6,28 @@ import FooterButton from '../common/FullButton';
 import DateSelect from './DateSelect';
 import TimeSelectRow from './TimeSelectRow';
 
-const TimeSelect = () => {
+interface TimeSelectProps {
+  handleClose: () => void;
+  setBottomSheetStatus: React.Dispatch<
+    React.SetStateAction<'middle' | 'hidden' | 'full'>
+  >;
+}
+
+const TimeSelect = ({ handleClose, setBottomSheetStatus }: TimeSelectProps) => {
   return (
     <BottomSheet
-      handleClose={() => console.log('close')}
+      handleClose={handleClose}
       bottomSheetStatus="middle"
-      setBottomSheetStatus={() => console.log('setBottomSheetStatus')}
+      setBottomSheetStatus={setBottomSheetStatus}
       size={290}
+      hasBackgroundOverlay={true}
     >
       <SelectContainer>
         <DateSelect />
         <HorizontalLine />
         <TimeSelectRow />
       </SelectContainer>
-      <FooterButton
-        label="닫기"
-        onClick={() => console.log('confirm')}
-        isPrimary={false}
-      />
+      <FooterButton label="닫기" onClick={handleClose} isPrimary={false} />
     </BottomSheet>
   );
 };

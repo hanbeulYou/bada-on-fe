@@ -13,6 +13,7 @@ interface BottomSheetProps {
     React.SetStateAction<'middle' | 'full' | 'hidden'>
   >;
   size?: number;
+  hasBackgroundOverlay?: boolean;
 }
 
 function BottomSheet({
@@ -21,6 +22,7 @@ function BottomSheet({
   bottomSheetStatus,
   setBottomSheetStatus,
   size = 340,
+  hasBackgroundOverlay = false,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
   const [position, setPosition] = useState(
@@ -83,34 +85,45 @@ function BottomSheet({
   };
 
   return (
-    <Container
-      ref={containerRef}
-      position={position}
-      isFull={bottomSheetStatus === 'full'}
-      safeArea={safeAreaState}
-    >
-      {bottomSheetStatus === 'full' ? (
-        <CloseBottomSheet
-          safeArea={safeAreaState}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <button onClick={() => setBottomSheetStatus('hidden')}>
-            <Icon name="chevron-down" />
-          </button>
-        </CloseBottomSheet>
-      ) : (
-        <HandlerWrapper
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <Handler />
-        </HandlerWrapper>
+    <>
+      {hasBackgroundOverlay && (
+        <Overlay
+          isVisible={bottomSheetStatus !== 'hidden'}
+          onClick={() => {
+            setBottomSheetStatus('hidden');
+            handleClose();
+          }}
+        />
       )}
-      {children}
-    </Container>
+      <Container
+        ref={containerRef}
+        position={position}
+        isFull={bottomSheetStatus === 'full'}
+        safeArea={safeAreaState}
+      >
+        {bottomSheetStatus === 'full' ? (
+          <CloseBottomSheet
+            safeArea={safeAreaState}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <button onClick={() => setBottomSheetStatus('hidden')}>
+              <Icon name="chevron-down" />
+            </button>
+          </CloseBottomSheet>
+        ) : (
+          <HandlerWrapper
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <Handler />
+          </HandlerWrapper>
+        )}
+        {children}
+      </Container>
+    </>
   );
 }
 
@@ -125,7 +138,7 @@ const Container = styled.div<{
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1;
+  z-index: 3;
   height: 100vh;
   width: 100vw;
   padding-left: 24px;
@@ -171,7 +184,7 @@ export default BottomSheet;
 const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   position: sticky;
   top: 0px;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   width: 100vw;
   height: 84px;
@@ -182,4 +195,17 @@ const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
+`;
+
+const Overlay = styled.div<{ isVisible: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  opacity: ${props => (props.isVisible ? 1 : 0)};
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: ${props => (props.isVisible ? 'auto' : 'none')};
 `;

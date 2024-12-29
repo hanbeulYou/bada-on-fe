@@ -47,8 +47,8 @@ function Home() {
   const [bottomSheetStatus, setBottomSheetStatus] = useState<
     'middle' | 'full' | 'hidden'
   >('hidden');
-  const [timeSelectStatus, setTimeSelectStatus] = useState<'open' | 'close'>(
-    'close',
+  const [timeSelectStatus, setTimeSelectStatus] = useState<'middle' | 'hidden'>(
+    'hidden',
   );
   const { sendToRN } = useReactNativeBridge();
 
@@ -116,13 +116,13 @@ function Home() {
     setIsSearching(false);
   };
 
-  const handleFilterChange = (selected: Activity) => {
-    sendToRN({ type: 'POST_ACTIVITY', activity: selected });
-    setFilter(selected);
-    setBottomSheetStatus('hidden');
-    setSelectedMarker(null);
-    setTimeIndex(0);
-  };
+  // const handleFilterChange = (selected: Activity) => {
+  //   sendToRN({ type: 'POST_ACTIVITY', activity: selected });
+  //   setFilter(selected);
+  //   setBottomSheetStatus('hidden');
+  //   setSelectedMarker(null);
+  //   setTimeIndex(0);
+  // };
 
   const updateCurrentAddress = (address: Address) => {
     const MAX_HISTORY = 15;
@@ -165,7 +165,7 @@ function Home() {
             <TimeSelectHeader
               date={'28'}
               time={'23'}
-              onTimeClick={() => setTimeSelectStatus('open')}
+              onTimeClick={() => setTimeSelectStatus('middle')}
               onMenuClick={() => console.log('menu')}
               hasSearchValue={searchValue.trim().length > 0}
               onSearchOpenClick={openSearchPage}
@@ -221,7 +221,12 @@ function Home() {
               />
             </FetchBoundary>
           )}
-        {timeSelectStatus === 'open' && <TimeSelect />}
+        {timeSelectStatus === 'middle' && (
+          <TimeSelect
+            handleClose={() => setTimeSelectStatus('hidden')}
+            setBottomSheetStatus={setBottomSheetStatus}
+          />
+        )}
       </>
     </Container>
   );
@@ -236,7 +241,7 @@ const Header = styled.header<{ safeArea: SafeAreaState }>`
   align-items: center;
   position: absolute;
   top: ${({ safeArea }) => safeArea.top}px;
-  z-index: 12;
+  z-index: 2;
 `;
 
 export default Home;
