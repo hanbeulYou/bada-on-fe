@@ -1,5 +1,5 @@
 import { useEffect, useContext, useState, useRef } from 'react';
-import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { CustomOverlayMap, Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -10,8 +10,9 @@ import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
+import { MapButton } from '../common/MapButton';
 
-import { MapButton } from './MapButton';
+import Pin from './Pin';
 
 interface JejuMapProps {
   filter?: Activity;
@@ -176,46 +177,54 @@ const MapComponent = (props: JejuMapProps) => {
         {/* 기존 마커 렌더링 로직 유지 */}
         {!mapsIsLoading &&
           mapsData?.map((item: MapData, index: number) => (
-            <MapMarker
+            <CustomOverlayMap
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
                 lat: Number(item.latitude),
                 lng: Number(item.longitude),
               }}
+            >
+              <Pin
+                icon="beach"
+                hasLabel={false}
+                onClick={() => handleClickMarker(item)}
+                hasAlert={false}
+              />
+            </CustomOverlayMap>
+          ))}
+
+        {!isObjectEmpty(state.currentAddress) && (
+          <>
+            {/* <MapMarker
+              position={{
+                lat: Number(state.currentAddress.y),
+                lng: Number(state.currentAddress.x),
+              }}
               image={{
-                src:
-                  selectedMarker && selectedMarker?.id === item.id
-                    ? `/pin/${filter}-active.png`
-                    : `/pin/${filter}.png`,
+                src: '/pin/search.png',
                 size: {
                   width: 36,
                   height: 37,
                 },
-                options: {
-                  offset: {
-                    x: 18,
-                    y: 37,
-                  },
-                },
               }}
-              onClick={() => handleClickMarker(item)}
-            />
-          ))}
+            ></MapMarker> */}
 
-        {!isObjectEmpty(state.currentAddress) && (
-          <MapMarker
-            position={{
-              lat: Number(state.currentAddress.y),
-              lng: Number(state.currentAddress.x),
-            }}
-            image={{
-              src: '/pin/search.png',
-              size: {
-                width: 36,
-                height: 37,
-              },
-            }}
-          />
+            <CustomOverlayMap
+              position={{
+                lat: Number(state.currentAddress.y),
+                lng: Number(state.currentAddress.x),
+              }}
+            >
+              {/* TODO: 위치가 확대 레벨별로 다르게 찍히는 느낌. 수정 필요. */}
+              <div style={{ marginTop: '-40px' }}>
+                <Pin
+                  icon="search"
+                  hasLabel={true}
+                  label={state.currentAddress.place_name}
+                />
+              </div>
+            </CustomOverlayMap>
+          </>
         )}
 
         {!isObjectEmpty(state.location) && (

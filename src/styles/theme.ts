@@ -37,6 +37,7 @@ const theme = {
     surfing: '#1CCAE1',
     kayakingPaddleBoarding: '#EB0679',
     white: '#FFFFFF',
+    star: '#FFBD19',
   },
   typography: {
     Heading: `

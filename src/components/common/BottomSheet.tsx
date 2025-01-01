@@ -22,7 +22,7 @@ function BottomSheet({
   handleClose,
   bottomSheetStatus,
   setBottomSheetStatus,
-  size = 340,
+  size = 382,
   canFull = true,
   hasBackgroundOverlay = false,
 }: BottomSheetProps) {

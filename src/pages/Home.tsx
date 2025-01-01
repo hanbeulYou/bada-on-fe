@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
-import MapComponent from '../components/common/MapComponent';
 import PlaceInfo from '../components/info/PlaceInfo';
+import MapComponent from '../components/map/MapComponent';
 import Search from '../components/Search';
 // import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
