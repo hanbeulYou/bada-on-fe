@@ -35,6 +35,7 @@ const SummaryContent = ({ contentType, content }: SummaryContentProps) => {
 const SummaryContentContainer = styled.div`
   display: flex;
   padding: 12px;
+  height: 42px;
   gap: 4px;
   align-items: center;
   border-radius: 4px;

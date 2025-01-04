@@ -2,14 +2,17 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
 import { Details, TideInfo } from '../../apis/weather/useWeatherQuery';
-import { Activity, LABEL_MAPPING_REVERSE } from '../../consts/label';
+import { Activity } from '../../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
-import DoughnutChart from '../chart/Doughnut';
 import BottomSheet from '../common/BottomSheet';
 import ContentBox from '../common/ContentBox';
-import FooterTimer from '../Footer';
+import Icon from '../common/Icon';
+
+import AlertInfo from './AlertInfo';
+import SummaryBar from './SummaryBar';
+import SummaryContent from './SummaryContent';
 
 const TimeFormat = (time: string) => {
   // const YYYYMMDD = time.split('T')[0];
@@ -79,35 +82,35 @@ function PlaceInfo({
     >
       <SummaryContainer>
         <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
-          <Title>{title}</Title>
-          {alert && (
-            <Alert
-              onClick={() =>
-                showToast({
-                  message:
-                    '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
-                  toastType: 'warning',
-                  timeout: 3000,
-                })
-              }
-            >
-              {alert}
-            </Alert>
-          )}
+          <>
+            <TitleContainer>
+              <Title>{title}</Title>
+              <button>
+                <Icon name="star" width={24} height={24} />
+              </button>
+            </TitleContainer>
+            <Address>
+              주소가 들어갈 자리: 제주 제주시 조천읍 조함해안로 525
+            </Address>
+          </>
+          <AlertContainer>
+            <AlertInfo alert={'풍랑주의보'} />
+            <AlertInfo alert={'폭설특보'} />
+          </AlertContainer>
+          {/* TODO: 날씨 데이터 받아오면 추가 */}
+          <SummaryContentContainer>
+            <SummaryContent contentType="weather" content="맑음" />
+            <SummaryContent contentType="temperature" content="10°C" />
+            <SummaryContent contentType="wind" content="매우 약함" />
+          </SummaryContentContainer>
+          <SummaryBarContainer>
+            <SummaryBar barType="tide" value={30} />
+            <SummaryBar barType="wave" value={80} />
+          </SummaryBarContainer>
         </Header>
-        <DoughnutChart chartValue={dangerValue} />
-        <RecommendContainer>
-          {recommends && (
-            <RecommendItem>
-              <RecommendTitleWrapper>
-                <RecommendTitle>
-                  {LABEL_MAPPING_REVERSE[activity]}
-                </RecommendTitle>
-              </RecommendTitleWrapper>
-              <RecommendDescription>{recommends}</RecommendDescription>
-            </RecommendItem>
-          )}
-        </RecommendContainer>
+        <SummaryBody>
+          <BaseTime>시간이 들어갈 자리</BaseTime>
+        </SummaryBody>
       </SummaryContainer>
       {bottomSheetStatus === 'full' && (
         <DetailContainer>
@@ -182,7 +185,7 @@ function PlaceInfo({
           </DetailInfoContainer>
         </DetailContainer>
       )}
-      {isFooterVisible && (
+      {/* {isFooterVisible && (
         <FooterTimer
           detailData={detailData}
           detailDataLength={detailDataLength}
@@ -190,7 +193,7 @@ function PlaceInfo({
           setTimeIndex={setTimeIndex}
         />
       )}
-      {renderToasts()}
+      {renderToasts()} */}
     </BottomSheet>
   );
 }
@@ -203,71 +206,69 @@ const SummaryContainer = styled.section`
 
 const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: start;
   width: 327px;
-  height: 38px;
+  height: fit-content;
   margin-bottom: 24px;
   padding-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top + 34 : 0)}px;
+  gap: 12px;
 `;
 
-const Title = styled.div`
+const TitleContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const Title = styled.span`
   ${({ theme }) => theme.typography.Heading_2};
   color: ${({ theme }) => theme.colors.blue500};
 `;
 
-const Alert = styled.div`
-  display: flex;
-  max-width: 112px;
-  padding: 4px 6px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.colors.red500};
-  color: ${({ theme }) => theme.colors.white};
-  ${({ theme }) => theme.typography.Label};
-  overflow-wrap: break-word;
-  word-break: break-word;
-  text-align: center;
+const Address = styled.div`
+  width: 100%;
+  align-self: stretch;
+  ${({ theme }) => theme.typography.Body};
+  color: ${({ theme }) => theme.colors.gray400};
 `;
 
-const RecommendContainer = styled.div`
+const AlertContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const SummaryBody = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   align-items: flex-start;
-  gap: 8px;
-  margin-top: 34px;
+  gap: 12px;
+  margin-top: 28px;
 `;
 
-const RecommendItem = styled.div`
+const BaseTime = styled.div`
+  ${({ theme }) => theme.typography.Body_Bold};
+  color: ${({ theme }) => theme.colors.gray900};
+`;
+
+const SummaryContentContainer = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 `;
 
-const RecommendTitleWrapper = styled.div`
-  min-width: 72px;
-`;
-
-const RecommendTitle = styled.div`
+const SummaryBarContainer = styled.div`
   display: flex;
-  width: fit-content;
-  padding: 4px 6px;
-  justify-content: center;
+  width: 100%;
+  flex-direction: row;
   align-items: center;
-  border-radius: 4px;
-  border: 1px solid ${({ theme }) => theme.colors.blue500};
-  background-color: ${({ theme }) => theme.colors.white};
-  color: ${({ theme }) => theme.colors.blue500};
-  ${({ theme }) => theme.typography.Label};
-`;
-
-const RecommendDescription = styled.div`
-  ${({ theme }) => theme.typography.Label};
-  color: ${({ theme }) => theme.colors.gray700};
+  gap: 12px;
 `;
 
 const DetailContainer = styled.div`
