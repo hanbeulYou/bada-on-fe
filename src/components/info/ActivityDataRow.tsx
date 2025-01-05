@@ -8,7 +8,7 @@ const ActivityDataRow = () => {
       <ActivityDataRowContainer>
         <ActivityData activity="diving" recommend={90} />
         <ActivityData activity="swimming" recommend={50} />
-        <ActivityData activity="paddleBoarding" recommend={30} />
+        <ActivityData activity="paddleBoarding" recommend={5} />
         <ActivityData activity="surfing" recommend={90} />
         <ActivityData activity="snorkeling" recommend={90} />
       </ActivityDataRowContainer>
@@ -22,6 +22,7 @@ const ActivityDataWindow = styled.div`
   position: relative;
   left: 0;
   overflow: hidden;
+  margin-left: -24px;
 `;
 
 const ActivityDataRowContainer = styled.div`
@@ -33,7 +34,7 @@ const ActivityDataRowContainer = styled.div`
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
+  padding: 0 24px;
   & > * {
     flex: 0 0 auto;
     min-width: 96px;
