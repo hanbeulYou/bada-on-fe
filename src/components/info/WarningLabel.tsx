@@ -1,15 +1,15 @@
 import { styled } from 'styled-components';
 
-const AlertInfo = ({ alert }: { alert: string }) => {
+const WarningLabel = ({ warning }: { warning: string }) => {
   return (
-    <AlertInfoContainer>
-      <AlertIcon>🚨</AlertIcon>
-      <AlertText>{alert}</AlertText>
-    </AlertInfoContainer>
+    <WarningLabelContainer>
+      <WarningIcon>🚨</WarningIcon>
+      <WarningText>{warning}</WarningText>
+    </WarningLabelContainer>
   );
 };
 
-const AlertInfoContainer = styled.div`
+const WarningLabelContainer = styled.div`
   display: flex;
   padding: 4px 6px;
   justify-content: center;
@@ -19,15 +19,15 @@ const AlertInfoContainer = styled.div`
   background: ${({ theme }) => theme.colors.red50};
 `;
 
-const AlertIcon = styled.span`
+const WarningIcon = styled.span`
   height: 15px;
   ${({ theme }) => theme.typography.Label}
 `;
 
-const AlertText = styled.span`
+const WarningText = styled.span`
   height: 15px;
   color: ${({ theme }) => theme.colors.secondary};
   ${({ theme }) => theme.typography.Label}
 `;
 
-export default AlertInfo;
+export default WarningLabel;
