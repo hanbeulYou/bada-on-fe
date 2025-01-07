@@ -1,6 +1,7 @@
 const theme = {
   colors: {
     primary: '#1764be',
+    secondary: '#e54949',
     blue50: '#ecf1f6',
     blue100: '#b2cbe9',
     blue200: '#8bb2df',
@@ -37,6 +38,7 @@ const theme = {
     surfing: '#1CCAE1',
     kayakingPaddleBoarding: '#EB0679',
     white: '#FFFFFF',
+    star: '#FFBD19',
   },
   typography: {
     Heading: `

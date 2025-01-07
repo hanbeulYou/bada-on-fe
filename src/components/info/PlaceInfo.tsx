@@ -2,14 +2,20 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
 import { Details, TideInfo } from '../../apis/weather/useWeatherQuery';
-import { Activity, LABEL_MAPPING_REVERSE } from '../../consts/label';
+import { Activity } from '../../consts/label';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
-import DoughnutChart from '../chart/Doughnut';
 import BottomSheet from '../common/BottomSheet';
 import ContentBox from '../common/ContentBox';
-import FooterTimer from '../Footer';
+import Icon from '../common/Icon';
+
+import ActivityDataRow from './ActivityDataRow';
+import RecommendLabel from './RecommendLabel';
+import SummaryBar from './SummaryBar';
+import SummaryContent from './SummaryContent';
+import WarningInfo from './WarningInfo';
+import WarningLabel from './WarningLabel';
 
 const TimeFormat = (time: string) => {
   // const YYYYMMDD = time.split('T')[0];
@@ -79,102 +85,127 @@ function PlaceInfo({
     >
       <SummaryContainer>
         <Header isFull={bottomSheetStatus === 'full'} safeArea={safeAreaState}>
-          <Title>{title}</Title>
-          {alert && (
-            <Alert
-              onClick={() =>
-                showToast({
-                  message:
-                    '해당 페이지는 준비 중입니다. 안전한 바다 이용 정보를 곧 제공할게요!',
-                  toastType: 'warning',
-                  timeout: 3000,
-                })
-              }
-            >
-              {alert}
-            </Alert>
-          )}
+          <>
+            <TitleContainer>
+              <Title>{title}</Title>
+              <button>
+                <Icon name="star" width={24} height={24} />
+              </button>
+            </TitleContainer>
+            <Address>
+              주소가 들어갈 자리: 제주 제주시 조천읍 조함해안로 525
+            </Address>
+          </>
+          <OptionalContainer>
+            <RecommendLabel recommendActivity={activity} />
+            <WarningLabel warning={'풍랑주의보'} />
+            <WarningLabel warning={'폭설특보'} />
+          </OptionalContainer>
         </Header>
-        <DoughnutChart chartValue={dangerValue} />
-        <RecommendContainer>
-          {recommends && (
-            <RecommendItem>
-              <RecommendTitleWrapper>
-                <RecommendTitle>
-                  {LABEL_MAPPING_REVERSE[activity]}
-                </RecommendTitle>
-              </RecommendTitleWrapper>
-              <RecommendDescription>{recommends}</RecommendDescription>
-            </RecommendItem>
-          )}
-        </RecommendContainer>
+        <SummaryBody>
+          <BaseTime>시간이 들어갈 자리</BaseTime>
+
+          {/* TODO: 날씨 데이터 받아오면 추가 */}
+          <SummaryContentContainer>
+            <SummaryContent contentType="weather" content="맑음" />
+            <SummaryContent contentType="temperature" content="10°C" />
+            <SummaryContent contentType="wind" content="매우 약함" />
+          </SummaryContentContainer>
+          <SummaryBarContainer>
+            <SummaryBar barType="tide" value={30} />
+            <SummaryBar barType="wave" value={80} />
+          </SummaryBarContainer>
+        </SummaryBody>
       </SummaryContainer>
       {bottomSheetStatus === 'full' && (
         <DetailContainer>
           <HorizontalLineLg />
           <DetailInfoContainer safeArea={safeAreaState}>
-            <DetailTitle>상세정보</DetailTitle>
-            <DetailContentContainer>
-              <ContentBox
-                title="날씨"
-                data={[
-                  { label: '상태', value: detailData.skyCondition },
-                  {
-                    label: '기온',
-                    value: detailData.hourlyTemperature + '°C',
-                  },
-                  { label: '습도', value: detailData.humidity + '%' },
-                ]}
+            <InfoSection>
+              <DetailTitle>액티비티</DetailTitle>
+              {/* TODO: 날씨 데이터 받아오면 props 넣어주기 */}
+              <ActivityDataRow />
+            </InfoSection>
+            <HorizontalLineSm />
+            <InfoSection>
+              <DetailTitle>기상특보</DetailTitle>
+              <WarningInfo
+                warningType="풍랑주의보"
+                warningLocation="제주도(제주도산지,제주도서부,제주도북부,제주도동부,추자도,제주도북부중산간,제주도남부중산간)"
+                warningDescription="강한 바람과 높은 파도로 인해 바다 활동이 매우 위험한 상태입니다. 해안가 접근을 삼가주시고, 필요 시 대피를 준비하세요."
+                warningStartTime="2025-01-01 12:00"
+                warningEndTime="2025-01-01 12:00"
               />
-              <ContentBox
-                title="강수/강설"
-                data={[
-                  {
-                    label: '확률',
-                    value: detailData.precipitationProbability + '%',
-                  },
-                  { label: '형태', value: detailData.precipitationType },
-                  {
-                    label: '강수량',
-                    value:
-                      (detailData.hourlyPrecipitation === -99
-                        ? 0
-                        : detailData.hourlyPrecipitation) + 'mm',
-                  },
-                  {
-                    label: '강설량',
-                    value:
-                      (detailData.hourlySnowAccumulation === -99
-                        ? 0
-                        : detailData.hourlySnowAccumulation) + 'cm',
-                  },
-                ]}
-              />
-              <ContentBox
-                title="바람"
-                data={[
-                  { label: '풍속', value: detailData.windSpeed + 'm/s' },
-                  { label: '풍향', value: detailData.windDirection + '°' },
-                ]}
-              />
-              <ContentBox
-                title="수온/파고"
-                data={[
-                  { label: '수온', value: detailData.waterTemperature + '°C' },
-                  {
-                    label: '파고',
-                    value:
-                      detailData.waveHeight === -999
-                        ? '0m'
-                        : detailData.waveHeight + 'm',
-                  },
-                ]}
-              />
-              <ContentBox
-                title="물때"
-                data={formatTideData(detailData.tideInfoList)}
-              />
-            </DetailContentContainer>
+            </InfoSection>
+            <HorizontalLineSm />
+            <InfoSection>
+              <DetailTitle>상세정보</DetailTitle>
+              {/* TODO: API 스펙 변경 후 수정 */}
+              <DetailContentContainer>
+                <ContentBox
+                  title="날씨"
+                  data={[
+                    { label: '상태', value: detailData.skyCondition },
+                    {
+                      label: '기온',
+                      value: detailData.hourlyTemperature + '°C',
+                    },
+                    { label: '습도', value: detailData.humidity + '%' },
+                  ]}
+                />
+                <ContentBox
+                  title="강수/강설"
+                  data={[
+                    {
+                      label: '확률',
+                      value: detailData.precipitationProbability + '%',
+                    },
+                    { label: '형태', value: detailData.precipitationType },
+                    {
+                      label: '강수량',
+                      value:
+                        (detailData.hourlyPrecipitation === -99
+                          ? 0
+                          : detailData.hourlyPrecipitation) + 'mm',
+                    },
+                    {
+                      label: '강설량',
+                      value:
+                        (detailData.hourlySnowAccumulation === -99
+                          ? 0
+                          : detailData.hourlySnowAccumulation) + 'cm',
+                    },
+                  ]}
+                />
+                <ContentBox
+                  title="바람"
+                  data={[
+                    { label: '풍속', value: detailData.windSpeed + 'm/s' },
+                    { label: '풍향', value: detailData.windDirection + '°' },
+                  ]}
+                />
+                <ContentBox
+                  title="수온/파고"
+                  data={[
+                    {
+                      label: '수온',
+                      value: detailData.waterTemperature + '°C',
+                    },
+                    {
+                      label: '파고',
+                      value:
+                        detailData.waveHeight === -999
+                          ? '0m'
+                          : detailData.waveHeight + 'm',
+                    },
+                  ]}
+                />
+                <ContentBox
+                  title="물때"
+                  data={formatTideData(detailData.tideInfoList)}
+                />
+              </DetailContentContainer>
+            </InfoSection>
             <ReferenceContainer>
               <ReferenceTitle>자료</ReferenceTitle>
               <ReferenceContent>기상청, 국립해양조사원</ReferenceContent>
@@ -182,7 +213,7 @@ function PlaceInfo({
           </DetailInfoContainer>
         </DetailContainer>
       )}
-      {isFooterVisible && (
+      {/* {isFooterVisible && (
         <FooterTimer
           detailData={detailData}
           detailDataLength={detailDataLength}
@@ -190,7 +221,7 @@ function PlaceInfo({
           setTimeIndex={setTimeIndex}
         />
       )}
-      {renderToasts()}
+      {renderToasts()} */}
     </BottomSheet>
   );
 }
@@ -203,71 +234,68 @@ const SummaryContainer = styled.section`
 
 const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: start;
   width: 327px;
-  height: 38px;
+  height: fit-content;
   margin-bottom: 24px;
-  padding-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top + 34 : 0)}px;
+  margin-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top : 0)}px;
+  gap: 12px;
 `;
 
-const Title = styled.div`
+const TitleContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const Title = styled.span`
   ${({ theme }) => theme.typography.Heading_2};
   color: ${({ theme }) => theme.colors.blue500};
 `;
 
-const Alert = styled.div`
-  display: flex;
-  max-width: 112px;
-  padding: 4px 6px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.colors.red500};
-  color: ${({ theme }) => theme.colors.white};
-  ${({ theme }) => theme.typography.Label};
-  overflow-wrap: break-word;
-  word-break: break-word;
-  text-align: center;
+const Address = styled.div`
+  width: 100%;
+  align-self: stretch;
+  ${({ theme }) => theme.typography.Body};
+  color: ${({ theme }) => theme.colors.gray400};
 `;
 
-const RecommendContainer = styled.div`
+const OptionalContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+`;
+
+const SummaryBody = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   align-items: flex-start;
-  gap: 8px;
-  margin-top: 34px;
+  gap: 12px;
 `;
 
-const RecommendItem = styled.div`
+const BaseTime = styled.div`
+  ${({ theme }) => theme.typography.Body_Bold};
+  color: ${({ theme }) => theme.colors.gray900};
+`;
+
+const SummaryContentContainer = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 `;
 
-const RecommendTitleWrapper = styled.div`
-  min-width: 72px;
-`;
-
-const RecommendTitle = styled.div`
+const SummaryBarContainer = styled.div`
   display: flex;
-  width: fit-content;
-  padding: 4px 6px;
-  justify-content: center;
+  width: 100%;
+  flex-direction: row;
   align-items: center;
-  border-radius: 4px;
-  border: 1px solid ${({ theme }) => theme.colors.blue500};
-  background-color: ${({ theme }) => theme.colors.white};
-  color: ${({ theme }) => theme.colors.blue500};
-  ${({ theme }) => theme.typography.Label};
-`;
-
-const RecommendDescription = styled.div`
-  ${({ theme }) => theme.typography.Label};
-  color: ${({ theme }) => theme.colors.gray700};
+  gap: 12px;
 `;
 
 const DetailContainer = styled.div`
@@ -280,15 +308,17 @@ const DetailContainer = styled.div`
 
 const HorizontalLineLg = styled.div`
   height: 6px;
-  width: 375px;
+  width: 100vw;
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
-// const HorizontalLineSm = styled.div`
-//   height: 2px;
-//   width: 329px;
-//   background-color: ${({ theme }) => theme.colors.gray100};
-// `;
+const HorizontalLineSm = styled.div`
+  height: 1px;
+  width: 100%;
+  background-color: ${({ theme }) => theme.colors.gray100};
+
+  margin: 28px 0px;
+`;
 
 const DetailInfoContainer = styled.div<{ safeArea: SafeAreaState }>`
   width: 100%;
@@ -299,7 +329,6 @@ const DetailInfoContainer = styled.div<{ safeArea: SafeAreaState }>`
 
 const DetailTitle = styled.div`
   ${({ theme }) => theme.typography.Title_1_Bold};
-  margin-bottom: 24px;
 `;
 
 const DetailContentContainer = styled.div`
@@ -326,4 +355,11 @@ const ReferenceTitle = styled.div`
 const ReferenceContent = styled.div`
   ${({ theme }) => theme.typography.Label};
   color: ${({ theme }) => theme.colors.gray500};
+`;
+
+const InfoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
 `;

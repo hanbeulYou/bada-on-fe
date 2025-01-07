@@ -22,7 +22,7 @@ function BottomSheet({
   handleClose,
   bottomSheetStatus,
   setBottomSheetStatus,
-  size = 340,
+  size = 382,
   canFull = true,
   hasBackgroundOverlay = false,
 }: BottomSheetProps) {
@@ -49,6 +49,7 @@ function BottomSheet({
   const lastScrollTop = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (bottomSheetStatus === 'full') return;
     if (containerRef.current) {
       lastScrollTop.current = containerRef.current.scrollTop;
     }

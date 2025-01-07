@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
-import MapComponent from '../components/common/MapComponent';
 import PlaceInfo from '../components/info/PlaceInfo';
+import MapComponent from '../components/map/MapComponent';
 import Search from '../components/Search';
 // import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
@@ -207,8 +207,8 @@ function Home() {
                     ? '다이빙 금지구역'
                     : ''
                 }
-                dangerValue={data.summary[timeIndex].score}
-                recommends={data.summary[timeIndex].message}
+                dangerValue={data.summary[timeIndex]?.score ?? 0}
+                recommends={data.summary[timeIndex]?.message ?? ''}
                 activity={filter}
                 // currentHour={currentHour}
                 timeIndex={timeIndex}
@@ -221,12 +221,12 @@ function Home() {
               />
             </FetchBoundary>
           )}
-        {timeSelectStatus === 'middle' && (
+        {/* {timeSelectStatus === 'middle' && (
           <TimeSelect
             handleClose={() => setTimeSelectStatus('hidden')}
             setBottomSheetStatus={setBottomSheetStatus}
           />
-        )}
+        )} */}
       </>
     </Container>
   );
