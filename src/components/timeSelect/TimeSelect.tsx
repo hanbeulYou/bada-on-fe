@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 
 import BottomSheet from '../common/BottomSheet';
-import FooterButton from '../common/FullButton';
+import FullButton from '../common/FullButton';
 
 import DateSelect from './DateSelect';
 import TimeSelectRow from './TimeSelectRow';
@@ -28,7 +28,7 @@ const TimeSelect = ({ handleClose, setBottomSheetStatus }: TimeSelectProps) => {
         <HorizontalLine />
         <TimeSelectRow />
       </SelectContainer>
-      <FooterButton label="닫기" onClick={handleClose} isPrimary={false} />
+      <FullButton label="닫기" onClick={handleClose} isPrimary={false} />
     </BottomSheet>
   );
 };

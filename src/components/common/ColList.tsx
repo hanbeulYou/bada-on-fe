@@ -6,7 +6,7 @@ interface ColListProps {
 }
 
 // 세로로 특정 노드를 나열할 때 사용합니다.
-const ColList: React.FC<ColListProps> = ({ children }) => {
+const ColList = ({ children }: ColListProps) => {
   return (
     <ListContainer>
       {children.map((child, index) => (

@@ -68,5 +68,6 @@ export const useKakaoSearchQuery = (
     queryKey: ['kakaoSearch', keyword, longitude, latitude],
     queryFn: () => getKakaoSearchData({ keyword, longitude, latitude }),
     enabled: !!keyword,
+    throwOnError: true,
   });
 };

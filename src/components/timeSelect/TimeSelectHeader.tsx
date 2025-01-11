@@ -49,8 +49,7 @@ const HeaderContainer = styled.div<{ safeArea: SafeAreaState }>`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ safeArea }) => safeArea.top + 20}px 20px
-    ${({ safeArea }) => safeArea.bottom + 20}px;
+  padding: ${({ safeArea }) => safeArea.top + 8}px 20px 0px 20px;
   background-color: transparent;
 `;
 

@@ -73,6 +73,7 @@ const useWeatherQuery = (id: number | undefined, activity: Activity) => {
     queryKey: ['weatherSummary', id, activity, timeKey],
     queryFn: () => getMapInfo(id as number, activity),
     enabled: !!id,
+    throwOnError: true,
   });
 };
 export default useWeatherQuery;
