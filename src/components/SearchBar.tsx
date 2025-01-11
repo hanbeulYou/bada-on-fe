@@ -13,18 +13,20 @@ const SearchBarContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin: 20px;
+  z-index: 10;
 `;
 
-const Input = styled.input`
-  padding: 12px 48px 12px 12px;
+const Input = styled.input<{ isError: boolean }>`
+  padding: 10px 12px 10px 8px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: ${({ theme, isError }) =>
+    isError ? `1px solid ${theme.colors.secondary}` : 'none'};
   border-radius: 4px;
   width: 300px;
   width: 100%;
-  border-radius: 0.8rem;
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.12);
 `;
 
 const Wrapper = styled.div<{ direction: 'left' | 'right'; value: string }>`
@@ -93,6 +95,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onChange={handleInputChange}
         placeholder="제주"
         style={{ paddingLeft: isSearchPage ? '40px' : '12px' }}
+        isError={false}
       />
 
       <Wrapper direction="right" value="16px">
