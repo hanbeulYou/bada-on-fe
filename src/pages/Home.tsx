@@ -8,7 +8,6 @@ import MapComponent from '../components/map/MapComponent';
 import Search from '../components/Search';
 // import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
-import TimeSelect from '../components/timeSelect/TimeSelect';
 import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
 import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
@@ -241,7 +240,12 @@ const Header = styled.header<{ safeArea: SafeAreaState }>`
   align-items: center;
   position: absolute;
   top: ${({ safeArea }) => safeArea.top}px;
-  z-index: 2;
+  z-index: 10;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 `;
 
 export default Home;

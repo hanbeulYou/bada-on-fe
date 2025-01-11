@@ -12,17 +12,18 @@ const SearchBarContainer = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
-  margin: 20px;
+  margin: 8px 20px;
   z-index: 10;
+  height: 44px;
 `;
 
 const Input = styled.input<{ isError: boolean }>`
+  height: 44px;
   padding: 10px 12px 10px 8px;
-  font-size: 16px;
-  border: ${({ theme, isError }) =>
-    isError ? `1px solid ${theme.colors.secondary}` : 'none'};
-  border-radius: 4px;
-  width: 300px;
+  ${({ theme }) => theme.typography.Title_1_Bold}
+  border: 1px solid
+    ${({ theme, isError }) =>
+    isError ? `${theme.colors.secondary}` : 'transparent'};
   width: 100%;
   border-radius: 8px;
   background: #fff;
@@ -62,6 +63,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const { dispatch } = useContext(AddressContext);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isError = searchValue.length > 0 && searchValue.length < 2;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
@@ -93,9 +95,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
         type="text"
         value={searchValue}
         onChange={handleInputChange}
-        placeholder="제주"
-        style={{ paddingLeft: isSearchPage ? '40px' : '12px' }}
-        isError={false}
+        placeholder="장소를 입력해주세요"
+        style={{ paddingLeft: isSearchPage ? '42px' : '12px' }}
+        isError={isError}
       />
 
       <Wrapper direction="right" value="16px">
