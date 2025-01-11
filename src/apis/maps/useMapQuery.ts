@@ -34,6 +34,7 @@ const useMapsQuery = (activity: Activity) => {
     queryKey: ['mapsData', activity],
     queryFn: () => getMapsData(activity),
     enabled: !!activity,
+    throwOnError: true,
   });
 };
 export default useMapsQuery;
