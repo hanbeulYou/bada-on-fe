@@ -129,7 +129,9 @@ const Search: React.FC<SearchProps> = ({
             <NotAvailable />
           ) : (
             <>
-              {searchIsLoading || searchData?.documents?.length === 0 ? (
+              {searchIsLoading ||
+              searchData?.documents?.length === 0 ||
+              !searchData?.documents ? (
                 <NoResult />
               ) : (
                 <ColList>
