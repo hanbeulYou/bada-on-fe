@@ -6,17 +6,19 @@ import { SafeAreaContext } from '../../context/SafeAreaContext';
 interface FooterButtonProps {
   onClick: () => void;
   disabled?: boolean;
+  label?: string;
 }
 
 const FooterButton: React.FC<FooterButtonProps> = ({
   onClick,
+  label = '찾아보기',
   disabled = false,
 }) => {
   const { state } = useContext(SafeAreaContext);
 
   return (
     <Button onClick={onClick} disabled={disabled} safeAreaBottom={state.bottom}>
-      찾아보기
+      {label}
     </Button>
   );
 };
@@ -35,6 +37,7 @@ const Button = styled.button<{ safeAreaBottom: number }>`
   justify-content: center;
   border: none;
   cursor: pointer;
+  flex: 1;
 
   &:disabled {
     color: ${({ theme }) => theme.colors.gray500};

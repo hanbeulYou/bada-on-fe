@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface FooterButtonProps {
+interface FullButtonProps {
   onClick: () => void;
   disabled?: boolean;
   label: string;
   isPrimary?: boolean;
 }
 
-const FooterButton: React.FC<FooterButtonProps> = ({
+const FullButton: React.FC<FullButtonProps> = ({
   onClick,
   label,
   isPrimary = true,
@@ -46,4 +46,4 @@ const Button = styled.button<{ isPrimary: boolean }>`
   }
 `;
 
-export default FooterButton;
+export default FullButton;
