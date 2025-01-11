@@ -2,7 +2,8 @@ import { useQueryErrorResetBoundary } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import ErrorFallback from '../components/error/ErrorFallback';
+import ErrorFallback from '../components/boundary/ErrorFallback';
+import SuspenseFallback from '../components/boundary/SuspenseFallback';
 
 function Fallback({
   error,
@@ -30,7 +31,7 @@ function Fallback({
 function FetchBoundary({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary FallbackComponent={Fallback}>
-      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      <Suspense fallback={<SuspenseFallback />}>{children}</Suspense>
     </ErrorBoundary>
   );
 }
