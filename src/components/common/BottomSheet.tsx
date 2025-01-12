@@ -169,7 +169,7 @@ const Container = styled.div<{
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 3;
+  z-index: 11;
   height: 100vh;
   width: 100vw;
   padding-left: 24px;
@@ -241,7 +241,7 @@ const Overlay = styled.div<{ isVisible: boolean }>`
   right: 0;
   bottom: 0;
   background-color: rgba(27, 27, 27, 0.4);
-  z-index: 2;
+  z-index: 11;
   opacity: ${props => (props.isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;
   pointer-events: ${props => (props.isVisible ? 'auto' : 'none')};
