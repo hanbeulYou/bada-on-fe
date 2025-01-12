@@ -1,30 +1,51 @@
 import { styled } from 'styled-components';
 
+import { Time } from '../../apis/weather/useAvailableTimeQuery';
+import { FilterTime } from '../../pages/Home';
 import DateButton from '../common/DateButton';
 
-const DateSelect = () => {
+interface DateSelectProps {
+  filterTime: FilterTime;
+  setFilterTime: React.Dispatch<React.SetStateAction<FilterTime>>;
+  availableTimeData: Time[];
+}
+
+const DateSelect = ({
+  filterTime,
+  setFilterTime,
+  availableTimeData,
+}: DateSelectProps) => {
+  const dateLabels = ['어제', '오늘', '내일', '2일 뒤', '3일 뒤'];
+  const getButtonStatus = (index: number) => {
+    if (
+      availableTimeData[index].date.toString().slice(-2) ===
+      filterTime.date.toString()
+    )
+      return 'selected';
+    if (index === 0) return 'invalid';
+    return 'valid';
+  };
+
   return (
     <DateSelectContainer>
-      <DateButtonContainer>
-        <DateButtonLabel>어제</DateButtonLabel>
-        <DateButton date="17" status="invalid" onClick={() => {}} />
-      </DateButtonContainer>
-      <DateButtonContainer>
-        <DateButtonLabel>오늘</DateButtonLabel>
-        <DateButton date="18" status="selected" onClick={() => {}} />
-      </DateButtonContainer>
-      <DateButtonContainer>
-        <DateButtonLabel>내일</DateButtonLabel>
-        <DateButton date="19" status="valid" onClick={() => {}} />
-      </DateButtonContainer>
-      <DateButtonContainer>
-        <DateButtonLabel>2일 뒤</DateButtonLabel>
-        <DateButton date="20" status="valid" onClick={() => {}} />
-      </DateButtonContainer>
-      <DateButtonContainer>
-        <DateButtonLabel>3일 뒤</DateButtonLabel>
-        <DateButton date="21" status="valid" onClick={() => {}} />
-      </DateButtonContainer>
+      {dateLabels.map((label, index) => {
+        if (index > 5) return null;
+        return (
+          <DateButtonContainer key={label}>
+            <DateButtonLabel>{label}</DateButtonLabel>
+            <DateButton
+              date={availableTimeData[index].date.toString().slice(-2)}
+              status={getButtonStatus(index)}
+              onClick={() => {
+                setFilterTime({
+                  date: +availableTimeData[index].date.toString().slice(-2),
+                  hour: 0,
+                });
+              }}
+            />
+          </DateButtonContainer>
+        );
+      })}
     </DateSelectContainer>
   );
 };

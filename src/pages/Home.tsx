@@ -2,27 +2,21 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
+import useAvailableTimeQuery from '../apis/weather/useAvailableTimeQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
 import PlaceInfo from '../components/info/PlaceInfo';
 import MapComponent from '../components/map/MapComponent';
 import Search from '../components/Search';
-// import SearchBar from '../components/SearchBar';
 import SearchBar from '../components/SearchBar';
+import TimeSelect from '../components/timeSelect/TimeSelect';
 import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
 import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
-// import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 import FetchBoundary from '../providers/FetchBoundary';
-
-// 제주 시청 위치
-// const initialLocation: LocationData = {
-//   latitude: 33.4890113,
-//   longitude: 126.4983023,
-// };
 
 export type Marker = {
   id: number;
@@ -31,8 +25,13 @@ export type Marker = {
   longitude: number;
 };
 
+export interface FilterTime {
+  date: number;
+  hour: number;
+}
+
 function Home() {
-  // const currentHour = new Date();
+  const currentTime = new Date();
   const [timeIndex, setTimeIndex] = useState<number>(0);
 
   const [isSearchPage, setIsSearchPage] = useState(false);
@@ -49,11 +48,20 @@ function Home() {
   const [timeSelectStatus, setTimeSelectStatus] = useState<'middle' | 'hidden'>(
     'hidden',
   );
+  const [filterTime, setFilterTime] = useState<FilterTime>({
+    date: currentTime.getDate(),
+    hour: currentTime.getHours(),
+  });
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
   const { state: safeAreaState, dispatch: safeAreaDispatch } =
     useContext(SafeAreaContext);
+
+  const { data: availableTimeData } = useAvailableTimeQuery(
+    currentTime.getDate(),
+    currentTime.getHours(),
+  );
 
   useEffect(() => {
     const safeAreaInsets = (window as any).safeAreaInsets;
@@ -162,8 +170,8 @@ function Home() {
             />
           ) : (
             <TimeSelectHeader
-              date={'28'}
-              time={'23'}
+              date={filterTime.date.toString()}
+              time={filterTime.hour.toString()}
               onTimeClick={() => setTimeSelectStatus('middle')}
               onMenuClick={() => console.log('menu')}
               hasSearchValue={searchValue.trim().length > 0}
@@ -220,12 +228,15 @@ function Home() {
               />
             </FetchBoundary>
           )}
-        {/* {timeSelectStatus === 'middle' && (
+        {timeSelectStatus === 'middle' && availableTimeData && (
           <TimeSelect
             handleClose={() => setTimeSelectStatus('hidden')}
             setBottomSheetStatus={setBottomSheetStatus}
+            filterTime={filterTime}
+            setFilterTime={setFilterTime}
+            availableTimeData={availableTimeData}
           />
-        )} */}
+        )}
       </>
     </Container>
   );

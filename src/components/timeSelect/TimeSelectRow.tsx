@@ -1,49 +1,84 @@
+import React from 'react';
 import { styled } from 'styled-components';
 
+import { Time } from '../../apis/weather/useAvailableTimeQuery';
+import { FilterTime } from '../../pages/Home';
+import { HourFormatWithAmPmWithoutZero } from '../../utils/timeFormat';
 import TimeButton from '../common/TimeButton';
 
-const TimeSelectRow = () => {
+interface TimeSelectRowProps {
+  filterTime: FilterTime;
+  setFilterTime: React.Dispatch<React.SetStateAction<FilterTime>>;
+  availableTimeData: Time[];
+}
+
+const TimeSelectRow = ({
+  filterTime,
+  setFilterTime,
+  availableTimeData,
+}: TimeSelectRowProps) => {
+  const handleTouch = (e: React.TouchEvent) => {
+    e.stopPropagation(); // BottomSheet로의 이벤트 전파만 중단
+    console.log('x', e);
+  };
+
   return (
     <TimeSelectWindow>
-      <TimeSelectRowContainer>
-        <TimeButton time="오전 10시" status="invalid" onClick={() => {}} />
-        <TimeButton time="오전 11시" status="invalid" onClick={() => {}} />
-        <TimeButton time="오전 12시" status="invalid" onClick={() => {}} />
-        <TimeButton time="오후 1시" status="selected" onClick={() => {}} />
-        <TimeButton time="오후 2시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 3시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 4시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 5시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 6시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 7시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 8시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 9시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 10시" status="valid" onClick={() => {}} />
-        <TimeButton time="오후 11시" status="valid" onClick={() => {}} />
+      <TimeSelectRowContainer
+        onTouchStart={handleTouch}
+        onTouchMove={handleTouch}
+      >
+        {availableTimeData
+          .filter(
+            timeData =>
+              timeData.date.toString().slice(-2) ===
+              filterTime.date.toString().slice(-2),
+          )
+          .map(timeData => {
+            const hours = timeData.hours.map(hour => (
+              <TimeButton
+                key={hour}
+                time={`${HourFormatWithAmPmWithoutZero(hour.toString())}시`}
+                status={filterTime.hour === hour ? 'selected' : 'valid'}
+                onClick={() =>
+                  setFilterTime({
+                    date: +timeData.date.toString().slice(-2),
+                    hour,
+                  })
+                }
+              />
+            ));
+            return hours;
+          })}
       </TimeSelectRowContainer>
     </TimeSelectWindow>
   );
 };
 
 const TimeSelectWindow = styled.div`
-  display: flex;
-  width: 100vw;
+  width: 100%;
+  overflow: hidden;
   position: relative;
   left: 0;
-  overflow: hidden;
+  margin-left: -24px;
 `;
-
+// TODO: 좌우 스크롤 안되는 문제 해결 필요
 const TimeSelectRowContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  overflow-x: auto;
+  overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 24px 24px;
 
+  white-space: nowrap;
+  & > * {
+    flex: 0 0 auto;
+    min-width: 74px;
+  }
   &::-webkit-scrollbar {
     display: none;
   }
