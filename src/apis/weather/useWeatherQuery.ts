@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import dayjs from 'dayjs';
 
 import { Activity } from '../../consts/label';
 import instance from '../instance';
@@ -8,25 +7,39 @@ import instance from '../instance';
 export interface Summary {
   date: number;
   hour: number;
-  score: number;
-  message: string;
+  warning: Warning['title'][];
+  recommendActivity: Activity;
+  skyCondition: string;
+  temperature: number;
+  wind: string;
+  tideHeight: number;
+  waveHeight: number;
+}
+
+export interface Warning {
+  title: string;
+  location: string;
+  description: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface Details {
   date: number;
-  time: number;
-  precipitationProbability: number;
-  precipitationType: string;
-  hourlyPrecipitation: number;
-  humidity: number;
-  hourlySnowAccumulation: number;
+  hour: number;
+  warning: Warning[];
   skyCondition: string;
-  hourlyTemperature: number;
+  temperature: number;
+  wind: number;
   waveHeight: number;
-  windDirection: number;
-  windSpeed: number;
-  waterTemperature: number;
+  tideInfo: number;
   tideInfoList: TideInfo[];
+  score: ActivityScore[];
+}
+
+export interface ActivityScore {
+  activity: Activity;
+  score: number;
 }
 
 export interface TideInfo {
@@ -36,42 +49,53 @@ export interface TideInfo {
 }
 
 interface WeatherInfo {
-  details: Details[];
-  summary: Summary[];
+  details: Details;
+  summary: Summary;
 }
 
-const getMapDetail = async (id: number): Promise<Details[]> => {
-  const response = await instance.get<Details[]>(`weather/details?id=${id}`);
+const getMapDetail = async (
+  id: number,
+  date: number,
+  hour: number,
+): Promise<Details> => {
+  const response = await instance.get<Details>(
+    `weather/details?id=${id}&date=${date}&hour=${hour}`,
+  );
   return response.data;
 };
 
 const getMapSummary = async (
   id: number,
-  activity: Activity,
-): Promise<Summary[]> => {
-  const response = await instance.get<Summary[]>(
-    `weather/summary?id=${id}&category=${activity}`,
+  date: number,
+  hour: number,
+): Promise<Summary> => {
+  const response = await instance.get<Summary>(
+    `weather/summary?id=${id}&date=${date}&hour=${hour}`,
   );
   return response.data;
 };
 
 const getMapInfo = async (
   id: number,
-  activity: Activity,
+  date: number,
+  hour: number,
 ): Promise<WeatherInfo> => {
   const [detailResponse, summaryResponse] = await Promise.all([
-    getMapDetail(id),
-    getMapSummary(id, activity),
+    getMapDetail(id, date, hour),
+    getMapSummary(id, date, hour),
   ]);
 
   return { details: detailResponse, summary: summaryResponse };
 };
 
-const useWeatherQuery = (id: number | undefined, activity: Activity) => {
-  const timeKey = dayjs().format('YYYY-MM-DD HH');
+const useWeatherQuery = (
+  id: number | undefined,
+  date: number,
+  hour: number,
+) => {
   return useQuery<WeatherInfo, AxiosError>({
-    queryKey: ['weatherSummary', id, activity, timeKey],
-    queryFn: () => getMapInfo(id as number, activity),
+    queryKey: ['weatherSummary', id, date, hour],
+    queryFn: () => getMapInfo(id as number, date, hour),
     enabled: !!id,
     throwOnError: true,
   });
