@@ -17,6 +17,7 @@ import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 import FetchBoundary from '../providers/FetchBoundary';
+import { DateFormat } from '../utils/timeFormat';
 
 export type Marker = {
   id: number;
@@ -32,8 +33,11 @@ export interface FilterTime {
 
 function Home() {
   const currentTime = new Date();
-  const [timeIndex, setTimeIndex] = useState<number>(0);
 
+  const [filterTime, setFilterTime] = useState<FilterTime>({
+    date: +DateFormat(currentTime),
+    hour: currentTime.getHours(),
+  });
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
@@ -41,17 +45,17 @@ function Home() {
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
-  const { data } = useWeatherQuery(selectedMarker?.id, filter);
+  const { data } = useWeatherQuery(
+    selectedMarker?.id,
+    filterTime.date,
+    filterTime.hour,
+  );
   const [bottomSheetStatus, setBottomSheetStatus] = useState<
     'middle' | 'full' | 'hidden'
   >('hidden');
   const [timeSelectStatus, setTimeSelectStatus] = useState<'middle' | 'hidden'>(
     'hidden',
   );
-  const [filterTime, setFilterTime] = useState<FilterTime>({
-    date: currentTime.getDate(),
-    hour: currentTime.getHours(),
-  });
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
@@ -152,7 +156,6 @@ function Home() {
 
   const handleClickMarker = (marker: Marker) => {
     setSelectedMarker(marker);
-    setTimeIndex(0);
     setBottomSheetStatus('middle');
   };
 
@@ -170,7 +173,7 @@ function Home() {
             />
           ) : (
             <TimeSelectHeader
-              date={filterTime.date.toString()}
+              date={filterTime.date.toString().slice(-2)}
               time={filterTime.hour.toString()}
               onTimeClick={() => setTimeSelectStatus('middle')}
               onMenuClick={() => console.log('menu')}
@@ -208,22 +211,11 @@ function Home() {
             <FetchBoundary>
               <PlaceInfo
                 title={selectedMarker.name}
-                alert={
-                  selectedMarker.name === '김녕 세기알 해변' ||
-                  selectedMarker.name === '용담포구'
-                    ? '다이빙 금지구역'
-                    : ''
-                }
-                dangerValue={data.summary[timeIndex]?.score ?? 0}
-                recommends={data.summary[timeIndex]?.message ?? ''}
-                activity={filter}
-                // currentHour={currentHour}
-                timeIndex={timeIndex}
-                setTimeIndex={setTimeIndex}
+                filterTime={filterTime}
+                summaryData={data.summary}
+                detailData={data.details}
                 bottomSheetStatus={bottomSheetStatus}
                 setBottomSheetStatus={setBottomSheetStatus}
-                detailData={data.details[timeIndex]}
-                detailDataLength={data.details.length}
                 setSelectedMarker={setSelectedMarker}
               />
             </FetchBoundary>

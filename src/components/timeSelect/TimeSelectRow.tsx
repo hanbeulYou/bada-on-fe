@@ -19,8 +19,9 @@ const TimeSelectRow = ({
 }: TimeSelectRowProps) => {
   const handleTouch = (e: React.TouchEvent) => {
     e.stopPropagation(); // BottomSheet로의 이벤트 전파만 중단
-    console.log('x', e);
   };
+
+  console.log(availableTimeData, filterTime);
 
   return (
     <TimeSelectWindow>
@@ -29,11 +30,7 @@ const TimeSelectRow = ({
         onTouchMove={handleTouch}
       >
         {availableTimeData
-          .filter(
-            timeData =>
-              timeData.date.toString().slice(-2) ===
-              filterTime.date.toString().slice(-2),
-          )
+          .filter(timeData => timeData.date === filterTime.date)
           .map(timeData => {
             const hours = timeData.hours.map(hour => (
               <TimeButton
@@ -42,7 +39,7 @@ const TimeSelectRow = ({
                 status={filterTime.hour === hour ? 'selected' : 'valid'}
                 onClick={() =>
                   setFilterTime({
-                    date: +timeData.date.toString().slice(-2),
+                    date: timeData.date,
                     hour,
                   })
                 }
