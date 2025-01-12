@@ -227,8 +227,8 @@ const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   height: 84px;
   padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
   padding-bottom: 12px;
-  padding-left: 32px;
-  padding-right: 32px;
+  padding-left: 20px;
+  padding-right: 20px;
   margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;

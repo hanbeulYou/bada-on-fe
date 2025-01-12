@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { Details, Summary, TideInfo } from '../../apis/weather/useWeatherQuery';
+import { Details, Summary } from '../../apis/weather/useWeatherQuery';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { FilterTime, Marker } from '../../pages/Home';
 import { TimeFormatWithDate } from '../../utils/timeFormat';
@@ -15,12 +15,6 @@ import SummaryBar from './SummaryBar';
 import SummaryContent from './SummaryContent';
 import WarningInfo from './WarningInfo';
 import WarningLabel from './WarningLabel';
-
-const TimeFormat = (time: string) => {
-  // const YYYYMMDD = time.split('T')[0];
-  const [hour, minute] = time.split('T')[1].split(':');
-  return `${hour}:${minute}`;
-};
 
 interface BottomSheetProps {
   title: string;
@@ -44,18 +38,6 @@ function PlaceInfo({
   setSelectedMarker,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
-
-  const formatTideData = (tideInfoList: TideInfo[]) => {
-    const tideLabels = {
-      저조: '간조(저조)',
-      고조: '만조(고조)',
-    };
-
-    return tideInfoList.map(tide => ({
-      label: tideLabels[tide.code],
-      value: `${TimeFormat(tide.tidalTime)} (${tide.tidalLevel}cm)`,
-    }));
-  };
 
   return (
     <BottomSheet
@@ -185,13 +167,14 @@ const SummaryContainer = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 `;
 
 const Header = styled.div<{ isFull: boolean; safeArea: SafeAreaState }>`
   display: flex;
   flex-direction: column;
   align-items: start;
-  width: 327px;
+  width: 100%;
   height: fit-content;
   margin-bottom: 24px;
   margin-top: ${({ safeArea, isFull }) => (isFull ? safeArea.top : 0)}px;
