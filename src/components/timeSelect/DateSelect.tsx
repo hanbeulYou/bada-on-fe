@@ -17,10 +17,7 @@ const DateSelect = ({
 }: DateSelectProps) => {
   const dateLabels = ['어제', '오늘', '내일', '2일 뒤', '3일 뒤'];
   const getButtonStatus = (index: number) => {
-    if (
-      availableTimeData[index].date.toString().slice(-2) ===
-      filterTime.date.toString()
-    )
+    if (availableTimeData[index].date.toString() === filterTime.date.toString())
       return 'selected';
     if (index === 0) return 'invalid';
     return 'valid';
@@ -38,7 +35,7 @@ const DateSelect = ({
               status={getButtonStatus(index)}
               onClick={() => {
                 setFilterTime({
-                  date: +availableTimeData[index].date.toString().slice(-2),
+                  date: availableTimeData[index].date,
                   hour: 0,
                 });
               }}
