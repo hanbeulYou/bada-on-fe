@@ -114,15 +114,14 @@ function BottomSheet({
 
   return (
     <>
-      {hasBackgroundOverlay && (
-        <Overlay
-          isVisible={bottomSheetStatus !== 'hidden'}
-          onClick={() => {
-            setBottomSheetStatus('hidden');
-            handleClose();
-          }}
-        />
-      )}
+      <Overlay
+        isVisible={bottomSheetStatus !== 'hidden'}
+        onClick={() => {
+          setBottomSheetStatus('hidden');
+          handleClose();
+        }}
+        hasBackgroundOverlay={hasBackgroundOverlay}
+      />
       <Container
         ref={containerRef}
         position={position}
@@ -169,7 +168,7 @@ const Container = styled.div<{
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 3;
+  z-index: 11;
   height: 100vh;
   width: 100vw;
   padding-left: 24px;
@@ -227,21 +226,25 @@ const CloseBottomSheet = styled.div<{ safeArea: SafeAreaState }>`
   height: 84px;
   padding-top: calc(34px + ${({ safeArea }) => safeArea.top}px);
   padding-bottom: 12px;
-  padding-left: 32px;
-  padding-right: 32px;
+  padding-left: 20px;
+  padding-right: 20px;
   margin-top: ${({ safeArea }) => -safeArea.top}px;
   background-color: ${({ theme }) => theme.colors.white};
   align-items: center;
 `;
 
-const Overlay = styled.div<{ isVisible: boolean }>`
+const Overlay = styled.div<{
+  isVisible: boolean;
+  hasBackgroundOverlay: boolean;
+}>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(27, 27, 27, 0.4);
-  z-index: 2;
+  background-color: ${props =>
+    props.hasBackgroundOverlay ? 'rgba(27, 27, 27, 0.4)' : 'transparent'};
+  z-index: 11;
   opacity: ${props => (props.isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;
   pointer-events: ${props => (props.isVisible ? 'auto' : 'none')};

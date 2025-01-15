@@ -1,5 +1,6 @@
 import { styled } from 'styled-components';
 
+import { HourFormatWithAmPmWithoutZero } from '../../utils/timeFormat';
 import Icon from '../common/Icon';
 
 interface TimeHeaderButtonProps {
@@ -8,20 +9,13 @@ interface TimeHeaderButtonProps {
   onClick: () => void;
 }
 
-const formatTime = (time: string) => {
-  if (Number(time) > 12) {
-    return `오후 ${Number(time) - 12}시`;
-  }
-  return `오전 ${time}시`;
-};
-
 const TimeHeaderButton = ({ date, time, onClick }: TimeHeaderButtonProps) => {
   return (
     <StyledButton onClick={onClick}>
       <Icon name="chevron-left" width={20} height={20} />
       <TextContainer>
         <DateText>{date}일</DateText>
-        <TimeText>{formatTime(time)}</TimeText>
+        <TimeText>{`${HourFormatWithAmPmWithoutZero(time)}시`}</TimeText>
       </TextContainer>
       <Icon name="chevron-right" width={20} height={20} />
     </StyledButton>

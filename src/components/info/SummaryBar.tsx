@@ -11,16 +11,16 @@ const GetValue = (barType: 'tide' | 'wave', value: number) => {
   if (barType === 'tide') {
     return { barTypeText: '물 높이', value: `${value}%` };
   }
-  if (value < 20) {
+  if (value < 15) {
     return { barTypeText: '파도 높이', value: '고요' };
   }
-  if (value < 40) {
+  if (value < 35) {
     return { barTypeText: '파도 높이', value: '잔잔' };
   }
-  if (value < 60) {
+  if (value < 65) {
     return { barTypeText: '파도 높이', value: '중간' };
   }
-  if (value < 80) {
+  if (value < 90) {
     return { barTypeText: '파도 높이', value: '높음' };
   }
   return { barTypeText: '파도 높이', value: '거침' };

@@ -9,12 +9,16 @@ interface ErrorFallbackProps {
   message: string;
   onRetryClick: () => void;
   onContactClick?: () => void;
+  retryLabel?: string;
+  contactLabel?: string;
 }
 
 const ErrorFallback = ({
   message,
   onRetryClick,
   onContactClick,
+  retryLabel = '재시도하기',
+  contactLabel = '문의하기',
 }: ErrorFallbackProps) => {
   const { state: safeAreaState } = useContext(SafeAreaContext);
   return (
@@ -30,13 +34,13 @@ const ErrorFallback = ({
         {onContactClick && (
           <FullButton
             onClick={onContactClick}
-            label="문의하기"
+            label={contactLabel}
             isPrimary={false}
           />
         )}
         <FullButton
           onClick={onRetryClick}
-          label="재시도하기"
+          label={retryLabel}
           isPrimary={true}
         />
       </ButtonContainer>

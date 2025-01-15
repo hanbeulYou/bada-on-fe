@@ -1,5 +1,7 @@
 import { styled } from 'styled-components';
 
+import { Time } from '../../apis/weather/useAvailableTimeQuery';
+import { FilterTime } from '../../pages/Home';
 import BottomSheet from '../common/BottomSheet';
 import FullButton from '../common/FullButton';
 
@@ -11,9 +13,18 @@ interface TimeSelectProps {
   setBottomSheetStatus: React.Dispatch<
     React.SetStateAction<'middle' | 'hidden' | 'full'>
   >;
+  filterTime: FilterTime;
+  setFilterTime: React.Dispatch<React.SetStateAction<FilterTime>>;
+  availableTimeData: Time[];
 }
 
-const TimeSelect = ({ handleClose, setBottomSheetStatus }: TimeSelectProps) => {
+const TimeSelect = ({
+  handleClose,
+  setBottomSheetStatus,
+  filterTime,
+  setFilterTime,
+  availableTimeData,
+}: TimeSelectProps) => {
   return (
     <BottomSheet
       handleClose={handleClose}
@@ -24,9 +35,18 @@ const TimeSelect = ({ handleClose, setBottomSheetStatus }: TimeSelectProps) => {
       canFull={false}
     >
       <SelectContainer>
-        <DateSelect />
+        <DateSelect
+          filterTime={filterTime}
+          setFilterTime={setFilterTime}
+          availableTimeData={availableTimeData}
+        />
         <HorizontalLine />
-        <TimeSelectRow />
+        <TimeSelectRow
+          key={filterTime.date}
+          filterTime={filterTime}
+          setFilterTime={setFilterTime}
+          availableTimeData={availableTimeData}
+        />
       </SelectContainer>
       <FullButton label="닫기" onClick={handleClose} isPrimary={false} />
     </BottomSheet>

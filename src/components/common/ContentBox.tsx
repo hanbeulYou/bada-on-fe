@@ -30,19 +30,20 @@ const Container = styled.div<{ $variant: Variant; $title: string }>`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: ${props => (props.title ? '16px 12px' : '12px')};
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.014rem;
+  padding: 16px 12px;
   background-color: ${props => colorVarMap[props.$variant].background};
   margin-bottom: 24px;
 `;
 
-const Text = styled.span<{ $variant: Variant }>`
-  font-weight: 600;
-  color: ${props => colorVarMap[props.$variant].color};
-  font-size: 14px;
-  letter-spacing: -0.014rem;
+const KeyText = styled.span<{ $variant: Variant }>`
+  width: 56px;
+  ${({ theme }) => theme.typography.Body_Bold}
+  color: ${({ theme }) => theme.colors.gray600};
+`;
+
+const ValueText = styled.span<{ $variant: Variant }>`
+  ${({ theme }) => theme.typography.Body}
+  color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const Item = styled.div<{ $justify: justifyContent }>`
@@ -52,9 +53,9 @@ const Item = styled.div<{ $justify: justifyContent }>`
 `;
 
 const Title = styled.h3<{ $variant: Variant }>`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => colorVarMap[props.$variant].title};
+  ${({ theme }) => theme.typography.Body_Bold}
+  color: ${({ theme }) => theme.colors.gray900};
+  margin-bottom: 12px;
 `;
 
 const ContentBox = (props: ContentBoxProps) => {
@@ -72,11 +73,11 @@ const ContentBox = (props: ContentBoxProps) => {
           <Item key={index} $justify={justifyContent}>
             {typeof item === 'object' ? (
               <>
-                <Text $variant={variant}>{item.label}</Text>
-                <Text $variant={variant}>{item.value}</Text>
+                <KeyText $variant={variant}>{item.label}</KeyText>
+                <ValueText $variant={variant}>{item.value}</ValueText>
               </>
             ) : (
-              <Text $variant={variant}>{item}</Text>
+              <ValueText $variant={variant}>{item}</ValueText>
             )}
           </Item>
         ))}
