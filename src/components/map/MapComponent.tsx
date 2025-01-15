@@ -206,8 +206,7 @@ const MapComponent = (props: JejuMapProps) => {
                 lng: Number(state.currentAddress.x),
               }}
             >
-              {/* TODO: 위치가 확대 레벨별로 다르게 찍히는 느낌. 수정 필요. */}
-              <div style={{ marginTop: '-40px' }}>
+              <div style={{ marginTop: '-20px' }}>
                 <Pin
                   icon="search"
                   hasLabel={true}

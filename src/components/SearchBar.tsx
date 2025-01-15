@@ -52,6 +52,7 @@ type SearchBarProps = {
   onEnter?: () => void;
   isSearchPage: boolean;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+  hasNoResult?: boolean;
 };
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -60,10 +61,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
   searchValue,
   isSearchPage,
   setSearchValue,
+  hasNoResult,
 }) => {
   const { dispatch } = useContext(AddressContext);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const isError = searchValue.length > 0 && searchValue.length < 2;
+  const isError =
+    (searchValue.length > 0 && searchValue.length < 2) || hasNoResult;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -103,20 +103,21 @@ type SearchProps = {
   onClick?: (address: Address) => void;
   onDeleteHistory?: (id: number) => void;
   isSearching: boolean;
+  onSearchResult?: (hasResult: boolean) => void;
 };
 
 const Search: React.FC<SearchProps> = ({
   onClick,
   onDeleteHistory,
   isSearching,
+  onSearchResult,
 }) => {
   const { state } = useContext(AddressContext);
   const { state: safeAreaState } = useContext(SafeAreaContext);
-  // 검색어와 위치를 기반으로 쿼리 실행
   const { data: searchData, isLoading: searchIsLoading } = useKakaoSearchQuery(
     state.searchKeyword,
-    state.location.longitude || 126.5311884, // 제주시청의 경도
-    state.location.latitude || 33.4996213, // 제주시청의 위도
+    state.location.longitude || 126.5311884,
+    state.location.latitude || 33.4996213,
   );
   const isError =
     state.searchKeyword.length > 0 && state.searchKeyword.length < 2;
@@ -132,19 +133,25 @@ const Search: React.FC<SearchProps> = ({
               {searchIsLoading ||
               searchData?.documents?.length === 0 ||
               !searchData?.documents ? (
-                <NoResult />
+                <>
+                  {onSearchResult?.(false)}
+                  <NoResult />
+                </>
               ) : (
-                <ColList>
-                  {searchData?.documents?.map((result, index) => (
-                    <SearchItem
-                      key={index}
-                      isHistory={false}
-                      onClick={() => onClick && onClick(result)}
-                    >
-                      <SearchContent content={result} />
-                    </SearchItem>
-                  ))}
-                </ColList>
+                <>
+                  {onSearchResult?.(true)}
+                  <ColList>
+                    {searchData?.documents?.map((result, index) => (
+                      <SearchItem
+                        key={index}
+                        isHistory={false}
+                        onClick={() => onClick && onClick(result)}
+                      >
+                        <SearchContent content={result} />
+                      </SearchItem>
+                    ))}
+                  </ColList>
+                </>
               )}
             </>
           )}

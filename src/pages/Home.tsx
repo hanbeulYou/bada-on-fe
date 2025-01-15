@@ -67,6 +67,8 @@ function Home() {
   const [timeSelectStatus, setTimeSelectStatus] = useState<'middle' | 'hidden'>(
     'hidden',
   );
+  const [hasNoResult, setHasNoResult] = useState(false);
+
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
@@ -162,6 +164,10 @@ function Home() {
     setBottomSheetStatus('middle');
   };
 
+  const handleSearchResult = (hasResult: boolean) => {
+    setHasNoResult(!hasResult);
+  };
+
   return (
     <Container>
       <Header safeArea={safeAreaState}>
@@ -173,6 +179,7 @@ function Home() {
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               onClickBtnBackward={closeSearchPage}
+              hasNoResult={hasNoResult}
             />
           ) : (
             <TimeSelectHeader
@@ -193,6 +200,7 @@ function Home() {
               isSearching={isSearching}
               onClick={updateCurrentAddress}
               onDeleteHistory={deleteHistory}
+              onSearchResult={handleSearchResult}
             />
           </FetchBoundary>
         )}
