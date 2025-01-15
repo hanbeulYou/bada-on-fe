@@ -62,7 +62,6 @@ function PlaceInfo({
             <Address>{address}</Address>
           </>
           <OptionalContainer>
-            {/* TODO: 추천 액티비티 양식 변경 */}
             {summaryData.warning.length === 0 && (
               <RecommendLabel
                 recommendActivity={summaryData.recommendActivity}
