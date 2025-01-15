@@ -1,10 +1,8 @@
 import { useEffect, useContext, useState, useRef } from 'react';
 import { CustomOverlayMap, Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
-import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
@@ -15,7 +13,6 @@ import { MapButton } from '../common/MapButton';
 import Pin from './Pin';
 
 interface JejuMapProps {
-  filter?: Activity;
   selectedMarker?: Marker | null;
   onClickMarker?: (place: Marker) => void;
   setBottomSheetStatus: React.Dispatch<
@@ -93,18 +90,12 @@ const MapEventController = ({
 };
 
 const MapComponent = (props: JejuMapProps) => {
-  const {
-    filter = 'snorkeling',
-    onClickMarker = () => {},
-    selectedMarker,
-    setBottomSheetStatus,
-  } = props;
+  const { onClickMarker = () => {}, setBottomSheetStatus } = props;
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
   const { state: safeArea } = useContext(SafeAreaContext);
-  const navigate = useNavigate();
 
   const previousAddressRef = useRef(state.currentAddress);
   const { sendToRN } = useReactNativeBridge();

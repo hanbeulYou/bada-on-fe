@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import { Details, Summary } from '../../apis/weather/useWeatherQuery';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { FilterTime, Marker } from '../../pages/Home';
-import { TimeFormatWithDate } from '../../utils/timeFormat';
+import {
+  HourFormatWithAmPmWithoutZero,
+  TimeFormatWithDate,
+} from '../../utils/timeFormat';
 import BottomSheet from '../common/BottomSheet';
 import ContentBox from '../common/ContentBox';
 import Icon from '../common/Icon';
@@ -124,7 +127,6 @@ function PlaceInfo({
               </>
             )}
             <InfoSection>
-              <DetailTitle>상세정보</DetailTitle>
               <DetailContentContainer>
                 <ContentBox
                   title=""
@@ -135,7 +137,7 @@ function PlaceInfo({
                       value: detailData.temperature + '°C',
                     },
                     { label: '풍속', value: detailData.wind + 'm/s' },
-                    { label: '강수량', value: '0' },
+                    { label: '강수량', value: detailData.precipitation + 'mm' },
                     { label: '파고', value: detailData.waveHeight + 'm' },
                   ]}
                 />
@@ -144,12 +146,19 @@ function PlaceInfo({
                   title="물때"
                   data={[
                     {
-                      label: '다음 만조',
-                      value: detailData.tideInfoList[0].tidalTime,
+                      label: `다음 ${detailData.tideInfoList[0].code}`,
+                      value: `${HourFormatWithAmPmWithoutZero(
+                        detailData.tideInfoList[0].tidalTime.slice(11, 13),
+                      )}시 ${detailData.tideInfoList[0].tidalTime.slice(14, 16)}분`,
                     },
                     {
-                      label: '다음 간조',
-                      value: detailData.tideInfoList[1].tidalTime,
+                      label: `다음 ${detailData.tideInfoList[1].code}`,
+                      value: `${HourFormatWithAmPmWithoutZero(
+                        detailData.tideInfoList[1].tidalTime.slice(11, 13),
+                      )}시 ${detailData.tideInfoList[1].tidalTime.slice(
+                        14,
+                        16,
+                      )}분`,
                     },
                   ]}
                 />
@@ -276,7 +285,6 @@ const DetailContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 12px 0;
 `;
 
 export default PlaceInfo;

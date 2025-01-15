@@ -33,6 +33,7 @@ export interface Details {
   wind: number;
   waveHeight: number;
   tideInfo: number;
+  precipitation: number;
   tideInfoList: TideInfo[];
   score: ActivityScore[];
 }
@@ -53,6 +54,14 @@ interface WeatherInfo {
   summary: Summary;
 }
 
+const WeatherKeyHasNumber = [
+  'temperature',
+  'wind',
+  'waveHeight',
+  'tideInfo',
+  'precipitation',
+];
+
 const getMapDetail = async (
   id: number,
   date: number,
@@ -61,7 +70,20 @@ const getMapDetail = async (
   const response = await instance.get<Details>(
     `weather/details?id=${id}&date=${date}&hour=${hour}`,
   );
-  return response.data;
+
+  const data = { ...response.data };
+  (Object.keys(data) as Array<keyof Details>).forEach(key => {
+    const value = data[key];
+    if (
+      typeof value === 'number' &&
+      value < 0 &&
+      WeatherKeyHasNumber.includes(key)
+    ) {
+      (data[key] as number) = 0;
+    }
+  });
+
+  return data;
 };
 
 const getMapSummary = async (
