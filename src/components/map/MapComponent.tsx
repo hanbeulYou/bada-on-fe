@@ -102,7 +102,7 @@ const MapComponent = (props: JejuMapProps) => {
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
-  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
+  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
   const { state: safeArea } = useContext(SafeAreaContext);
   const navigate = useNavigate();
 

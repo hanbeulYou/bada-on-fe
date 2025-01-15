@@ -10,6 +10,7 @@ export interface MapData {
   name: string;
   latitude: number;
   longitude: number;
+  address: string;
   activity: Activity;
 }
 
@@ -18,22 +19,15 @@ interface GetMapsDataResponse {
   places: MapData[];
 }
 
-const getMapsData = async (activity: Activity): Promise<MapData[]> => {
-  const response = await instance.get<GetMapsDataResponse>(
-    `places/find?activity=${activity}`,
-  );
-
-  // TODO 테스트를 위해 임시로 mockData를 사용합니다.
-  // const data = mockData[activity as Activity];
-
+const getMapsData = async (): Promise<MapData[]> => {
+  const response = await instance.get<GetMapsDataResponse>(`places`);
   return response.data.places;
 };
 
-const useMapsQuery = (activity: Activity) => {
+const useMapsQuery = () => {
   return useQuery<MapData[], AxiosError>({
-    queryKey: ['mapsData', activity],
-    queryFn: () => getMapsData(activity),
-    enabled: !!activity,
+    queryKey: ['mapsData'],
+    queryFn: () => getMapsData(),
     throwOnError: true,
   });
 };

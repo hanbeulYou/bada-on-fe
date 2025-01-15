@@ -24,6 +24,7 @@ export type Marker = {
   name: string;
   latitude: number;
   longitude: number;
+  address: string;
 };
 
 export interface FilterTime {
@@ -211,6 +212,7 @@ function Home() {
             <FetchBoundary>
               <PlaceInfo
                 title={selectedMarker.name}
+                address={selectedMarker.address}
                 filterTime={filterTime}
                 summaryData={data.summary}
                 detailData={data.details}

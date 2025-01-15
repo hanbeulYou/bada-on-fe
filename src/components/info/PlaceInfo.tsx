@@ -26,6 +26,7 @@ interface BottomSheetProps {
   summaryData: Summary;
   detailData: Details;
   setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
+  address: string;
 }
 
 function PlaceInfo({
@@ -33,6 +34,7 @@ function PlaceInfo({
   filterTime,
   summaryData,
   detailData,
+  address,
   bottomSheetStatus,
   setBottomSheetStatus,
   setSelectedMarker,
@@ -57,8 +59,7 @@ function PlaceInfo({
                 <Icon name="star" width={24} height={24} />
               </button>
             </TitleContainer>
-            {/* TODO: 주소 데이터 받아오면 추가 */}
-            <Address>주소가 들어갈 자리</Address>
+            <Address>{address}</Address>
           </>
           <OptionalContainer>
             {/* TODO: 추천 액티비티 양식 변경 */}
