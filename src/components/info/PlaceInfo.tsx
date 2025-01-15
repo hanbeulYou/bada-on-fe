@@ -91,7 +91,10 @@ function PlaceInfo({
           </SummaryContentContainer>
           <SummaryBarContainer>
             <SummaryBar barType="tide" value={summaryData.tideHeight} />
-            <SummaryBar barType="wave" value={summaryData.waveHeight} />
+            <SummaryBar
+              barType="wave"
+              value={(summaryData.waveHeight / 2) * 100}
+            />
           </SummaryBarContainer>
         </SummaryBody>
       </SummaryContainer>
