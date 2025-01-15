@@ -42,6 +42,7 @@ const TimeSelect = ({
         />
         <HorizontalLine />
         <TimeSelectRow
+          key={filterTime.date}
           filterTime={filterTime}
           setFilterTime={setFilterTime}
           availableTimeData={availableTimeData}

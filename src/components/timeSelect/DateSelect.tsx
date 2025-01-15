@@ -36,7 +36,7 @@ const DateSelect = ({
               onClick={() => {
                 setFilterTime({
                   date: availableTimeData[index].date,
-                  hour: 0,
+                  hour: availableTimeData[index].hours[0],
                 });
               }}
             />

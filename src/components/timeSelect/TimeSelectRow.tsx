@@ -21,8 +21,6 @@ const TimeSelectRow = ({
     e.stopPropagation(); // BottomSheet로의 이벤트 전파만 중단
   };
 
-  console.log(availableTimeData, filterTime);
-
   return (
     <TimeSelectWindow>
       <TimeSelectRowContainer
@@ -53,7 +51,7 @@ const TimeSelectRow = ({
 };
 
 const TimeSelectWindow = styled.div`
-  width: 100%;
+  width: 100vw;
   overflow: hidden;
   position: relative;
   left: 0;
