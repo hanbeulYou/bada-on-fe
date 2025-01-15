@@ -10,7 +10,6 @@ import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
 import TimeSelect from '../components/timeSelect/TimeSelect';
 import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
-import { Activity } from '../consts/label';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
 import IndexedDBManager from '../db/IndexedDBManager';
@@ -18,6 +17,18 @@ import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 import FetchBoundary from '../providers/FetchBoundary';
 import { DateFormat } from '../utils/timeFormat';
+
+// window 인터페이스 확장
+declare global {
+  interface Window {
+    safeAreaInsets?: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+  }
+}
 
 export type Marker = {
   id: number;
@@ -44,7 +55,6 @@ function Home() {
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
   const { data } = useWeatherQuery(
     selectedMarker?.id,
@@ -69,7 +79,7 @@ function Home() {
   );
 
   useEffect(() => {
-    const safeAreaInsets = (window as any).safeAreaInsets;
+    const safeAreaInsets = window.safeAreaInsets;
     if (safeAreaInsets) {
       safeAreaDispatch({
         type: 'SET_SAFE_AREA',
@@ -97,7 +107,7 @@ function Home() {
     await manager.init();
     setDbManager(manager);
     const histories = (await manager.getAll()) || [];
-    dispatch({ type: 'SET_HISTORIES', payload: histories });
+    dispatch({ type: 'SET_HISTORIES', payload: histories as Address[] });
   };
 
   const setSearchValueDebounce = useDebounce(() => {
@@ -127,14 +137,6 @@ function Home() {
     setIsSearchPage(true);
     setIsSearching(false);
   };
-
-  // const handleFilterChange = (selected: Activity) => {
-  //   sendToRN({ type: 'POST_ACTIVITY', activity: selected });
-  //   setFilter(selected);
-  //   setBottomSheetStatus('hidden');
-  //   setSelectedMarker(null);
-  //   setTimeIndex(0);
-  // };
 
   const updateCurrentAddress = (address: Address) => {
     const MAX_HISTORY = 15;
@@ -194,12 +196,8 @@ function Home() {
             />
           </FetchBoundary>
         )}
-        {/* {bottomSheetStatus !== 'full' && (
-          <FilterList onFilterChange={handleFilterChange} />
-        )} */}
         <FetchBoundary>
           <MapComponent
-            filter={filter}
             onClickMarker={handleClickMarker}
             selectedMarker={selectedMarker}
             setBottomSheetStatus={setBottomSheetStatus}
