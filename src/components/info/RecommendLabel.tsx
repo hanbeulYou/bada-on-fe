@@ -5,26 +5,34 @@ import theme from '../../styles/theme';
 import Icon from '../common/Icon';
 
 interface RecommendLabelProps {
-  recommendActivity: Activity;
+  recommendActivity: Activity[];
 }
 
 const RecommendLabel = ({ recommendActivity }: RecommendLabelProps) => {
   return (
     <RecommendLabelContainer>
-      <Icon
-        name={recommendActivity}
-        width={14}
-        height={14}
-        fill={theme.colors.diving}
-      />
-      <RecommendText>
-        {LABEL_MAPPING_REVERSE[recommendActivity]} 추천
-      </RecommendText>
+      {recommendActivity.map(activity => (
+        <RecommendLabelWrapper key={activity}>
+          <Icon
+            name={activity}
+            width={14}
+            height={14}
+            fill={theme.colors.diving}
+          />
+          <RecommendText>{LABEL_MAPPING_REVERSE[activity]} 추천</RecommendText>
+        </RecommendLabelWrapper>
+      ))}
     </RecommendLabelContainer>
   );
 };
 
 const RecommendLabelContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+`;
+
+const RecommendLabelWrapper = styled.div`
   display: flex;
   padding: 4px 8px 4px 6px;
   justify-content: center;

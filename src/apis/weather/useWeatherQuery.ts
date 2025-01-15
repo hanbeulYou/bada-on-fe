@@ -8,7 +8,7 @@ export interface Summary {
   date: number;
   hour: number;
   warning: Warning['title'][];
-  recommendActivity: Activity;
+  recommendActivity: Activity[];
   skyCondition: string;
   temperature: number;
   wind: string;
