@@ -5,6 +5,7 @@ import { SafeAreaProvider } from './context/SafeAreaProvider';
 import Home from './pages/Home';
 import IntroTermsPage from './pages/IntroTerms';
 import NotFound from './pages/NotFound';
+import PolicyPage from './pages/Policy';
 import Terms from './pages/Terms';
 import { Layout } from './styles/Layout';
 
@@ -18,6 +19,7 @@ function App() {
               <Route index element={<IntroTermsPage />} />
               <Route path="/home" element={<Home />} />
               <Route path="/terms/:termKey" element={<Terms />} />
+              <Route path="/policy" element={<PolicyPage />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
