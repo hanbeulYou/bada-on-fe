@@ -23,7 +23,7 @@ const Pin = ({
         <Icon name={icon} width={48} height={48} />
       ) : (
         <IconContainer icon={icon} hasAlert={hasAlert}>
-          <Icon name={icon} width={28} height={28} />
+          <Icon name={icon} width={28} height={28} fill={'white'} />
         </IconContainer>
       )}
       {hasAlert && (
@@ -74,6 +74,9 @@ const PinAlert = styled.div`
 const PinLabel = styled.span`
   ${({ theme }) => theme.typography.Body_Bold};
   color: ${({ theme }) => theme.colors.gray900};
+
+  -webkit-text-stroke-width: 1;
+  -webkit-text-stroke-color: ${({ theme }) => theme.colors.gray50};
 `;
 
 export default Pin;

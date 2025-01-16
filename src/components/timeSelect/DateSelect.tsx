@@ -26,7 +26,7 @@ const DateSelect = ({
   return (
     <DateSelectContainer>
       {dateLabels.map((label, index) => {
-        if (index > 5) return null;
+        if (index > 5 || availableTimeData.length < index + 1) return null;
         return (
           <DateButtonContainer key={label}>
             <DateButtonLabel>{label}</DateButtonLabel>
