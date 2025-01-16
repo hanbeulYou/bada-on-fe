@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
@@ -70,6 +71,8 @@ function Home() {
   const { state, dispatch } = useContext(AddressContext);
   const { state: safeAreaState, dispatch: safeAreaDispatch } =
     useContext(SafeAreaContext);
+
+  const navigate = useNavigate();
 
   const { data } = useWeatherQuery(
     selectedMarker?.id,
@@ -188,7 +191,7 @@ function Home() {
               date={filterTime.date.toString().slice(-2)}
               time={filterTime.hour.toString()}
               onTimeClick={() => setTimeSelectStatus('middle')}
-              onMenuClick={() => console.log('menu')}
+              onMenuClick={() => navigate('/policy')}
               hasSearchValue={searchValue.trim().length > 0}
               onSearchOpenClick={openSearchPage}
               onSearchCloseClick={handleSearchCloseClick}
