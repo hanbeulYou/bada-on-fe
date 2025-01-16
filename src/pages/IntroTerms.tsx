@@ -39,7 +39,7 @@ const IntroTermsPage = () => {
       <TermItemList termAgree={termAgree} setTermAgree={setTermAgree} />
       <FullButton
         label="다음"
-        onClick={() => navigate('/home?selected=snorkeling')}
+        onClick={() => navigate('/home')}
         disabled={!isMandatoryAgree}
       />
     </PageContainer>
