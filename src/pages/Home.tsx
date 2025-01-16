@@ -50,17 +50,13 @@ function Home() {
     date: +DateFormat(currentTime),
     hour: currentTime.getHours(),
   });
+
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
-  const { data } = useWeatherQuery(
-    selectedMarker?.id,
-    filterTime.date,
-    filterTime.hour,
-  );
   const [bottomSheetStatus, setBottomSheetStatus] = useState<
     'middle' | 'full' | 'hidden'
   >('hidden');
@@ -75,8 +71,14 @@ function Home() {
   const { state: safeAreaState, dispatch: safeAreaDispatch } =
     useContext(SafeAreaContext);
 
+  const { data } = useWeatherQuery(
+    selectedMarker?.id,
+    filterTime.date,
+    filterTime.hour,
+  );
+
   const { data: availableTimeData } = useAvailableTimeQuery(
-    currentTime.getDate(),
+    +DateFormat(currentTime),
     currentTime.getHours(),
   );
 
@@ -224,6 +226,7 @@ function Home() {
                 detailData={data.details}
                 bottomSheetStatus={bottomSheetStatus}
                 setBottomSheetStatus={setBottomSheetStatus}
+                selectedMarker={selectedMarker}
                 setSelectedMarker={setSelectedMarker}
               />
             </FetchBoundary>
