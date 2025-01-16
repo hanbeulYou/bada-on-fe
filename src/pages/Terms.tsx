@@ -44,7 +44,7 @@ const PageContainer = styled.section<{ safeAreaState: SafeAreaState }>`
 const TermsContainer = styled.div<{ safeAreaState: SafeAreaState }>`
   width: 100%;
   margin-top: calc(${({ safeAreaState }) => safeAreaState.top}px + 54px);
-  padding: ${({ safeAreaState }) => `58px 24px ${safeAreaState.bottom}px 24px`};
+  padding: ${({ safeAreaState }) => `28px 24px ${safeAreaState.bottom}px 20px`};
   margin-bottom: ${({ safeAreaState }) => safeAreaState.bottom + 20}px;
 
   overflow-y: auto;
@@ -56,11 +56,11 @@ const HeaderContainer = styled.header<{ safeAreaState: SafeAreaState }>`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  height: 84px;
-  padding: 0px 32px;
+  height: 54px;
+  padding: 16px 20px 14px 20px;
   background-color: ${({ theme }) => theme.colors.white};
   margin-top: ${({ safeAreaState }) => safeAreaState.top}px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray50};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.gray50};
   justify-content: space-between;
 `;
 
