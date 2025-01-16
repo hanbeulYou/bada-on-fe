@@ -26,6 +26,8 @@
     "react-inlinesvg": "^4.1.4",
     "react-kakao-maps-sdk": "^1.1.27",
     "react-router-dom": "^6.27.0",
+    "recoil": "^0.7.7",
+    "recoil-persist": "^5.1.0",
     "styled-components": "^6.1.13",
     "styled-reset": "^4.5.2"
   },
