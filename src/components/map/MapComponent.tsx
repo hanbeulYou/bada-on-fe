@@ -1,5 +1,6 @@
 import { useEffect, useContext, useState, useRef } from 'react';
 import { CustomOverlayMap, Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
@@ -8,6 +9,7 @@ import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
+import { starListState } from '../../recoil/starListAtom';
 import { MapButton } from '../common/MapButton';
 
 import Pin from './Pin';
@@ -96,6 +98,7 @@ const MapComponent = (props: JejuMapProps) => {
   const [fixedLocation, setFixedLocation] = useState(false);
   const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
   const { state: safeArea } = useContext(SafeAreaContext);
+  const starList = useRecoilValue(starListState);
 
   const previousAddressRef = useRef(state.currentAddress);
   const { sendToRN } = useReactNativeBridge();
@@ -176,7 +179,7 @@ const MapComponent = (props: JejuMapProps) => {
               }}
             >
               <Pin
-                icon="beach"
+                icon={starList.includes(item.id.toString()) ? 'star' : 'beach'}
                 hasLabel={false}
                 onClick={() => handleClickMarker(item)}
                 hasAlert={false}
@@ -185,36 +188,20 @@ const MapComponent = (props: JejuMapProps) => {
           ))}
 
         {!isObjectEmpty(state.currentAddress) && (
-          <>
-            {/* <MapMarker
-              position={{
-                lat: Number(state.currentAddress.y),
-                lng: Number(state.currentAddress.x),
-              }}
-              image={{
-                src: '/pin/search.png',
-                size: {
-                  width: 36,
-                  height: 37,
-                },
-              }}
-            ></MapMarker> */}
-
-            <CustomOverlayMap
-              position={{
-                lat: Number(state.currentAddress.y),
-                lng: Number(state.currentAddress.x),
-              }}
-            >
-              <div style={{ marginTop: '-20px' }}>
-                <Pin
-                  icon="search"
-                  hasLabel={true}
-                  label={state.currentAddress.place_name}
-                />
-              </div>
-            </CustomOverlayMap>
-          </>
+          <CustomOverlayMap
+            position={{
+              lat: Number(state.currentAddress.y),
+              lng: Number(state.currentAddress.x),
+            }}
+          >
+            <div style={{ marginTop: '-20px' }}>
+              <Pin
+                icon="search"
+                hasLabel={true}
+                label={state.currentAddress.place_name}
+              />
+            </div>
+          </CustomOverlayMap>
         )}
 
         {!isObjectEmpty(state.location) && (

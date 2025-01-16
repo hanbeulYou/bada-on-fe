@@ -23,7 +23,7 @@ const Pin = ({
         <Icon name={icon} width={48} height={48} />
       ) : (
         <IconContainer icon={icon} hasAlert={hasAlert}>
-          <Icon name={icon} width={28} height={28} />
+          <Icon name={icon} width={28} height={28} fill={'white'} />
         </IconContainer>
       )}
       {hasAlert && (

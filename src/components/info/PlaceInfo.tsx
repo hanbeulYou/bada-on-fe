@@ -1,9 +1,12 @@
 import React, { useContext } from 'react';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { Details, Summary } from '../../apis/weather/useWeatherQuery';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { FilterTime, Marker } from '../../pages/Home';
+import { starListState } from '../../recoil/starListAtom';
+import theme from '../../styles/theme';
 import {
   HourFormatWithAmPmWithoutZero,
   TimeFormatWithDate,
@@ -28,6 +31,7 @@ interface BottomSheetProps {
   filterTime: FilterTime;
   summaryData: Summary;
   detailData: Details;
+  selectedMarker: Marker | null;
   setSelectedMarker: React.Dispatch<React.SetStateAction<Marker | null>>;
   address: string;
 }
@@ -40,9 +44,22 @@ function PlaceInfo({
   address,
   bottomSheetStatus,
   setBottomSheetStatus,
+  selectedMarker,
   setSelectedMarker,
 }: BottomSheetProps) {
   const { state: safeAreaState } = useContext(SafeAreaContext);
+  const [starList, setStarList] = useRecoilState(starListState);
+
+  const onStarClick = (id: number) => {
+    const idString = id.toString();
+    if (starList.includes(idString)) {
+      setStarList(prev => prev.filter(item => item !== idString));
+    } else {
+      setStarList(prev => [...prev, idString]);
+    }
+  };
+
+  const isStarred = starList.includes(selectedMarker?.id.toString() ?? '');
 
   return (
     <BottomSheet
@@ -58,8 +75,13 @@ function PlaceInfo({
           <>
             <TitleContainer>
               <Title>{title}</Title>
-              <button>
-                <Icon name="star" width={24} height={24} />
+              <button onClick={() => onStarClick(selectedMarker?.id ?? 0)}>
+                <Icon
+                  name={isStarred ? 'star-fill' : 'star'}
+                  width={24}
+                  height={24}
+                  fill={theme.colors.gray200}
+                />
               </button>
             </TitleContainer>
             <Address>{address}</Address>
