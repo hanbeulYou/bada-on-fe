@@ -74,6 +74,9 @@ const PinAlert = styled.div`
 const PinLabel = styled.span`
   ${({ theme }) => theme.typography.Body_Bold};
   color: ${({ theme }) => theme.colors.gray900};
+
+  -webkit-text-stroke-width: 1;
+  -webkit-text-stroke-color: ${({ theme }) => theme.colors.gray50};
 `;
 
 export default Pin;
