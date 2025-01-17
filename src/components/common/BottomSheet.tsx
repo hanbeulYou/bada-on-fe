@@ -57,6 +57,7 @@ function BottomSheet({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (bottomSheetStatus === 'full') return;
     if (startY.current === null) return;
 
     if (containerRef.current && containerRef.current.scrollTop > 0) {
@@ -80,6 +81,7 @@ function BottomSheet({
   };
 
   const handleTouchEnd = () => {
+    if (bottomSheetStatus === 'full') return;
     if (!isDragging) return;
     setIsDragging(false);
 
@@ -192,7 +194,7 @@ const Container = styled.div<{
     display: none; /* Chrome, Safari, Opera */
   }
 
-  touch-action: none;
+  touch-action: ${props => (props.isFull ? 'auto' : 'none')};
 
   /* will-change 속성 추가로 애니메이션 성능 개선 */
   will-change: transform;
