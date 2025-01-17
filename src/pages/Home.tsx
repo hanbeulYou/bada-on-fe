@@ -1,59 +1,92 @@
 import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Address } from '../apis/search/useKakaoSearchQuery';
+import useAvailableTimeQuery from '../apis/weather/useAvailableTimeQuery';
 import useWeatherQuery from '../apis/weather/useWeatherQuery';
-import BottomSheet from '../components/BottomSheet';
-// import Map from '../components/common/Map';
-import MapTmp from '../components/common/MapTmp';
-import FilterList from '../components/FilterList';
+import PlaceInfo from '../components/info/PlaceInfo';
+import MapComponent from '../components/map/MapComponent';
 import Search from '../components/Search';
 import SearchBar from '../components/SearchBar';
-import { Activity } from '../consts/label';
+import TimeSelect from '../components/timeSelect/TimeSelect';
+import TimeSelectHeader from '../components/timeSelect/TimeSelectHeader';
 import { AddressContext } from '../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../context/SafeAreaContext';
-// import { DETAILS_TMP } from '../data/data';
 import IndexedDBManager from '../db/IndexedDBManager';
 import useDebounce from '../hooks/useDebounce';
 import { useReactNativeBridge } from '../hooks/useReactNativeBridge';
 import FetchBoundary from '../providers/FetchBoundary';
+import { DateFormat } from '../utils/timeFormat';
 
-// 제주 시청 위치
-// const initialLocation: LocationData = {
-//   latitude: 33.4890113,
-//   longitude: 126.4983023,
-// };
+// window 인터페이스 확장
+declare global {
+  interface Window {
+    safeAreaInsets?: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+  }
+}
 
 export type Marker = {
   id: number;
   name: string;
   latitude: number;
   longitude: number;
+  address: string;
 };
 
+export interface FilterTime {
+  date: number;
+  hour: number;
+}
+
 function Home() {
-  // const currentHour = new Date();
-  const [timeIndex, setTimeIndex] = useState<number>(0);
+  const currentTime = new Date();
+
+  const [filterTime, setFilterTime] = useState<FilterTime>({
+    date: +DateFormat(currentTime),
+    hour: currentTime.getHours(),
+  });
 
   const [isSearchPage, setIsSearchPage] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [originalSearchValue, setOriginalSearchValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [dbManager, setDbManager] = useState<IndexedDBManager | null>(null);
-  const [filter, setFilter] = useState<Activity>('snorkeling');
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
-  const { data, isLoading } = useWeatherQuery(selectedMarker?.id, filter);
   const [bottomSheetStatus, setBottomSheetStatus] = useState<
     'middle' | 'full' | 'hidden'
   >('hidden');
+  const [timeSelectStatus, setTimeSelectStatus] = useState<'middle' | 'hidden'>(
+    'hidden',
+  );
+  const [hasNoResult, setHasNoResult] = useState(false);
+
   const { sendToRN } = useReactNativeBridge();
 
   const { state, dispatch } = useContext(AddressContext);
   const { state: safeAreaState, dispatch: safeAreaDispatch } =
     useContext(SafeAreaContext);
 
+  const navigate = useNavigate();
+
+  const { data } = useWeatherQuery(
+    selectedMarker?.id,
+    filterTime.date,
+    filterTime.hour,
+  );
+
+  const { data: availableTimeData } = useAvailableTimeQuery(
+    +DateFormat(currentTime),
+    currentTime.getHours(),
+  );
+
   useEffect(() => {
-    const safeAreaInsets = (window as any).safeAreaInsets;
+    const safeAreaInsets = window.safeAreaInsets;
     if (safeAreaInsets) {
       safeAreaDispatch({
         type: 'SET_SAFE_AREA',
@@ -81,7 +114,7 @@ function Home() {
     await manager.init();
     setDbManager(manager);
     const histories = (await manager.getAll()) || [];
-    dispatch({ type: 'SET_HISTORIES', payload: histories });
+    dispatch({ type: 'SET_HISTORIES', payload: histories as Address[] });
   };
 
   const setSearchValueDebounce = useDebounce(() => {
@@ -92,6 +125,11 @@ function Home() {
   const closeSearchPage = () => {
     setSearchValue(originalSearchValue);
     setIsSearchPage(false);
+  };
+
+  const handleSearchCloseClick = () => {
+    dispatch({ type: 'SET_CURRENT_ADDRESS', payload: {} as Address });
+    setSearchValue('');
   };
 
   const deleteHistory = (id: number) => {
@@ -105,14 +143,6 @@ function Home() {
     setOriginalSearchValue(searchValue);
     setIsSearchPage(true);
     setIsSearching(false);
-  };
-
-  const handleFilterChange = (selected: Activity) => {
-    sendToRN({ type: 'POST_ACTIVITY', activity: selected });
-    setFilter(selected);
-    setBottomSheetStatus('hidden');
-    setSelectedMarker(null);
-    setTimeIndex(0);
   };
 
   const updateCurrentAddress = (address: Address) => {
@@ -136,22 +166,37 @@ function Home() {
 
   const handleClickMarker = (marker: Marker) => {
     setSelectedMarker(marker);
-    setTimeIndex(0);
     setBottomSheetStatus('middle');
+  };
+
+  const handleSearchResult = (hasResult: boolean) => {
+    setHasNoResult(!hasResult);
   };
 
   return (
     <Container>
       <Header safeArea={safeAreaState}>
-        {bottomSheetStatus !== 'full' && (
-          <SearchBar
-            isSearchPage={isSearchPage}
-            onClick={openSearchPage}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            onClickBtnBackward={closeSearchPage}
-          />
-        )}
+        {bottomSheetStatus !== 'full' &&
+          (isSearchPage ? (
+            <SearchBar
+              isSearchPage={isSearchPage}
+              onClick={openSearchPage}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onClickBtnBackward={closeSearchPage}
+              hasNoResult={hasNoResult}
+            />
+          ) : (
+            <TimeSelectHeader
+              date={filterTime.date.toString().slice(-2)}
+              time={filterTime.hour.toString()}
+              onTimeClick={() => setTimeSelectStatus('middle')}
+              onMenuClick={() => navigate('/policy')}
+              hasSearchValue={searchValue.trim().length > 0}
+              onSearchOpenClick={openSearchPage}
+              onSearchCloseClick={handleSearchCloseClick}
+            />
+          ))}
       </Header>
       <>
         {isSearchPage && (
@@ -160,15 +205,12 @@ function Home() {
               isSearching={isSearching}
               onClick={updateCurrentAddress}
               onDeleteHistory={deleteHistory}
+              onSearchResult={handleSearchResult}
             />
           </FetchBoundary>
         )}
-        {bottomSheetStatus !== 'full' && (
-          <FilterList onFilterChange={handleFilterChange} />
-        )}
         <FetchBoundary>
-          <MapTmp
-            filter={filter}
+          <MapComponent
             onClickMarker={handleClickMarker}
             selectedMarker={selectedMarker}
             setBottomSheetStatus={setBottomSheetStatus}
@@ -179,28 +221,28 @@ function Home() {
           selectedMarker &&
           data && (
             <FetchBoundary>
-              <BottomSheet
+              <PlaceInfo
                 title={selectedMarker.name}
-                alert={
-                  selectedMarker.name === '김녕 세기알 해변' ||
-                  selectedMarker.name === '용담포구'
-                    ? '다이빙 금지구역'
-                    : ''
-                }
-                dangerValue={data.summary[timeIndex].score}
-                recommends={data.summary[timeIndex].message}
-                activity={filter}
-                // currentHour={currentHour}
-                timeIndex={timeIndex}
-                setTimeIndex={setTimeIndex}
+                address={selectedMarker.address}
+                filterTime={filterTime}
+                summaryData={data.summary}
+                detailData={data.details}
                 bottomSheetStatus={bottomSheetStatus}
                 setBottomSheetStatus={setBottomSheetStatus}
-                detailData={data.details[timeIndex]}
-                detailDataLength={data.details.length}
+                selectedMarker={selectedMarker}
                 setSelectedMarker={setSelectedMarker}
               />
             </FetchBoundary>
           )}
+        {timeSelectStatus === 'middle' && availableTimeData && (
+          <TimeSelect
+            handleClose={() => setTimeSelectStatus('hidden')}
+            setBottomSheetStatus={setBottomSheetStatus}
+            filterTime={filterTime}
+            setFilterTime={setFilterTime}
+            availableTimeData={availableTimeData}
+          />
+        )}
       </>
     </Container>
   );
@@ -215,7 +257,12 @@ const Header = styled.header<{ safeArea: SafeAreaState }>`
   align-items: center;
   position: absolute;
   top: ${({ safeArea }) => safeArea.top}px;
-  z-index: 12;
+  z-index: 10;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 `;
 
 export default Home;

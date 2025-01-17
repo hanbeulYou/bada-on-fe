@@ -1,20 +1,20 @@
 import { useEffect, useContext, useState, useRef } from 'react';
-import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
-import { useNavigate } from 'react-router-dom';
+import { CustomOverlayMap, Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
-import { Activity } from '../../consts/label';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
 import useToast from '../../hooks/useToast';
 import { Marker } from '../../pages/Home';
+import { starListState } from '../../recoil/starListAtom';
+import { MapButton } from '../common/MapButton';
 
-import Icon from './Icon';
+import Pin from './Pin';
 
 interface JejuMapProps {
-  filter?: Activity;
   selectedMarker?: Marker | null;
   onClickMarker?: (place: Marker) => void;
   setBottomSheetStatus: React.Dispatch<
@@ -91,19 +91,14 @@ const MapEventController = ({
   return null;
 };
 
-const MapTmp = (props: JejuMapProps) => {
-  const {
-    filter = 'snorkeling',
-    onClickMarker = () => {},
-    selectedMarker,
-    setBottomSheetStatus,
-  } = props;
+const MapComponent = (props: JejuMapProps) => {
+  const { onClickMarker = () => {}, setBottomSheetStatus } = props;
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
-  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery(filter);
+  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
   const { state: safeArea } = useContext(SafeAreaContext);
-  const navigate = useNavigate();
+  const starList = useRecoilValue(starListState);
 
   const previousAddressRef = useRef(state.currentAddress);
   const { sendToRN } = useReactNativeBridge();
@@ -176,46 +171,37 @@ const MapTmp = (props: JejuMapProps) => {
         {/* 기존 마커 렌더링 로직 유지 */}
         {!mapsIsLoading &&
           mapsData?.map((item: MapData, index: number) => (
-            <MapMarker
+            <CustomOverlayMap
               key={`${item.latitude}-${item.longitude}-${index}`}
               position={{
                 lat: Number(item.latitude),
                 lng: Number(item.longitude),
               }}
-              image={{
-                src:
-                  selectedMarker && selectedMarker?.id === item.id
-                    ? `/pin/${filter}-active.png`
-                    : `/pin/${filter}.png`,
-                size: {
-                  width: 36,
-                  height: 37,
-                },
-                options: {
-                  offset: {
-                    x: 18,
-                    y: 37,
-                  },
-                },
-              }}
-              onClick={() => handleClickMarker(item)}
-            />
+            >
+              <Pin
+                icon={starList.includes(item.id.toString()) ? 'star' : 'beach'}
+                hasLabel={false}
+                onClick={() => handleClickMarker(item)}
+                hasAlert={false}
+              />
+            </CustomOverlayMap>
           ))}
 
         {!isObjectEmpty(state.currentAddress) && (
-          <MapMarker
+          <CustomOverlayMap
             position={{
               lat: Number(state.currentAddress.y),
               lng: Number(state.currentAddress.x),
             }}
-            image={{
-              src: '/pin/search.png',
-              size: {
-                width: 36,
-                height: 37,
-              },
-            }}
-          />
+          >
+            <div style={{ marginTop: '-20px' }}>
+              <Pin
+                icon="search"
+                hasLabel={true}
+                label={state.currentAddress.place_name}
+              />
+            </div>
+          </CustomOverlayMap>
         )}
 
         {!isObjectEmpty(state.location) && (
@@ -271,16 +257,11 @@ const MapTmp = (props: JejuMapProps) => {
         >
           <EventsAndMarkers />
         </Map>
-        <LocationButton safeArea={safeArea} onClick={handleLocationButtonClick}>
-          {fixedLocation ? (
-            <Icon name="location" />
-          ) : (
-            <Icon name="location-grey" />
-          )}
-        </LocationButton>
-        <TermsButton safeArea={safeArea} onClick={() => navigate('/terms')}>
-          <Icon name="terms" />
-        </TermsButton>
+        <LocationButton
+          safeArea={safeArea}
+          onClick={handleLocationButtonClick}
+          iconName={fixedLocation ? 'location' : 'location-grey'}
+        />
       </Container>
       {renderToasts()}
     </>
@@ -291,7 +272,7 @@ const isObjectEmpty = (obj: object) => {
   return Object.keys(obj).length === 0;
 };
 
-export default MapTmp;
+export default MapComponent;
 
 const Container = styled.div`
   position: absolute;
@@ -300,31 +281,7 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const MapButton = styled.button`
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.white};
-  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-
-  &:active {
-    background-color: ${({ theme }) => theme.colors.gray50};
-  }
-`;
-
 const LocationButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
   bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
   right: 20px;
-`;
-
-const TermsButton = styled(MapButton)<{ safeArea: SafeAreaState }>`
-  bottom: ${({ safeArea }) => safeArea.bottom + 20}px;
-  left: 20px;
 `;
