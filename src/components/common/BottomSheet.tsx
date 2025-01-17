@@ -45,7 +45,6 @@ function BottomSheet({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const lastScrollTop = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -57,6 +56,7 @@ function BottomSheet({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (bottomSheetStatus === 'full') return;
     if (startY.current === null) return;
 
     if (containerRef.current && containerRef.current.scrollTop > 0) {
@@ -64,11 +64,7 @@ function BottomSheet({
     }
 
     const currentY = e.touches[0].clientY;
-    if (!isDragging && currentY < startY.current) {
-      return;
-    }
 
-    setIsDragging(true);
     const deltaY = startY.current - currentY;
     let newPosition = position - deltaY;
 
@@ -80,8 +76,7 @@ function BottomSheet({
   };
 
   const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
+    if (bottomSheetStatus === 'full') return;
 
     const distanceToFull = Math.abs(position - POSITIONS.FULL);
     const distanceToMiddle = Math.abs(position - POSITIONS.MIDDLE);
@@ -192,7 +187,7 @@ const Container = styled.div<{
     display: none; /* Chrome, Safari, Opera */
   }
 
-  touch-action: none;
+  touch-action: ${props => (props.isFull ? 'auto' : 'none')};
 
   /* will-change 속성 추가로 애니메이션 성능 개선 */
   will-change: transform;

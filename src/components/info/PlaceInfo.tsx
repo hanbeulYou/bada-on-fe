@@ -169,13 +169,22 @@ function PlaceInfo({
                   data={[
                     {
                       label: `다음 ${detailData.tideInfoList[0].code}`,
-                      value: `${HourFormatWithAmPmWithoutZero(
+                      value: `${detailData.tideInfoList[0].tidalTime.slice(
+                        8,
+                        10,
+                      )}일 ${HourFormatWithAmPmWithoutZero(
                         detailData.tideInfoList[0].tidalTime.slice(11, 13),
-                      )}시 ${detailData.tideInfoList[0].tidalTime.slice(14, 16)}분`,
+                      )}시 ${detailData.tideInfoList[0].tidalTime.slice(
+                        14,
+                        16,
+                      )}분`,
                     },
                     {
                       label: `다음 ${detailData.tideInfoList[1].code}`,
-                      value: `${HourFormatWithAmPmWithoutZero(
+                      value: `${detailData.tideInfoList[1].tidalTime.slice(
+                        8,
+                        10,
+                      )}일 ${HourFormatWithAmPmWithoutZero(
                         detailData.tideInfoList[1].tidalTime.slice(11, 13),
                       )}시 ${detailData.tideInfoList[1].tidalTime.slice(
                         14,

@@ -54,13 +54,7 @@ interface WeatherInfo {
   summary: Summary;
 }
 
-const WeatherKeyHasNumber = [
-  'temperature',
-  'wind',
-  'waveHeight',
-  'tideInfo',
-  'precipitation',
-];
+const WeatherKeyHasNumber = ['wind', 'waveHeight', 'tideInfo', 'precipitation'];
 
 const getMapDetail = async (
   id: number,
