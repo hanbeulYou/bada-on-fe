@@ -219,7 +219,8 @@ function Home() {
         {bottomSheetStatus !== 'hidden' &&
           !isSearchPage &&
           selectedMarker &&
-          data && (
+          data &&
+          timeSelectStatus === 'hidden' && (
             <FetchBoundary>
               <PlaceInfo
                 title={selectedMarker.name}
@@ -234,15 +235,17 @@ function Home() {
               />
             </FetchBoundary>
           )}
-        {timeSelectStatus === 'middle' && availableTimeData && (
-          <TimeSelect
-            handleClose={() => setTimeSelectStatus('hidden')}
-            setBottomSheetStatus={setBottomSheetStatus}
-            filterTime={filterTime}
-            setFilterTime={setFilterTime}
-            availableTimeData={availableTimeData}
-          />
-        )}
+        {timeSelectStatus === 'middle' &&
+          availableTimeData &&
+          !selectedMarker && (
+            <TimeSelect
+              handleClose={() => setTimeSelectStatus('hidden')}
+              setBottomSheetStatus={setBottomSheetStatus}
+              filterTime={filterTime}
+              setFilterTime={setFilterTime}
+              availableTimeData={availableTimeData}
+            />
+          )}
       </>
     </Container>
   );

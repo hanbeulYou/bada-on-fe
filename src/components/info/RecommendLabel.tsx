@@ -11,17 +11,22 @@ interface RecommendLabelProps {
 const RecommendLabel = ({ recommendActivity }: RecommendLabelProps) => {
   return (
     <RecommendLabelContainer>
-      {recommendActivity.map(activity => (
-        <RecommendLabelWrapper key={activity}>
-          <Icon
-            name={activity}
-            width={14}
-            height={14}
-            fill={theme.colors.diving}
-          />
-          <RecommendText>{LABEL_MAPPING_REVERSE[activity]} 추천</RecommendText>
-        </RecommendLabelWrapper>
-      ))}
+      {recommendActivity.map(
+        (activity, index) =>
+          index < 2 && (
+            <RecommendLabelWrapper key={activity}>
+              <Icon
+                name={activity}
+                width={14}
+                height={14}
+                fill={theme.colors.diving}
+              />
+              <RecommendText>
+                {LABEL_MAPPING_REVERSE[activity]} 추천
+              </RecommendText>
+            </RecommendLabelWrapper>
+          ),
+      )}
     </RecommendLabelContainer>
   );
 };

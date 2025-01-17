@@ -1,7 +1,5 @@
-import { useContext } from 'react';
 import { styled } from 'styled-components';
 
-import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { MapButton } from '../common/MapButton';
 
 import TimeHeaderButton from './TimeHeaderButton';
@@ -25,9 +23,8 @@ const TimeSelectHeader = ({
   onSearchOpenClick,
   onSearchCloseClick,
 }: TimeSelectHeaderProps) => {
-  const { state: safeAreaState } = useContext(SafeAreaContext);
   return (
-    <HeaderContainer safeArea={safeAreaState}>
+    <HeaderContainer>
       <MapButton
         iconName="menu"
         style={{ position: 'relative' }}
@@ -43,13 +40,13 @@ const TimeSelectHeader = ({
   );
 };
 
-const HeaderContainer = styled.div<{ safeArea: SafeAreaState }>`
+const HeaderContainer = styled.div`
   display: flex;
   width: 100%;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ safeArea }) => safeArea.top + 8}px 20px 0px 20px;
+  padding: 8px 20px;
   background-color: transparent;
 `;
 
