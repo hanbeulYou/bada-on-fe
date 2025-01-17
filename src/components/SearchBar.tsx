@@ -100,7 +100,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onChange={handleInputChange}
         placeholder="장소를 입력해주세요"
         style={{ paddingLeft: isSearchPage ? '42px' : '12px' }}
-        isError={isError}
+        isError={isError || false}
       />
 
       <Wrapper direction="right" value="16px">
