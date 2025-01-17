@@ -128,7 +128,7 @@ function PlaceInfo({
           <DetailInfoContainer safeArea={safeAreaState}>
             <InfoSection>
               <DetailTitle>액티비티</DetailTitle>
-              <ActivityDataRow />
+              <ActivityDataRow activityData={detailData.score} />
             </InfoSection>
             <HorizontalLineSm />
             {detailData.warning.length > 0 && (

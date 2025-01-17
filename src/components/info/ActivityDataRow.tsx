@@ -1,16 +1,25 @@
 import { styled } from 'styled-components';
 
+import { Activity } from '../../consts/label';
+
 import ActivityData from './ActivityData';
 
-const ActivityDataRow = () => {
+interface ActivityScore {
+  activity: Activity;
+  score: number;
+}
+
+interface ActivityDataRowProps {
+  activityData: ActivityScore[];
+}
+
+const ActivityDataRow = ({ activityData }: ActivityDataRowProps) => {
   return (
     <ActivityDataWindow>
       <ActivityDataRowContainer>
-        <ActivityData activity="diving" recommend={90} />
-        <ActivityData activity="swimming" recommend={50} />
-        <ActivityData activity="paddleBoarding" recommend={5} />
-        <ActivityData activity="surfing" recommend={90} />
-        <ActivityData activity="snorkeling" recommend={90} />
+        {activityData.map(({ activity, score }) => (
+          <ActivityData activity={activity} recommend={score} />
+        ))}
       </ActivityDataRowContainer>
     </ActivityDataWindow>
   );
