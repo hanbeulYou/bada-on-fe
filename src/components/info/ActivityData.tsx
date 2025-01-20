@@ -18,7 +18,7 @@ const recommendLabel = (recommend: number) => {
 const RecommendColor = {
   추천: theme.colors.diving,
   보통: theme.colors.swimming,
-  주의: theme.colors.kayakingPaddleBoarding,
+  주의: theme.colors.paddling,
 };
 
 const ActivityData = ({ activity, recommend }: ActivityDataProps) => {
