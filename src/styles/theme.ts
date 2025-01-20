@@ -36,7 +36,7 @@ const theme = {
     diving: '#00AE85',
     swimming: '#FF7B00',
     surfing: '#1CCAE1',
-    kayakingPaddleBoarding: '#EB0679',
+    paddling: '#EB0679',
     white: '#FFFFFF',
     star: '#FFBD19',
   },
