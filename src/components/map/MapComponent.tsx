@@ -4,6 +4,7 @@ import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import useMapsQuery, { MapData } from '../../apis/maps/useMapQuery';
+import useWarningPlaceQuery from '../../apis/weather/useWarningPlaceQuery';
 import { AddressContext } from '../../context/AddressContext';
 import { SafeAreaContext, SafeAreaState } from '../../context/SafeAreaContext';
 import { useReactNativeBridge } from '../../hooks/useReactNativeBridge';
@@ -96,11 +97,15 @@ const MapComponent = (props: JejuMapProps) => {
   const { state } = useContext(AddressContext);
   const { showToast, renderToasts } = useToast();
   const [fixedLocation, setFixedLocation] = useState(false);
-  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
-  const { state: safeArea } = useContext(SafeAreaContext);
+
   const starList = useRecoilValue(starListState);
+  const { state: safeArea } = useContext(SafeAreaContext);
 
   const previousAddressRef = useRef(state.currentAddress);
+
+  const { data: mapsData, isLoading: mapsIsLoading } = useMapsQuery();
+  const { data: warningPlaceData } = useWarningPlaceQuery();
+
   const { sendToRN } = useReactNativeBridge();
 
   // EventsAndMarkers 컴포넌트
@@ -182,7 +187,7 @@ const MapComponent = (props: JejuMapProps) => {
                 icon={starList.includes(item.id.toString()) ? 'star' : 'beach'}
                 hasLabel={false}
                 onClick={() => handleClickMarker(item)}
-                hasAlert={false}
+                hasAlert={warningPlaceData?.some(place => place.id === item.id)}
               />
             </CustomOverlayMap>
           ))}

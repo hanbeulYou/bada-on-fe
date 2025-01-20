@@ -10,7 +10,7 @@ export type Activity =
   | 'snorkeling'
   | 'diving'
   | 'swimming'
-  | 'paddleBoarding'
+  | 'paddling'
   | 'surfing'
   | 'scuba';
 
@@ -29,7 +29,7 @@ export const LABEL_MAPPING: Record<Label, Activity> = {
   스노클링: 'snorkeling',
   다이빙: 'diving',
   해수욕: 'swimming',
-  패들보드: 'paddleBoarding',
+  패들보드: 'paddling',
   서핑: 'surfing',
   스쿠버다이빙: 'scuba',
 };
@@ -38,7 +38,7 @@ export const LABEL_MAPPING_REVERSE: Record<Activity, Label> = {
   snorkeling: '스노클링',
   diving: '다이빙',
   swimming: '해수욕',
-  paddleBoarding: '패들보드',
+  paddling: '패들보드',
   surfing: '서핑',
   scuba: '스쿠버다이빙',
 };

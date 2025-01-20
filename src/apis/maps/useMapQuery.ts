@@ -11,7 +11,7 @@ export interface MapData {
   latitude: number;
   longitude: number;
   address: string;
-  activity: Activity;
+  activities: Activity[];
 }
 
 interface GetMapsDataResponse {
